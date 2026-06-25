@@ -1,0 +1,151 @@
+"use client";
+
+import React, { useState, useEffect } from "react";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { FolderKey, LogOut, Notebook, ChevronDown, ChevronRight, Coins } from "lucide-react";
+import { useVault, INSTRUMENT_TYPES } from "./VaultContext";
+
+export default function Sidebar() {
+  const pathname = usePathname();
+  const router = useRouter();
+  const {
+    session, isDemo, vaultIndex, getCategoryCount, handleLogout,
+    instrumentsOpen, setInstrumentsOpen, openCategories, setOpenCategories
+  } = useVault();
+
+  // If a category has files, we can automatically expand it if we are currently visiting its route
+  useEffect(() => {
+    INSTRUMENT_TYPES.forEach(type => {
+      if (pathname.includes(`/vault/${type.id}`)) {
+        setOpenCategories(prev => ({ ...prev, [type.id]: true }));
+      }
+    });
+  }, [pathname]);
+
+  const toggleCategoryExpand = (catId: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setOpenCategories(prev => ({ ...prev, [catId]: !prev[catId] }));
+  };
+
+  return (
+    <aside className="sidebar-container">
+      {/* Logo */}
+      <div className="profile-section" style={{ borderBottom: "1px solid var(--card-border)", padding: "16px" }}>
+        <div className="flex-center" style={{ gap: "8px" }}>
+          <div className="flex-center" style={{ width: "32px", height: "32px", borderRadius: "8px", background: "linear-gradient(135deg, var(--primary), var(--secondary))" }}>
+            <FolderKey style={{ width: "16px", height: "16px", color: "#fff" }} />
+          </div>
+          <span className="brand-title" style={{ fontSize: "16px", color: "var(--primary)" }}>digi <strong style={{ color: "#fff" }}>STRONG</strong></span>
+        </div>
+      </div>
+
+      {/* Profile */}
+      <div className="profile-section">
+        <div>
+          <span className="profile-name">
+            {session?.user?.name || "Harshal Patil"}
+          </span>
+          <span style={{ fontSize: "11px", display: "block", color: "var(--muted)" }}>Owner</span>
+        </div>
+      </div>
+
+      {/* Navigation Menu */}
+      <div className="sidebar-menu">
+        <Link 
+          href={isDemo ? "/vault?demo=true" : "/vault"}
+          className={`menu-item ${pathname === "/vault" ? "active" : ""}`}
+          style={{ textDecoration: "none" }}
+        >
+          <span className="menu-icon-text">
+            <Notebook size={18} />
+            <span>Dashboard</span>
+          </span>
+        </Link>
+
+
+        <button 
+          onClick={() => setInstrumentsOpen(!instrumentsOpen)}
+          className={`menu-item ${pathname.includes("/vault/") ? "active" : ""}`}
+          style={{ cursor: "pointer" }}
+        >
+          <span className="menu-icon-text">
+            <Coins size={18} />
+            <span>Instruments</span>
+          </span>
+          <ChevronDown size={14} style={{ transform: instrumentsOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s" }} />
+        </button>
+
+        {/* Submenu Dropdown Items */}
+        {instrumentsOpen && (
+          <div className="submenu-container">
+            {INSTRUMENT_TYPES.map((type) => {
+              const count = getCategoryCount(type.id);
+              const isCatActive = pathname === `/vault/${type.id}`;
+              const isExpanded = !!openCategories[type.id];
+              const categoryFiles = vaultIndex.files.filter(f => f.category === type.id);
+
+              return (
+                <div key={type.id} style={{ display: "flex", flexDirection: "column" }}>
+                  <div 
+                    className={`submenu-item ${isCatActive ? "active" : ""}`}
+                    style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingRight: "4px" }}
+                  >
+                    <Link
+                      href={isDemo ? `/vault/${type.id}?demo=true` : `/vault/${type.id}`}
+                      style={{ textDecoration: "none", color: "inherit", flex: 1, display: "flex", alignItems: "center", gap: "8px" }}
+                    >
+                      <span className="submenu-dot">→</span>
+                      <span style={{ textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap", maxWidth: "160px" }}>{type.label}</span>
+                      {count > 0 && (
+                        <span style={{ fontSize: "11px", backgroundColor: "rgba(99,102,241,0.15)", color: "#818cf8", padding: "1px 6px", borderRadius: "10px", fontWeight: "bold" }}>
+                          {count}
+                        </span>
+                      )}
+                    </Link>
+
+                    {categoryFiles.length > 0 && (
+                      <button
+                        onClick={(e) => toggleCategoryExpand(type.id, e)}
+                        style={{ background: "none", border: "none", color: "var(--muted)", cursor: "pointer", padding: "4px 8px", display: "flex", alignItems: "center" }}
+                      >
+                        {isExpanded ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Sidebar Drilldown Child Files */}
+                  {isExpanded && categoryFiles.length > 0 && (
+                    <div className="nested-records-container">
+                      {categoryFiles.map((file) => (
+                        <Link
+                          key={file.id}
+                          href={isDemo ? `/vault/${type.id}?id=${file.id}&demo=true` : `/vault/${type.id}?id=${file.id}`}
+                          className="nested-record-item"
+                          style={{ textDecoration: "none" }}
+                        >
+                          • {file.name}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* Logout/Lock */}
+      <div style={{ marginTop: "auto", padding: "16px", borderTop: "1px solid var(--card-border)" }}>
+        <button onClick={handleLogout} className="menu-item" style={{ color: "var(--danger)" }}>
+          <span className="menu-icon-text">
+            <LogOut size={18} />
+            <span>Lock Vault</span>
+          </span>
+        </button>
+      </div>
+    </aside>
+  );
+}

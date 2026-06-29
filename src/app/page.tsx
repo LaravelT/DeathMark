@@ -34,9 +34,6 @@ export default function Home() {
             <Link href="/auth/signin" className="btn-signin-ghost">
               Sign In
             </Link>
-            <div className="nav-avatar">
-              <span>N</span>
-            </div>
           </div>
         </div>
       </header>

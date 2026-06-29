@@ -68,7 +68,10 @@ export const INSTRUMENT_TYPES: InstrumentTypeInfo[] = [
   { id: "important_documents", label: "Location of Important Documents and Records", columns: ["Sr No", "Asset Title", "Nominee", "Value", "Actions"] },
   { id: "website_credentials", label: "Important Website/App links & credentials", columns: ["Sr No", "Asset Title", "Nominee", "Value", "Actions"] },
   { id: "will_document", label: "Will Document", columns: ["Sr No", "Asset Title", "Nominee", "Value", "Actions"] },
-  { id: "trust_document", label: "Trust Document", columns: ["Sr No", "Asset Title", "Nominee", "Value", "Actions"] }
+  { id: "trust_document", label: "Trust Document", columns: ["Sr No", "Asset Title", "Nominee", "Value", "Actions"] },
+  { id: "business_interests", label: "Business Interests", columns: ["Sr No", "Business Name", "Ownership Type", "Your Role", "Partner/Director Contact", "Actions"] },
+  { id: "recurring_income", label: "Recurring Income Sources", columns: ["Sr No", "Income Source", "Organization/Person", "Frequency", "Receiving Bank Account", "Actions"] },
+  { id: "recurring_payments", label: "Recurring Payments / Auto Debit", columns: ["Sr No", "Payment Name", "Payment Type", "Debit Bank Account", "Frequency", "Auto Debit Enabled", "Actions"] }
 ];
 
 interface VaultContextType {

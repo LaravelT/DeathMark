@@ -70,6 +70,22 @@ export default function CategoryTable({ categoryId, entries, onView, onDelete }:
     if (col === "Fund Name") return details.fundName || "N/A";
     if (col === "Investment Code") return details.investmentCode || "N/A";
 
+    // New categories columns
+    if (col === "Business Name") return details.businessName || entry.name;
+    if (col === "Ownership Type") return details.ownershipType || "N/A";
+    if (col === "Your Role") return details.yourRole || "N/A";
+    if (col === "Partner/Director Contact") return details.partnerDirectorContact || "N/A";
+    
+    if (col === "Income Source") return details.incomeSource || entry.name;
+    if (col === "Organization/Person") return details.organizationPerson || "N/A";
+    if (col === "Frequency") return details.frequency || "N/A";
+    if (col === "Receiving Bank Account") return details.receivingBankAccount || "N/A";
+    
+    if (col === "Payment Name") return details.paymentName || entry.name;
+    if (col === "Payment Type") return details.paymentType || "N/A";
+    if (col === "Debit Bank Account") return details.debitBankAccount || "N/A";
+    if (col === "Auto Debit Enabled") return details.autoDebitEnabled || "N/A";
+
     return "N/A";
   };
 

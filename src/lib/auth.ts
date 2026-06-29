@@ -1,5 +1,6 @@
 import NextAuth, { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
+import clientPromise from "./db";
 
 // These are the specific scopes we need to access the appData folder on Drive
 const GOOGLE_SCOPES = [
@@ -25,6 +26,29 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
+    async signIn({ user }) {
+      if (user.email) {
+        try {
+          const client = await clientPromise;
+          const db = client.db("deathmark");
+          const usersCollection = db.collection("users");
+
+          await usersCollection.updateOne(
+            { email: user.email },
+            {
+              $set: {
+                email: user.email,
+                lastLogin: new Date(),
+              },
+            },
+            { upsert: true }
+          );
+        } catch (error) {
+          console.error("Error saving user login info to MongoDB:", error);
+        }
+      }
+      return true;
+    },
     async jwt({ token, account }) {
       // Persist the OAuth access_token and refresh_token to the token right after signin
       if (account) {

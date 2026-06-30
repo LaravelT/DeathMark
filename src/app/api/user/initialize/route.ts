@@ -13,7 +13,7 @@ export async function POST() {
     }
 
     const client = await clientPromise;
-    const db = client.db("deathmark");
+    const db = client.db("lifevault");
     const usersCollection = db.collection("users");
 
     console.log("[Initialize API] Updating user in MongoDB:", session.user.email);

@@ -18,7 +18,7 @@ export default function Home() {
               <KeyRound className="w-5 h-5 text-white" />
             </div>
             <span className="brand-title">
-              DeathMark
+              LifeVault
             </span>
           </div>
 
@@ -298,7 +298,7 @@ export default function Home() {
       {/* Footer */}
       <footer className="container-app">
         <div className="footer-sec" style={{ borderColor: "rgba(255, 255, 255, 0.05)" }}>
-          <p>© {new Date().getFullYear()} DeathMark Digital Vault. For testing & local preview.</p>
+          <p>© {new Date().getFullYear()} LifeVault Digital Vault. For testing & local preview.</p>
         </div>
       </footer>
     </div>

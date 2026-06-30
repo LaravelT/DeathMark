@@ -11,7 +11,7 @@ export default function SignIn() {
           <div className="logo-container flex-center">
             <LockKeyhole style={{ width: "32px", height: "32px", color: "#fff" }} />
           </div>
-          <h1 className="signin-title">DeathMark</h1>
+          <h1 className="signin-title">LifeVault</h1>
           <p className="signin-subtitle">Your Zero-Knowledge Digital Vault</p>
         </div>
         
@@ -54,7 +54,7 @@ export default function SignIn() {
           </button>
           
           <p className="signin-footer">
-            By continuing, you grant DeathMark access to a hidden folder on your Drive. We cannot access your other files.
+            By continuing, you grant LifeVault access to a hidden folder on your Drive. We cannot access your other files.
           </p>
         </div>
       </div>

@@ -30,7 +30,7 @@ export const authOptions: NextAuthOptions = {
       if (user.email) {
         try {
           const client = await clientPromise;
-          const db = client.db("lifevault");
+          const db = client.db("legacybridge");
           const usersCollection = db.collection("users");
 
           await usersCollection.updateOne(
@@ -59,7 +59,7 @@ export const authOptions: NextAuthOptions = {
       if (token.email) {
         try {
           const client = await clientPromise;
-          const db = client.db("lifevault");
+          const db = client.db("legacybridge");
           const usersCollection = db.collection("users");
           const dbUser = await usersCollection.findOne({ email: token.email });
           token.isReturningUser = dbUser ? !!dbUser.hasCreatedVault : false;

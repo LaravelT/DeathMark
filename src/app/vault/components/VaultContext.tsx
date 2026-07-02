@@ -125,6 +125,9 @@ interface VaultContextType {
   ownerDetails: OwnerDetails | null;
   setOwnerDetails: React.Dispatch<React.SetStateAction<OwnerDetails | null>>;
   fetchOwnerDetails: () => Promise<void>;
+  showPasswordWarning: boolean;
+  setShowPasswordWarning: React.Dispatch<React.SetStateAction<boolean>>;
+  handleSaveOwnerDetails: (details: OwnerDetails) => Promise<void>;
   
   // UI & Search State
   instrumentsOpen: boolean;
@@ -238,6 +241,7 @@ export function VaultProvider({ children }: { children: React.ReactNode }) {
 
   // Owner State
   const [ownerDetails, setOwnerDetails] = useState<OwnerDetails | null>(null);
+  const [showPasswordWarning, setShowPasswordWarning] = useState(false);
 
   // UI state
   const [instrumentsOpen, setInstrumentsOpen] = useState(true);
@@ -332,6 +336,15 @@ export function VaultProvider({ children }: { children: React.ReactNode }) {
       const decrypted = await decryptData(key, { iv: ivB64, ciphertext: ciphertextB64 });
       const parsedIndex = JSON.parse(decrypted) as VaultIndex;
       
+      const isWeak = !(
+        /[A-Z]/.test(passphrase) &&
+        /[a-z]/.test(passphrase) &&
+        /\d/.test(passphrase) &&
+        /[^A-Za-z0-9]/.test(passphrase) &&
+        passphrase.length >= 8
+      );
+      setShowPasswordWarning(isWeak);
+
       const previousLogin = parsedIndex.lastLogin || null;
       setLastLogin(previousLogin ? formatDateTime(previousLogin) : null);
 
@@ -412,6 +425,36 @@ export function VaultProvider({ children }: { children: React.ReactNode }) {
       }
     } catch (e) {
       console.error("Failed to fetch owner details:", e);
+    }
+  };
+
+  // Save Owner Details
+  const handleSaveOwnerDetails = async (details: OwnerDetails) => {
+    setLoading(true);
+    setLoadingMessage("Saving owner details...");
+    try {
+      if (isDemo) {
+        localStorage.setItem("deathmark_owner_details", JSON.stringify(details));
+        setOwnerDetails(details);
+      } else {
+        const res = await fetch("/api/user/initialize", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ ownerDetails: details }),
+        });
+        if (res.ok) {
+          setOwnerDetails(details);
+        } else {
+          throw new Error("Failed to save owner details in database.");
+        }
+      }
+    } catch (err: any) {
+      console.error(err);
+      alert("Error saving owner details: " + err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -794,7 +837,8 @@ export function VaultProvider({ children }: { children: React.ReactNode }) {
       handleDeleteRecord, handleVerifyIntegrity, handleExportVault, handleLogout, getCategoryCount,
       nomineeDetails, setNomineeDetails, nomineeFileId, setNomineeFileId, loadingNominee, setLoadingNominee,
       handleSaveNominee, handleDeleteNominee, fetchNomineeDetails, getCategoryLastUpdated, lastLogin,
-      ownerDetails, setOwnerDetails, fetchOwnerDetails
+      ownerDetails, setOwnerDetails, fetchOwnerDetails,
+      showPasswordWarning, setShowPasswordWarning, handleSaveOwnerDetails
     }}>
       {children}
     </VaultContext.Provider>

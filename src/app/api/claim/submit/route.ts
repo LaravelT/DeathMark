@@ -19,7 +19,7 @@ export async function POST(req: Request) {
 
     const existingClaim = await claimsCollection.findOne({
       ownerEmail: email.toLowerCase().trim(),
-      submittedAt: { $gte: sevenDaysAgo }
+      status: "Pending Review"
     });
 
     if (existingClaim) {

@@ -564,6 +564,8 @@ export function VaultProvider({ children }: { children: React.ReactNode }) {
 
       if (isDemo) {
         localStorage.setItem("deathmark_nominee_container", containerText);
+        localStorage.setItem("deathmark_nominee_aadhaar", formData.aadhaar);
+        localStorage.setItem("deathmark_nominee_pan", formData.pan);
       } else {
         const accessToken = session?.accessToken!;
         let fileId = nomineeFileId;
@@ -577,6 +579,21 @@ export function VaultProvider({ children }: { children: React.ReactNode }) {
           setNomineeFileId(fileId);
         }
         await uploadFileContent(accessToken, fileId, containerText);
+
+        try {
+          await fetch("/api/user/nominee-credentials", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              nomineeAadhaar: formData.aadhaar,
+              nomineePan: formData.pan,
+            }),
+          });
+        } catch (dbErr) {
+          console.error("Failed to sync nominee credentials to database:", dbErr);
+        }
       }
       setNomineeDetails(formData);
     } catch (err: any) {

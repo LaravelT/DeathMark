@@ -30,7 +30,25 @@ export default function Home() {
             </div>
           </div>
           
-          <div className="nav-links">
+          <div className="nav-links" style={{ display: "flex", gap: "16px", alignItems: "center" }}>
+            <Link 
+              href="/claim" 
+              className="btn-signin-ghost" 
+              style={{ 
+                border: "1px solid #ec4899", 
+                borderRadius: "8px", 
+                padding: "8px 16px", 
+                color: "#ec4899", 
+                display: "flex", 
+                alignItems: "center", 
+                gap: "6px",
+                backgroundColor: "rgba(236, 72, 153, 0.05)",
+                textDecoration: "none"
+              }}
+            >
+              <FileText size={14} />
+              <span>Claim Details</span>
+            </Link>
             <Link href="/auth/signin" className="btn-signin-ghost">
               Sign In
             </Link>
@@ -69,6 +87,22 @@ export default function Home() {
               <ShieldCheck className="checkmark-green-icon" size={16} />
               <span>Your data is encrypted. Only you hold the key.</span>
             </p>
+
+            <div style={{ marginTop: "32px", padding: "16px 20px", backgroundColor: "rgba(30, 41, 59, 0.4)", border: "1px solid rgba(244, 114, 182, 0.15)", borderRadius: "12px", backdropFilter: "blur(12px)", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "16px", maxWidth: "520px" }}>
+              <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+                <div style={{ width: "36px", height: "36px", borderRadius: "50%", backgroundColor: "rgba(244, 114, 182, 0.1)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <User size={18} style={{ color: "#f472b6" }} />
+                </div>
+                <div>
+                  <h3 style={{ fontSize: "14px", fontWeight: "600", color: "#fff", margin: 0 }}>Are you a beneficiary?</h3>
+                  <p style={{ fontSize: "12px", color: "var(--muted)", margin: "2px 0 0 0" }}>Check your claim status and access what's meant for you.</p>
+                </div>
+              </div>
+              <Link href="/claim" style={{ fontSize: "13px", fontWeight: "600", color: "#f472b6", textDecoration: "none", display: "flex", alignItems: "center", gap: "4px", flexShrink: 0, padding: "6px 12px", borderRadius: "6px", backgroundColor: "rgba(244, 114, 182, 0.05)", border: "1px solid rgba(244, 114, 182, 0.1)" }}>
+                <span>Claim Your Legacy</span>
+                <ArrowRight size={14} />
+              </Link>
+            </div>
           </div>
 
           {/* Right Floating Vault Illustration */}

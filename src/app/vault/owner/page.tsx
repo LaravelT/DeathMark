@@ -93,7 +93,7 @@ export default function VaultOwnerPage() {
           >
             <Shield style={{ color: "#10b981", flexShrink: 0 }} size={20} />
             <span style={{ fontSize: "13px", color: "#a7f3d0" }}>
-              These owner details are stored fully encrypted inside your database session and connect with your registered email identifier.
+              Your data has been successfully stored in the Google Drive of your registered email address.
             </span>
           </div>
         </div>

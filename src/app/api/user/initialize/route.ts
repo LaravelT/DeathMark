@@ -13,16 +13,20 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json().catch(() => ({}));
-    const ownerDetails = body.ownerDetails || null;
 
     const client = await clientPromise;
     const db = client.db("legacybridge");
     const usersCollection = db.collection("users");
 
+    const updateFields: any = { hasCreatedVault: true };
+    if (body.ownerDetails !== undefined && body.ownerDetails !== null) {
+      updateFields.ownerDetails = body.ownerDetails;
+    }
+
     console.log("[Initialize API] Updating user in MongoDB:", session.user.email);
     const result = await usersCollection.updateOne(
       { email: session.user.email },
-      { $set: { hasCreatedVault: true, ownerDetails } }
+      { $set: updateFields }
     );
     console.log("[Initialize API] MongoDB Update Result:", result);
 

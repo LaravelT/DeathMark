@@ -9,12 +9,18 @@ export default function UnlockScreen() {
     isDemo, session, passphrase, setPassphrase, passConfirm, setPassConfirm,
     salt, mnemonic, confirmMnemonic, setConfirmMnemonic, passVisible, setPassVisible,
     passError, setPassError, copySuccess, setCopySuccess, handleUnlock,
-    handleCreatePassphrase, handleVerifyMnemonic, handleLogout, setOwnerDetails
+    handleCreatePassphrase, handleVerifyMnemonic, handleLogout, setOwnerDetails,
+    needsPasswordUpdate, handleUpdateWeakPassphrase
   } = useVault();
 
   // Local step state for onboarding: "passphrase" | "owner-details" | "show-mnemonic"
   const [setupStep, setSetupStep] = useState<"passphrase" | "owner-details" | "show-mnemonic">("passphrase");
   const [showWarningModal, setShowWarningModal] = useState(true);
+
+  // New Passphrase Form State (for existing user weak password intercept)
+  const [newPass, setNewPass] = useState("");
+  const [confirmNewPass, setConfirmNewPass] = useState("");
+  const [newPassVisible, setNewPassVisible] = useState(false);
 
   // Owner Details Form State
   const [ownerName, setOwnerName] = useState("");
@@ -62,11 +68,91 @@ export default function UnlockScreen() {
     setSetupStep("show-mnemonic");
   };
 
+  const onUpdatePassphraseSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await handleUpdateWeakPassphrase(newPass, confirmNewPass);
+  };
+
   const handleCopyMnemonic = () => {
     navigator.clipboard.writeText(mnemonic);
     setCopySuccess(true);
     setTimeout(() => setCopySuccess(false), 2000);
   };
+
+  // Render Update Master Passphrase screen (for existing users with weak passwords)
+  if (needsPasswordUpdate) {
+    return (
+      <div className="signin-wrapper">
+        <div className="signin-card" style={{ maxWidth: "480px" }}>
+          <div className="signin-header">
+            <div className="logo-container flex-center">
+              <KeyRound style={{ width: "32px", height: "32px", color: "#fff" }} />
+            </div>
+            <h1 className="signin-title">Update Master Passphrase</h1>
+            <p className="signin-subtitle">Set a secure passphrase to protect your vault.</p>
+          </div>
+
+          <form onSubmit={onUpdatePassphraseSubmit} className="signin-body" style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+            
+            <div style={{ backgroundColor: "rgba(239, 68, 68, 0.08)", border: "1px solid rgba(239, 68, 68, 0.2)", borderRadius: "10px", padding: "16px", display: "flex", gap: "12px" }}>
+              <ShieldAlert style={{ color: "#f87171", flexShrink: 0 }} size={22} />
+              <p style={{ fontSize: "13px", color: "#fca5a5", lineHeight: "1.5", margin: 0 }}>
+                <strong>Important Notice:</strong> Our password criteria has changed. Your current passphrase does not meet the new security requirements (Min 8 characters, 1 uppercase, 1 lowercase, 1 number, and 1 special character). Please set a new passphrase.
+              </p>
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+              <label className="form-label">New Master Passphrase</label>
+              <div style={{ position: "relative", display: "flex" }}>
+                <input
+                  type={newPassVisible ? "text" : "password"}
+                  value={newPass}
+                  onChange={(e) => setNewPass(e.target.value)}
+                  placeholder="Min. 8 chars (e.g. Chirag@2102)"
+                  required
+                  style={{ width: "100%", padding: "12px 48px 12px 14px", backgroundColor: "#1e293b", border: "1px solid var(--card-border)", borderRadius: "10px", color: "#fff", fontSize: "15px" }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setNewPassVisible(!newPassVisible)}
+                  style={{ position: "absolute", right: "12px", top: "50%", transform: "translateY(-50%)", background: "none", border: "none", color: "var(--muted)", cursor: "pointer" }}
+                >
+                  {newPassVisible ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+              <label className="form-label">Confirm Passphrase</label>
+              <input
+                type="password"
+                value={confirmNewPass}
+                onChange={(e) => setConfirmNewPass(e.target.value)}
+                placeholder="Repeat new passphrase"
+                required
+                style={{ width: "100%", padding: "12px 14px", backgroundColor: "#1e293b", border: "1px solid var(--card-border)", borderRadius: "10px", color: "#fff", fontSize: "15px" }}
+              />
+            </div>
+
+            {passError && (
+              <div style={{ display: "flex", gap: "8px", alignItems: "center", color: "#f87171", fontSize: "13px" }}>
+                <ShieldAlert size={16} />
+                <span>{passError}</span>
+              </div>
+            )}
+
+            <button type="submit" className="btn-cta-primary" style={{ width: "100%", border: "none", marginTop: "10px" }}>
+              Update & Unlock Vault
+            </button>
+
+            <button type="button" onClick={handleLogout} className="btn-cta-secondary" style={{ width: "100%" }}>
+              Logout / Cancel
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
 
   // Render Unlock screen
   if (salt) {

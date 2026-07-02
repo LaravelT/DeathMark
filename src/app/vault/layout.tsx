@@ -10,7 +10,7 @@ import { User, ShieldAlert } from "lucide-react";
 function VaultLayoutInner({ children }: { children: React.ReactNode }) {
   const { 
     derivedKey, loading, loadingMessage, ownerDetails, 
-    showPasswordWarning, handleSaveOwnerDetails, handleLogout 
+    handleSaveOwnerDetails, handleLogout 
   } = useVault();
 
   // Local Form state for owner details (in case they are prompted on login)
@@ -82,15 +82,6 @@ function VaultLayoutInner({ children }: { children: React.ReactNode }) {
           </div>
 
           <form onSubmit={handleSubmit} className="signin-body" style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-            
-            {showPasswordWarning && (
-              <div style={{ backgroundColor: "rgba(239, 68, 68, 0.08)", border: "1px solid rgba(239, 68, 68, 0.2)", borderRadius: "10px", padding: "16px", display: "flex", gap: "12px" }}>
-                <ShieldAlert style={{ color: "#f87171", flexShrink: 0 }} size={22} />
-                <p style={{ fontSize: "13px", color: "#fca5a5", lineHeight: "1.5", margin: 0 }}>
-                  <strong>Important Notice:</strong> Our password criteria has changed. Your current passphrase does not meet the new security requirements (Min 8 characters, 1 uppercase, 1 lowercase, 1 number, and 1 special character). We recommend changing it.
-                </p>
-              </div>
-            )}
 
             <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
               <label className="form-label">Full Name <span style={{ color: "var(--danger)" }}>*</span></label>

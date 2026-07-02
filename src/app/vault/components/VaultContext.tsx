@@ -125,9 +125,10 @@ interface VaultContextType {
   ownerDetails: OwnerDetails | null;
   setOwnerDetails: React.Dispatch<React.SetStateAction<OwnerDetails | null>>;
   fetchOwnerDetails: () => Promise<void>;
-  showPasswordWarning: boolean;
-  setShowPasswordWarning: React.Dispatch<React.SetStateAction<boolean>>;
+  needsPasswordUpdate: boolean;
+  setNeedsPasswordUpdate: React.Dispatch<React.SetStateAction<boolean>>;
   handleSaveOwnerDetails: (details: OwnerDetails) => Promise<void>;
+  handleUpdateWeakPassphrase: (newPass: string, confirmNewPass: string) => Promise<boolean>;
   
   // UI & Search State
   instrumentsOpen: boolean;
@@ -241,7 +242,9 @@ export function VaultProvider({ children }: { children: React.ReactNode }) {
 
   // Owner State
   const [ownerDetails, setOwnerDetails] = useState<OwnerDetails | null>(null);
-  const [showPasswordWarning, setShowPasswordWarning] = useState(false);
+  const [needsPasswordUpdate, setNeedsPasswordUpdate] = useState(false);
+  const [tempDecryptedIndex, setTempDecryptedIndex] = useState<VaultIndex | null>(null);
+  const [tempOldKey, setTempOldKey] = useState<CryptoKey | null>(null);
 
   // UI state
   const [instrumentsOpen, setInstrumentsOpen] = useState(true);
@@ -343,7 +346,17 @@ export function VaultProvider({ children }: { children: React.ReactNode }) {
         /[^A-Za-z0-9]/.test(passphrase) &&
         passphrase.length >= 8
       );
-      setShowPasswordWarning(isWeak);
+
+      if (isWeak) {
+        setTempDecryptedIndex(parsedIndex);
+        setTempOldKey(key);
+        setNeedsPasswordUpdate(true);
+        return;
+      }
+
+      setNeedsPasswordUpdate(false);
+      setTempDecryptedIndex(null);
+      setTempOldKey(null);
 
       const previousLogin = parsedIndex.lastLogin || null;
       setLastLogin(previousLogin ? formatDateTime(previousLogin) : null);
@@ -453,6 +466,86 @@ export function VaultProvider({ children }: { children: React.ReactNode }) {
     } catch (err: any) {
       console.error(err);
       alert("Error saving owner details: " + err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Update Weak Passphrase for Existing Users
+  const handleUpdateWeakPassphrase = async (newPass: string, confirmNewPass: string): Promise<boolean> => {
+    setPassError("");
+    const missing = [];
+    if (newPass.length < 8) {
+      missing.push("minimum 8 characters");
+    }
+    if (!/[A-Z]/.test(newPass)) {
+      missing.push("one uppercase letter (A-Z)");
+    }
+    if (!/[a-z]/.test(newPass)) {
+      missing.push("one lowercase letter (a-z)");
+    }
+    if (!/\d/.test(newPass)) {
+      missing.push("one number (0-9)");
+    }
+    if (!/[^A-Za-z0-9]/.test(newPass)) {
+      missing.push("one special character (e.g. @, #, $, %)");
+    }
+
+    if (missing.length > 0) {
+      setPassError("Requirements missing: " + missing.join(", ") + ".");
+      return false;
+    }
+
+    if (newPass !== confirmNewPass) {
+      setPassError("Passphrases do not match.");
+      return false;
+    }
+
+    if (!salt || !tempDecryptedIndex) {
+      setPassError("Session expired or invalid state. Please reload.");
+      return false;
+    }
+
+    setLoading(true);
+    setLoadingMessage("Securing your vault with new passphrase...");
+
+    try {
+      const newKey = await deriveKey(newPass, salt);
+
+      const updatedIndex = { ...tempDecryptedIndex };
+      updatedIndex.lastLogin = new Date().toISOString();
+
+      const stringifiedIndex = JSON.stringify(updatedIndex);
+      const encryptedIndex = await encryptData(newKey, stringifiedIndex);
+      const saltB64 = arrayBufferToBase64(salt.buffer as ArrayBuffer);
+      const newContainerText = `${saltB64}.${encryptedIndex.iv}.${encryptedIndex.ciphertext}`;
+
+      if (isDemo) {
+        localStorage.setItem("deathmark_vault_container", newContainerText);
+      } else {
+        const accessToken = session?.accessToken!;
+        if (!driveFileId) throw new Error("Drive file reference missing.");
+        await uploadFileContent(accessToken, driveFileId, newContainerText);
+      }
+
+      setDerivedKey(newKey);
+      setVaultIndex(updatedIndex);
+      setPassphrase(newPass);
+      setPassConfirm(newPass);
+
+      setNeedsPasswordUpdate(false);
+      setTempDecryptedIndex(null);
+      setTempOldKey(null);
+
+      await fetchNomineeDetails(newKey);
+      await fetchOwnerDetails();
+
+      router.push(isDemo ? "/vault?demo=true" : "/vault");
+      return true;
+    } catch (err: any) {
+      console.error(err);
+      setPassError("Failed to update passphrase: " + err.message);
+      return false;
     } finally {
       setLoading(false);
     }
@@ -838,7 +931,7 @@ export function VaultProvider({ children }: { children: React.ReactNode }) {
       nomineeDetails, setNomineeDetails, nomineeFileId, setNomineeFileId, loadingNominee, setLoadingNominee,
       handleSaveNominee, handleDeleteNominee, fetchNomineeDetails, getCategoryLastUpdated, lastLogin,
       ownerDetails, setOwnerDetails, fetchOwnerDetails,
-      showPasswordWarning, setShowPasswordWarning, handleSaveOwnerDetails
+      needsPasswordUpdate, setNeedsPasswordUpdate, handleSaveOwnerDetails, handleUpdateWeakPassphrase
     }}>
       {children}
     </VaultContext.Provider>

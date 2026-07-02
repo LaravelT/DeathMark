@@ -11,6 +11,31 @@ export default function AdminPage() {
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [selectedDoc, setSelectedDoc] = useState<string | null>(null);
 
+  // Authentication State
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [usernameInput, setUsernameInput] = useState("");
+  const [passwordInput, setPasswordInput] = useState("");
+  const [loginError, setLoginError] = useState("");
+
+  useEffect(() => {
+    const authStatus = sessionStorage.getItem("legacybridge_admin_auth");
+    if (authStatus === "true") {
+      setIsAuthenticated(true);
+    }
+  }, []);
+
+  const handleLoginSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoginError("");
+
+    if (usernameInput === "chirag" && passwordInput === "2102") {
+      sessionStorage.setItem("legacybridge_admin_auth", "true");
+      setIsAuthenticated(true);
+    } else {
+      setLoginError("Invalid Admin Username or Password.");
+    }
+  };
+
   const fetchClaims = async () => {
     setLoading(true);
     setError("");
@@ -27,8 +52,10 @@ export default function AdminPage() {
   };
 
   useEffect(() => {
-    fetchClaims();
-  }, []);
+    if (isAuthenticated) {
+      fetchClaims();
+    }
+  }, [isAuthenticated]);
 
   const handleAction = async (claimId: string, newStatus: "Approved" | "Rejected") => {
     setActionLoading(claimId);
@@ -48,6 +75,69 @@ export default function AdminPage() {
       setActionLoading(null);
     }
   };
+
+  if (!isAuthenticated) {
+    return (
+      <div className="hero-gradient flex-center" style={{ minHeight: "100vh", padding: "20px", flexDirection: "column" }}>
+        <div style={{ display: "flex", gap: "8px", alignItems: "center", marginBottom: "32px" }}>
+          <div className="brand-logo-box">
+            <KeyRound className="w-5 h-5 text-white" />
+          </div>
+          <span className="brand-title">LegacyBridge Super Admin</span>
+        </div>
+
+        <div className="signin-card" style={{ maxWidth: "420px", width: "100%" }}>
+          <div className="signin-header">
+            <div className="logo-container flex-center">
+              <KeyRound style={{ width: "32px", height: "32px", color: "#fff" }} />
+            </div>
+            <h1 className="signin-title">Admin Sign In</h1>
+            <p className="signin-subtitle">Please enter your credentials to access manager.</p>
+          </div>
+
+          <form onSubmit={handleLoginSubmit} className="signin-body" style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+              <label className="form-label">Username</label>
+              <input
+                type="text"
+                value={usernameInput}
+                onChange={(e) => setUsernameInput(e.target.value)}
+                placeholder="Enter username"
+                required
+                style={{ width: "100%", padding: "12px 14px", backgroundColor: "#1e293b", border: "1px solid var(--card-border)", borderRadius: "10px", color: "#fff", fontSize: "15px" }}
+              />
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+              <label className="form-label">Password</label>
+              <input
+                type="password"
+                value={passwordInput}
+                onChange={(e) => setPasswordInput(e.target.value)}
+                placeholder="Enter password"
+                required
+                style={{ width: "100%", padding: "12px 14px", backgroundColor: "#1e293b", border: "1px solid var(--card-border)", borderRadius: "10px", color: "#fff", fontSize: "15px" }}
+              />
+            </div>
+
+            {loginError && (
+              <div style={{ display: "flex", gap: "8px", alignItems: "center", color: "#f87171", fontSize: "13px" }}>
+                <ShieldAlert size={16} />
+                <span>{loginError}</span>
+              </div>
+            )}
+
+            <button type="submit" className="btn-cta-primary" style={{ width: "100%", border: "none", marginTop: "10px", backgroundColor: "#ec4899" }}>
+              Sign In
+            </button>
+            <Link href="/" style={{ color: "var(--muted)", fontSize: "14px", textAlign: "center", textDecoration: "none", marginTop: "4px" }}>
+              Back to Landing Page
+            </Link>
+          </form>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="hero-gradient" style={{ minHeight: "100vh", padding: "40px 20px" }}>

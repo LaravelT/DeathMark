@@ -18,23 +18,48 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Invalid relative details. Please check and try again." }, { status: 400 });
     }
 
-    // Check if there is an active claim (submitted less than 7 days ago)
+    // Fetch the latest claim for this owner email
     const claimsCollection = db.collection("claims");
-    const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    const latestClaim = await claimsCollection.findOne(
+      { ownerEmail: email.toLowerCase().trim() },
+      { sort: { submittedAt: -1 } }
+    );
 
-    const existingClaim = await claimsCollection.findOne({
-      ownerEmail: email.toLowerCase().trim(),
-      submittedAt: { $gte: sevenDaysAgo }
-    });
+    if (latestClaim) {
+      if (latestClaim.status === "Pending Review") {
+        return NextResponse.json({ 
+          success: true, 
+          alreadyClaimed: true, 
+          claimStatus: "Pending Review",
+          submittedAt: latestClaim.submittedAt 
+        });
+      }
+      
+      if (latestClaim.status === "Rejected" && !latestClaim.seenRejected) {
+        await claimsCollection.updateOne(
+          { _id: latestClaim._id },
+          { $set: { seenRejected: true } }
+        );
+        return NextResponse.json({ 
+          success: true, 
+          alreadyClaimed: true, 
+          claimStatus: "Rejected",
+          submittedAt: latestClaim.submittedAt 
+        });
+      }
 
-    if (existingClaim) {
-      return NextResponse.json({ 
-        success: true, 
-        alreadyClaimed: true, 
-        claimStatus: existingClaim.status,
-        submittedAt: existingClaim.submittedAt 
-      });
+      if (latestClaim.status === "Approved" && !latestClaim.seenApproved) {
+        await claimsCollection.updateOne(
+          { _id: latestClaim._id },
+          { $set: { seenApproved: true } }
+        );
+        return NextResponse.json({ 
+          success: true, 
+          alreadyClaimed: true, 
+          claimStatus: "Approved",
+          submittedAt: latestClaim.submittedAt 
+        });
+      }
     }
 
     if (step === 1) {

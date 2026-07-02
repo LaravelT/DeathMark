@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { KeyRound, ShieldAlert, FileText, CheckCircle, XCircle, ArrowLeft, RefreshCw, Eye } from "lucide-react";
+import { KeyRound, ShieldAlert, FileText, CheckCircle, XCircle, ArrowLeft, RefreshCw, Eye, UserCheck, Settings, LogOut } from "lucide-react";
 import Link from "next/link";
 
 export default function AdminPage() {
@@ -11,13 +11,6 @@ export default function AdminPage() {
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [selectedDoc, setSelectedDoc] = useState<string | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
-
-  const handleCopyLink = (claim: any) => {
-    const url = `${window.location.origin}/claim/access?email=${encodeURIComponent(claim.ownerEmail)}`;
-    navigator.clipboard.writeText(url);
-    setCopiedId(claim._id);
-    setTimeout(() => setCopiedId(null), 2000);
-  };
 
   // Authentication State
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -42,6 +35,11 @@ export default function AdminPage() {
     } else {
       setLoginError("Invalid Admin Username or Password.");
     }
+  };
+
+  const handleLogout = () => {
+    sessionStorage.removeItem("legacybridge_admin_auth");
+    setIsAuthenticated(false);
   };
 
   const fetchClaims = async () => {
@@ -81,6 +79,31 @@ export default function AdminPage() {
       alert("Failed to update status: " + err.message);
     } finally {
       setActionLoading(null);
+    }
+  };
+
+  const handleCopyLink = async (claim: any) => {
+    const currentCount = claim.copyCount || 0;
+    if (currentCount >= 3) return;
+
+    try {
+      const url = `${window.location.origin}/claim/access?email=${encodeURIComponent(claim.ownerEmail)}`;
+      await navigator.clipboard.writeText(url);
+      
+      // Increment count on server
+      const res = await fetch("/api/admin/claims/copy", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ claimId: claim._id })
+      });
+
+      if (res.ok) {
+        setClaims(prev => prev.map(c => c._id === claim._id ? { ...c, copyCount: currentCount + 1 } : c));
+        setCopiedId(claim._id);
+        setTimeout(() => setCopiedId(null), 2000);
+      }
+    } catch (e) {
+      console.error("Failed to copy link:", e);
     }
   };
 
@@ -138,9 +161,9 @@ export default function AdminPage() {
             <button type="submit" className="btn-cta-primary" style={{ width: "100%", border: "none", marginTop: "10px", backgroundColor: "#ec4899" }}>
               Sign In
             </button>
-            <Link href="/" style={{ color: "var(--muted)", fontSize: "14px", textAlign: "center", textDecoration: "none", marginTop: "4px" }}>
+            <a href="/" style={{ color: "var(--muted)", fontSize: "14px", textAlign: "center", textDecoration: "none", marginTop: "4px" }}>
               Back to Landing Page
-            </Link>
+            </a>
           </form>
         </div>
       </div>
@@ -148,36 +171,105 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="hero-gradient" style={{ minHeight: "100vh", padding: "40px 20px" }}>
-      {/* Header navbar */}
-      <header className="container-app" style={{ marginBottom: "40px" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+    <div style={{ display: "flex", minHeight: "100vh", backgroundColor: "#0f172a" }}>
+      {/* Sidebar Layout */}
+      <aside style={{ width: "260px", backgroundColor: "#1e293b", borderRight: "1px solid var(--card-border)", padding: "24px 20px", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "32px" }}>
+          {/* Logo */}
           <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
             <div className="brand-logo-box">
               <KeyRound className="w-5 h-5 text-white" />
             </div>
-            <span className="brand-title">LegacyBridge Super Admin</span>
+            <span className="brand-title" style={{ fontSize: "18px" }}>LegacyBridge</span>
           </div>
-          <Link href="/" style={{ color: "#cbd5e1", textDecoration: "none", fontSize: "14px", display: "flex", alignItems: "center", gap: "6px" }}>
-            <ArrowLeft size={16} />
-            <span>Back to Home</span>
-          </Link>
-        </div>
-      </header>
 
-      <main className="container-app" style={{ maxWidth: "1200px", margin: "0 auto" }}>
-        <div className="panel-card" style={{ padding: "30px" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid var(--card-border)", paddingBottom: "16px", marginBottom: "24px" }}>
-            <div>
-              <h1 className="page-title" style={{ fontSize: "22px", margin: 0 }}>Beneficiary Claims Manager</h1>
-              <span style={{ fontSize: "13px", color: "var(--muted)" }}>Verify relative claims and documents from the claims collection.</span>
+          {/* Navigation Menu */}
+          <nav style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+            <div style={{ 
+              display: "flex", 
+              alignItems: "center", 
+              gap: "10px", 
+              padding: "10px 14px", 
+              borderRadius: "8px", 
+              backgroundColor: "rgba(236, 72, 153, 0.1)", 
+              color: "#ec4899",
+              fontWeight: "600",
+              fontSize: "14px"
+            }}>
+              <UserCheck size={18} />
+              <span>Claims Manager</span>
             </div>
-            <button onClick={fetchClaims} className="btn-signin-ghost" style={{ display: "flex", alignItems: "center", gap: "6px", border: "1px solid var(--card-border)" }}>
-              <RefreshCw size={14} className={loading ? "spin" : ""} />
-              <span>Refresh</span>
+            <button 
+              onClick={fetchClaims}
+              style={{ 
+                display: "flex", 
+                alignItems: "center", 
+                gap: "10px", 
+                padding: "10px 14px", 
+                borderRadius: "8px", 
+                backgroundColor: "transparent", 
+                color: "#cbd5e1",
+                border: "none",
+                cursor: "pointer",
+                textAlign: "left",
+                fontSize: "14px",
+                width: "100%"
+              }}
+              className="sidebar-btn-hover"
+            >
+              <RefreshCw size={18} className={loading ? "spin" : ""} />
+              <span>Refresh Records</span>
             </button>
-          </div>
+          </nav>
+        </div>
 
+        {/* Footer actions in sidebar */}
+        <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+          <Link href="/" style={{ 
+            display: "flex", 
+            alignItems: "center", 
+            gap: "10px", 
+            padding: "10px 14px", 
+            borderRadius: "8px", 
+            color: "#94a3b8",
+            textDecoration: "none",
+            fontSize: "14px"
+          }}>
+            <ArrowLeft size={18} />
+            <span>Go to Landing Page</span>
+          </Link>
+          <button 
+            onClick={handleLogout}
+            style={{ 
+              display: "flex", 
+              alignItems: "center", 
+              gap: "10px", 
+              padding: "10px 14px", 
+              borderRadius: "8px", 
+              backgroundColor: "rgba(239, 68, 68, 0.05)", 
+              color: "#f87171",
+              border: "1px solid rgba(239, 68, 68, 0.15)",
+              cursor: "pointer",
+              fontSize: "14px",
+              width: "100%"
+            }}
+          >
+            <LogOut size={18} />
+            <span>Admin Logout</span>
+          </button>
+        </div>
+      </aside>
+
+      {/* Main Panel Content Area */}
+      <main style={{ flex: 1, padding: "40px", display: "flex", flexDirection: "column", gap: "24px", overflowY: "auto" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div>
+            <h1 className="page-title" style={{ fontSize: "24px", margin: 0 }}>Beneficiary Claims Manager</h1>
+            <span style={{ fontSize: "14px", color: "var(--muted)" }}>Verify relative claims and documents from the claims database.</span>
+          </div>
+        </div>
+
+        <div className="panel-card" style={{ padding: "30px" }}>
           {error && (
             <div style={{ display: "flex", gap: "10px", alignItems: "center", padding: "14px", backgroundColor: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)", borderRadius: "8px", color: "#f87171", fontSize: "14px", marginBottom: "24px" }}>
               <ShieldAlert size={18} />
@@ -186,11 +278,11 @@ export default function AdminPage() {
           )}
 
           {loading ? (
-            <div style={{ textAlign: "center", padding: "40px", color: "var(--muted)" }}>
+            <div style={{ textAlign: "center", padding: "80px", color: "var(--muted)" }}>
               Loading submitted claims...
             </div>
           ) : claims.length === 0 ? (
-            <div style={{ textAlign: "center", padding: "60px 40px", border: "1px dashed var(--card-border)", borderRadius: "10px", backgroundColor: "rgba(0,0,0,0.1)" }}>
+            <div style={{ textAlign: "center", padding: "80px 40px", border: "1px dashed var(--card-border)", borderRadius: "10px", backgroundColor: "rgba(0,0,0,0.1)" }}>
               <FileText size={40} style={{ color: "var(--muted)", marginBottom: "12px" }} />
               <p style={{ color: "var(--muted)", margin: 0 }}>No claims submitted yet.</p>
             </div>
@@ -235,8 +327,8 @@ export default function AdminPage() {
                               gap: "4px", 
                               fontSize: "12px", 
                               padding: "4px 8px", 
-                              color: "#f472b6", 
-                              borderColor: "#f472b6" 
+                              color: "#ec4899", 
+                              borderColor: "#ec4899" 
                             }}
                           >
                             <Eye size={12} />
@@ -305,6 +397,7 @@ export default function AdminPage() {
                         ) : claim.status === "Approved" ? (
                           <button
                             onClick={() => handleCopyLink(claim)}
+                            disabled={(claim.copyCount || 0) >= 3}
                             className="btn-signin-ghost"
                             style={{
                               display: "inline-flex",
@@ -312,14 +405,14 @@ export default function AdminPage() {
                               gap: "6px",
                               fontSize: "12px",
                               padding: "6px 12px",
-                              color: copiedId === claim._id ? "#10b981" : "#ec4899",
-                              borderColor: copiedId === claim._id ? "#10b981" : "#ec4899",
-                              backgroundColor: copiedId === claim._id ? "rgba(16,185,129,0.05)" : "rgba(236,72,153,0.05)",
+                              color: (claim.copyCount || 0) >= 3 ? "var(--muted)" : (copiedId === claim._id ? "#10b981" : "#ec4899"),
+                              borderColor: (claim.copyCount || 0) >= 3 ? "var(--card-border)" : (copiedId === claim._id ? "#10b981" : "#ec4899"),
+                              backgroundColor: (claim.copyCount || 0) >= 3 ? "rgba(255,255,255,0.02)" : (copiedId === claim._id ? "rgba(16,185,129,0.05)" : "rgba(236,72,153,0.05)"),
                               borderRadius: "6px",
-                              cursor: "pointer"
+                              cursor: (claim.copyCount || 0) >= 3 ? "not-allowed" : "pointer"
                             }}
                           >
-                            <span>{copiedId === claim._id ? "Copied!" : "Copy Access Link"}</span>
+                            <span>{(claim.copyCount || 0) >= 3 ? "Access link copied successfully" : (copiedId === claim._id ? "Copied!" : "Copy Access Link")}</span>
                           </button>
                         ) : (
                           <span style={{ color: "var(--muted)", fontSize: "12px" }}>Rejected</span>

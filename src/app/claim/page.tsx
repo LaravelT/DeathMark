@@ -29,6 +29,24 @@ export default function ClaimPage() {
 
   // Status check state if already submitted
   const [underReview, setUnderReview] = useState(false);
+  const [claimStatus, setClaimStatus] = useState<string | null>(null);
+
+  const handleResetPortal = () => {
+    setStep(1);
+    setOwnerEmail("");
+    setOwnerName("");
+    setOwnerAadhaar("");
+    setOwnerPan("");
+    setNomineeAadhaar("");
+    setNomineePan("");
+    setClaimantName("");
+    setClaimantGmail("");
+    setReason("");
+    setDocumentBase64(null);
+    setUnderReview(false);
+    setClaimStatus(null);
+    setError("");
+  };
 
   // File upload handler
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -76,6 +94,7 @@ export default function ClaimPage() {
         }
 
         if (data.alreadyClaimed) {
+          setClaimStatus(data.claimStatus);
           setUnderReview(true);
           setLoading(false);
           return;
@@ -167,8 +186,25 @@ export default function ClaimPage() {
     }
   };
 
-  // Render Under Review state
-  if (underReview) {
+  // Render status pages
+  if (underReview || claimStatus) {
+    let title = "Application Under Review";
+    let message = "Your application is under review. You will receive an email in 7 days.";
+    let iconColor = "#ec4899";
+    let bgIconColor = "rgba(236, 72, 153, 0.1)";
+
+    if (claimStatus === "Rejected") {
+      title = "Application Rejected";
+      message = "Your form was rejected. Please fill out the form again with valid proofs.";
+      iconColor = "#ef4444";
+      bgIconColor = "rgba(239, 68, 68, 0.1)";
+    } else if (claimStatus === "Approved") {
+      title = "Application Approved";
+      message = "Your application is accepted. You will receive an email in 3 days.";
+      iconColor = "#10b981";
+      bgIconColor = "rgba(16, 185, 129, 0.1)";
+    }
+
     return (
       <div className="hero-gradient flex-center" style={{ minHeight: "100vh", padding: "20px", flexDirection: "column" }}>
         <div className="signin-card" style={{ maxWidth: "540px", textAlign: "center", padding: "40px 30px" }}>
@@ -176,21 +212,32 @@ export default function ClaimPage() {
             width: "64px",
             height: "64px",
             borderRadius: "50%",
-            backgroundColor: "rgba(236, 72, 153, 0.1)",
+            backgroundColor: bgIconColor,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             margin: "0 auto 24px"
           }}>
-            <ShieldCheck size={32} style={{ color: "#ec4899" }} />
+            <ShieldCheck size={32} style={{ color: iconColor }} />
           </div>
-          <h1 className="signin-title" style={{ fontSize: "24px", marginBottom: "12px" }}>Application Under Review</h1>
+          <h1 className="signin-title" style={{ fontSize: "24px", marginBottom: "12px" }}>{title}</h1>
           <p style={{ color: "#cbd5e1", fontSize: "15px", lineHeight: "1.6", marginBottom: "32px" }}>
-            Your application is under review. You will receive an email in 7 days.
+            {message}
           </p>
-          <Link href="/" className="btn-cta-primary-premium" style={{ display: "inline-flex", textDecoration: "none", width: "100%", justifyContent: "center" }}>
-            Back to Landing Page
-          </Link>
+          <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+            {claimStatus && (
+              <button 
+                onClick={handleResetPortal} 
+                className="btn-cta-primary" 
+                style={{ width: "100%", border: "none", backgroundColor: "#ec4899" }}
+              >
+                Try Again / Restart Form
+              </button>
+            )}
+            <Link href="/" className="btn-cta-primary-premium" style={{ display: "inline-flex", textDecoration: "none", width: "100%", justifyContent: "center" }}>
+              Back to Landing Page
+            </Link>
+          </div>
         </div>
       </div>
     );

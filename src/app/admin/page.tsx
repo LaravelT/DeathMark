@@ -345,7 +345,8 @@ export default function AdminPage() {
                           padding: "3px 8px",
                           borderRadius: "10px",
                           backgroundColor: claim.status === "Approved" ? "rgba(16,185,129,0.15)" : claim.status === "Rejected" ? "rgba(239,68,68,0.15)" : "rgba(245,158,11,0.15)",
-                          color: claim.status === "Approved" ? "#10b981" : claim.status === "Rejected" ? "#f87171" : "#f59e0b"
+                          color: claim.status === "Approved" ? "#10b981" : claim.status === "Rejected" ? "#f87171" : "#f59e0b",
+                          whiteSpace: "nowrap"
                         }}>
                           {claim.status}
                         </span>

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { KeyRound, ShieldCheck, AlertCircle, FileText, Download, ShieldAlert } from "lucide-react";
+import { KeyRound, ShieldCheck, AlertCircle, FileText, Download, ShieldAlert, ArrowLeft } from "lucide-react";
 import { deriveKey, decryptData } from "@/lib/crypto";
 
 function ClaimAccessContent() {
@@ -336,14 +336,32 @@ function ClaimAccessContent() {
                   Relative Name: <strong>{ownerName}</strong> (${ownerEmail})
                 </span>
               </div>
-              <button 
-                onClick={handleExportPDF} 
-                className="btn-signin-ghost" 
-                style={{ display: "flex", alignItems: "center", gap: "6px", border: "1px solid #ec4899", color: "#ec4899" }}
-              >
-                <Download size={14} />
-                <span>Export PDF</span>
-              </button>
+              <div style={{ display: "flex", gap: "10px" }}>
+                <a href="/" style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "6px",
+                  fontSize: "12px",
+                  padding: "8px 14px",
+                  borderRadius: "6px",
+                  border: "1px solid var(--card-border)",
+                  color: "#cbd5e1",
+                  backgroundColor: "rgba(255,255,255,0.02)",
+                  textDecoration: "none",
+                  cursor: "pointer"
+                }}>
+                  <ArrowLeft size={14} />
+                  <span>Back to Home</span>
+                </a>
+                <button 
+                  onClick={handleExportPDF} 
+                  className="btn-signin-ghost" 
+                  style={{ display: "flex", alignItems: "center", gap: "6px", border: "1px solid #ec4899", color: "#ec4899" }}
+                >
+                  <Download size={14} />
+                  <span>Export PDF</span>
+                </button>
+              </div>
             </div>
 
             {decryptedFiles.length === 0 ? (

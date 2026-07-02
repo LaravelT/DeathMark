@@ -16,6 +16,14 @@ import {
 } from "@/lib/drive";
 
 // Types and Interfaces
+export interface OwnerDetails {
+  name: string;
+  address: string;
+  phoneNo: string;
+  aadhaarNo: string;
+  panCardNo: string;
+}
+
 export interface VaultFileEntry {
   id: string;
   category: string;
@@ -40,6 +48,7 @@ export interface InstrumentTypeInfo {
 
 export const INSTRUMENT_TYPES: InstrumentTypeInfo[] = [
   { id: "emergency_contact", label: "Emergency Contact", columns: ["Sr No", "Person Type", "Name", "Contact No", "Email", "Created At", "Actions"] },
+  { id: "important_documents", label: "Location of Important Documents and Records", columns: ["Sr No", "Asset Title", "Actions"] },
   { id: "real_estate", label: "Real Estate", columns: ["Sr No", "Property Name", "Address", "Owner", "Value", "Actions"] },
   { id: "demat_account", label: "Demat Account", columns: ["Sr No", "DP Name", "Client ID", "Nominee", "Actions"] },
   { id: "trading_account", label: "Trading Account", columns: ["Sr No", "Broker Name", "Client UCC", "Nominee", "Actions"] },
@@ -65,7 +74,6 @@ export const INSTRUMENT_TYPES: InstrumentTypeInfo[] = [
   { id: "bank_locker", label: "Bank Locker Details", columns: ["Sr No", "Asset Title", "Nominee", "Value", "Actions"] },
   { id: "membership_details", label: "Membership Details", columns: ["Sr No", "Asset Title", "Nominee", "Value", "Actions"] },
   { id: "liabilities_details", label: "Liabilities Details", columns: ["Sr No", "Asset Title", "Nominee", "Value", "Actions"] },
-  { id: "important_documents", label: "Location of Important Documents and Records", columns: ["Sr No", "Asset Title", "Nominee", "Value", "Actions"] },
   { id: "website_credentials", label: "Important Website/App links & credentials", columns: ["Sr No", "Asset Title", "Nominee", "Value", "Actions"] },
   { id: "will_document", label: "Will Document", columns: ["Sr No", "Asset Title", "Nominee", "Value", "Actions"] },
   { id: "trust_document", label: "Trust Document", columns: ["Sr No", "Asset Title", "Nominee", "Value", "Actions"] },
@@ -113,6 +121,11 @@ interface VaultContextType {
   handleDeleteNominee: () => Promise<void>;
   fetchNomineeDetails: (key?: CryptoKey) => Promise<void>;
   
+  // Owner Details
+  ownerDetails: OwnerDetails | null;
+  setOwnerDetails: React.Dispatch<React.SetStateAction<OwnerDetails | null>>;
+  fetchOwnerDetails: () => Promise<void>;
+  
   // UI & Search State
   instrumentsOpen: boolean;
   setInstrumentsOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -130,8 +143,8 @@ interface VaultContextType {
   // Operations
   checkExistingVault: () => Promise<void>;
   handleUnlock: (e: React.FormEvent) => Promise<void>;
-  handleCreatePassphrase: (e: React.FormEvent) => void;
-  handleVerifyMnemonic: (e: React.FormEvent) => Promise<void>;
+  handleCreatePassphrase: (e: React.FormEvent) => boolean;
+  handleVerifyMnemonic: (e?: React.FormEvent) => Promise<void>;
   handleAddRecord: (category: string, formData: Record<string, string>) => Promise<void>;
   handleDeleteRecord: (entry: VaultFileEntry) => Promise<boolean>;
   handleVerifyIntegrity: () => Promise<void>;
@@ -222,6 +235,9 @@ export function VaultProvider({ children }: { children: React.ReactNode }) {
   const [nomineeDetails, setNomineeDetails] = useState<any>(null);
   const [nomineeFileId, setNomineeFileId] = useState<string | null>(null);
   const [loadingNominee, setLoadingNominee] = useState(false);
+
+  // Owner State
+  const [ownerDetails, setOwnerDetails] = useState<OwnerDetails | null>(null);
 
   // UI state
   const [instrumentsOpen, setInstrumentsOpen] = useState(true);
@@ -335,6 +351,7 @@ export function VaultProvider({ children }: { children: React.ReactNode }) {
       setDerivedKey(key);
       setVaultIndex(parsedIndex);
       await fetchNomineeDetails(key);
+      await fetchOwnerDetails();
       router.push(isDemo ? "/vault?demo=true" : "/vault");
     } catch (err: any) {
       console.error(err);
@@ -375,6 +392,26 @@ export function VaultProvider({ children }: { children: React.ReactNode }) {
       console.error("Failed to fetch nominee details:", err);
     } finally {
       setLoadingNominee(false);
+    }
+  };
+
+  // Fetch Owner Details
+  const fetchOwnerDetails = async () => {
+    if (isDemo) {
+      const local = localStorage.getItem("deathmark_owner_details");
+      if (local) {
+        setOwnerDetails(JSON.parse(local));
+      }
+      return;
+    }
+    try {
+      const res = await fetch("/api/user/owner-details");
+      if (res.ok) {
+        const data = await res.json();
+        setOwnerDetails(data.ownerDetails);
+      }
+    } catch (e) {
+      console.error("Failed to fetch owner details:", e);
     }
   };
 
@@ -445,36 +482,50 @@ export function VaultProvider({ children }: { children: React.ReactNode }) {
   };
 
   // Step 1: Create Passphrase
-  const handleCreatePassphrase = (e: React.FormEvent) => {
+  const handleCreatePassphrase = (e: React.FormEvent): boolean => {
     e.preventDefault();
     setPassError("");
 
+    const missing = [];
     if (passphrase.length < 8) {
-      setPassError("Passphrase must be at least 8 characters long.");
-      return;
+      missing.push("minimum 8 characters");
     }
+    if (!/[A-Z]/.test(passphrase)) {
+      missing.push("one uppercase letter (A-Z)");
+    }
+    if (!/[a-z]/.test(passphrase)) {
+      missing.push("one lowercase letter (a-z)");
+    }
+    if (!/\d/.test(passphrase)) {
+      missing.push("one number (0-9)");
+    }
+    if (!/[^A-Za-z0-9]/.test(passphrase)) {
+      missing.push("one special character (e.g. @, #, $, %)");
+    }
+
+    if (missing.length > 0) {
+      setPassError("Requirements missing: " + missing.join(", ") + ".");
+      return false;
+    }
+
     if (passphrase !== passConfirm) {
       setPassError("Passphrases do not match.");
-      return;
+      return false;
     }
 
     const words = generateMnemonic(wordlist);
     setMnemonic(words);
+    return true;
   };
 
   // Step 2: Confirm Recovery Seed and Initialize Empty Vault
-  const handleVerifyMnemonic = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleVerifyMnemonic = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     setPassError("");
     setLoading(true);
     setLoadingMessage("Creating secure vault containers...");
 
     try {
-      if (confirmMnemonic.trim().toLowerCase() !== mnemonic.trim().toLowerCase()) {
-        setPassError("The mnemonic words do not match the ones generated. Please check spelling.");
-        setLoading(false);
-        return;
-      }
 
       const generatedSalt = window.crypto.getRandomValues(new Uint8Array(16));
       setSalt(generatedSalt);
@@ -498,6 +549,9 @@ export function VaultProvider({ children }: { children: React.ReactNode }) {
 
       if (isDemo) {
         localStorage.setItem("deathmark_vault_container", containerText);
+        if (ownerDetails) {
+          localStorage.setItem("deathmark_owner_details", JSON.stringify(ownerDetails));
+        }
       } else {
         const accessToken = session?.accessToken!;
         const fileId = await createFileMetadata(accessToken, "vault_index.enc");
@@ -505,7 +559,13 @@ export function VaultProvider({ children }: { children: React.ReactNode }) {
         setDriveFileId(fileId);
 
         try {
-          await fetch("/api/user/initialize", { method: "POST" });
+          await fetch("/api/user/initialize", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ ownerDetails }),
+          });
         } catch (e) {
           console.error("Failed to mark vault initialization in database:", e);
         }
@@ -698,6 +758,8 @@ export function VaultProvider({ children }: { children: React.ReactNode }) {
   const handleLogout = () => {
     setDerivedKey(null);
     setPassphrase("");
+    setOwnerDetails(null);
+    setNomineeDetails(null);
     if (isDemo) {
       router.push("/");
     } else {
@@ -731,7 +793,8 @@ export function VaultProvider({ children }: { children: React.ReactNode }) {
       checkExistingVault, handleUnlock, handleCreatePassphrase, handleVerifyMnemonic, handleAddRecord,
       handleDeleteRecord, handleVerifyIntegrity, handleExportVault, handleLogout, getCategoryCount,
       nomineeDetails, setNomineeDetails, nomineeFileId, setNomineeFileId, loadingNominee, setLoadingNominee,
-      handleSaveNominee, handleDeleteNominee, fetchNomineeDetails, getCategoryLastUpdated, lastLogin
+      handleSaveNominee, handleDeleteNominee, fetchNomineeDetails, getCategoryLastUpdated, lastLogin,
+      ownerDetails, setOwnerDetails, fetchOwnerDetails
     }}>
       {children}
     </VaultContext.Provider>

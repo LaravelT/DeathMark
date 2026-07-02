@@ -9,7 +9,7 @@ export default function TopNavbar() {
 
   return (
     <header className="top-navbar">
-      <div style={{ display: "flex", alignItems: "center", gap: "12px", width: "40%" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: "12px", width: "360px" }}>
         <Search size={18} style={{ color: "var(--muted)" }} />
         <input 
           type="text" 

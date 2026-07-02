@@ -391,49 +391,49 @@ export default function NomineePage() {
           </div>
 
           <div>
-            <label className="form-label">Phone Number <span style={{ color: "var(--danger)" }}>*</span></label>
+            <label className="form-label">Nominee Phone Number <span style={{ color: "var(--danger)" }}>*</span></label>
             <input 
               type="text" 
               value={phone} 
               onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))} 
               className="form-input" 
-              placeholder="10-digit Mobile No" 
+              placeholder="10-digit Nominee Mobile No" 
               required 
               pattern="\d{10}"
               maxLength={10}
-              title="Phone number must be exactly 10 digits"
+              title="Nominee phone number must be exactly 10 digits"
             />
           </div>
 
           <div>
-            <label className="form-label">Email Address <span style={{ color: "var(--danger)" }}>*</span></label>
+            <label className="form-label">Nominee Email Address <span style={{ color: "var(--danger)" }}>*</span></label>
             <input 
               type="email" 
               value={email} 
               onChange={(e) => setEmail(e.target.value)} 
               className="form-input" 
-              placeholder="email@example.com" 
+              placeholder="nominee@example.com" 
               required 
             />
           </div>
 
           <div>
-            <label className="form-label">Aadhaar Card No <span style={{ color: "var(--danger)" }}>*</span></label>
+            <label className="form-label">Nominee Aadhaar Card No <span style={{ color: "var(--danger)" }}>*</span></label>
             <input 
               type="text" 
               value={aadhaar} 
               onChange={(e) => setAadhaar(e.target.value.replace(/\D/g, ''))} 
               className="form-input" 
-              placeholder="12-digit Aadhaar No" 
+              placeholder="12-digit Nominee Aadhaar No" 
               required 
               pattern="\d{12}"
               maxLength={12}
-              title="Aadhaar card number must be exactly 12 digits"
+              title="Nominee Aadhaar card number must be exactly 12 digits"
             />
           </div>
 
           <div>
-            <label className="form-label">Do you have a PAN Card? <span style={{ color: "var(--danger)" }}>*</span></label>
+            <label className="form-label">Do you have a Nominee PAN Card? <span style={{ color: "var(--danger)" }}>*</span></label>
             <select 
               value={hasPan} 
               onChange={(e) => {
@@ -454,17 +454,17 @@ export default function NomineePage() {
 
           {hasPan === "yes" && (
             <div>
-              <label className="form-label">PAN Card No <span style={{ color: "var(--danger)" }}>*</span></label>
+              <label className="form-label">Nominee PAN Card No <span style={{ color: "var(--danger)" }}>*</span></label>
               <input 
                 type="text" 
                 value={pan} 
                 onChange={(e) => setPan(e.target.value.toUpperCase())} 
                 className="form-input" 
-                placeholder="10-digit PAN No" 
+                placeholder="10-digit Nominee PAN No" 
                 pattern="[A-Za-z]{5}\d{4}[A-Za-z]{1}"
                 maxLength={10}
                 required
-                title="PAN card must be in a valid format (e.g. ABCDE1234F)"
+                title="Nominee PAN card must be in a valid format (e.g. ABCDE1234F)"
                 style={{ textTransform: "uppercase" }}
               />
             </div>
@@ -486,14 +486,14 @@ export default function NomineePage() {
           </div>
 
           <div>
-            <label className="form-label">Relation <span style={{ color: "var(--danger)" }}>*</span></label>
+            <label className="form-label">Nominee Relation <span style={{ color: "var(--danger)" }}>*</span></label>
             <select 
               value={relation} 
               onChange={(e) => setRelation(e.target.value)} 
               className="form-select"
               required
             >
-              <option value="">--Select Relation--</option>
+              <option value="">--Select Nominee Relation--</option>
               <option value="Spouse">Spouse</option>
               <option value="Son">Son</option>
               <option value="Daughter">Daughter</option>
@@ -512,12 +512,12 @@ export default function NomineePage() {
         </div>
 
         <div>
-          <label className="form-label">Aadhaar Registered Address <span style={{ color: "var(--danger)" }}>*</span></label>
+          <label className="form-label">Nominee Aadhaar Registered Address <span style={{ color: "var(--danger)" }}>*</span></label>
           <textarea 
             value={aadhaarAddress} 
             onChange={(e) => setAadhaarAddress(e.target.value)} 
             className="form-textarea" 
-            placeholder="Aadhaar card address details..." 
+            placeholder="Nominee Aadhaar card address details..." 
             rows={3} 
             required 
           />
@@ -534,7 +534,7 @@ export default function NomineePage() {
           }}
         >
           <label className="form-label" style={{ marginBottom: "10px", display: "block" }}>
-            Upload Aadhaar Card Image <span style={{ color: "var(--danger)" }}>*</span> <span style={{ color: "var(--muted)", fontWeight: "normal" }}>(Max 1MB)</span>
+            Upload Nominee Aadhaar Card Image <span style={{ color: "var(--danger)" }}>*</span> <span style={{ color: "var(--muted)", fontWeight: "normal" }}>(Max 1MB)</span>
           </label>
 
           <div style={{ display: "flex", gap: "16px", alignItems: "center", flexWrap: "wrap" }}>
@@ -558,7 +558,7 @@ export default function NomineePage() {
                 }}
               >
                 <Upload size={16} />
-                <span>Choose Aadhaar Image</span>
+                <span>Choose Nominee Aadhaar Image</span>
               </label>
             </div>
 
@@ -591,12 +591,12 @@ export default function NomineePage() {
               <div style={{ backgroundColor: "rgba(0,0,0,0.5)", padding: "4px 8px", display: "flex", alignItems: "center", gap: "6px" }}>
                 <FileText size={14} style={{ color: "var(--primary)" }} />
                 <span style={{ fontSize: "11px", color: "#fff", textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap" }}>
-                  aadhaar_card_attachment.jpg
+                  nominee_aadhaar_card_attachment.jpg
                 </span>
               </div>
               <img 
                 src={aadhaarImage} 
-                alt="Aadhaar Preview" 
+                alt="Nominee Aadhaar Preview" 
                 style={{ width: "100%", height: "auto", display: "block" }} 
               />
             </div>
@@ -615,7 +615,7 @@ export default function NomineePage() {
             }}
           >
             <label className="form-label" style={{ marginBottom: "10px", display: "block" }}>
-              Upload PAN Card Image <span style={{ color: "var(--danger)" }}>*</span> <span style={{ color: "var(--muted)", fontWeight: "normal" }}>(Max 1MB)</span>
+              Upload Nominee PAN Card Image <span style={{ color: "var(--danger)" }}>*</span> <span style={{ color: "var(--muted)", fontWeight: "normal" }}>(Max 1MB)</span>
             </label>
 
             <div style={{ display: "flex", gap: "16px", alignItems: "center", flexWrap: "wrap" }}>
@@ -639,7 +639,7 @@ export default function NomineePage() {
                   }}
                 >
                   <Upload size={16} />
-                  <span>Choose PAN Image</span>
+                  <span>Choose Nominee PAN Image</span>
                 </label>
               </div>
 
@@ -672,12 +672,12 @@ export default function NomineePage() {
                 <div style={{ backgroundColor: "rgba(0,0,0,0.5)", padding: "4px 8px", display: "flex", alignItems: "center", gap: "6px" }}>
                   <FileText size={14} style={{ color: "var(--primary)" }} />
                   <span style={{ fontSize: "11px", color: "#fff", textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap" }}>
-                    pan_card_attachment.jpg
+                    nominee_pan_card_attachment.jpg
                   </span>
                 </div>
                 <img 
                   src={panImage} 
-                  alt="PAN Preview" 
+                  alt="Nominee PAN Preview" 
                   style={{ width: "100%", height: "auto", display: "block" }} 
                 />
               </div>

@@ -7,7 +7,7 @@ import { useVault, INSTRUMENT_TYPES, formatDateTime } from "./VaultContext";
 
 export default function DashboardSummary() {
   const router = useRouter();
-  const { vaultIndex, isDemo, getCategoryCount, nomineeDetails, lastLogin, getCategoryLastUpdated } = useVault();
+  const { vaultIndex, isDemo, getCategoryCount, nomineeDetails, lastLogin, getCategoryLastUpdated, searchTerm } = useVault();
 
   const totalAssets = vaultIndex.files.length;
   const uniqueCategories = new Set(vaultIndex.files.map(f => f.category)).size;
@@ -24,7 +24,7 @@ export default function DashboardSummary() {
         {lastLogin && (
           <div style={{ padding: "8px 14px", backgroundColor: "#1e293b", border: "1px solid var(--card-border)", borderRadius: "8px", textAlign: "right" }}>
             <span style={{ fontSize: "10px", color: "var(--muted)", fontWeight: "600", textTransform: "uppercase", display: "block", marginBottom: "2px" }}>
-              Last Decrypted Session
+              Last Login Session
             </span>
             <strong style={{ fontSize: "13px", color: "#38bdf8" }}>{lastLogin}</strong>
           </div>
@@ -107,7 +107,10 @@ export default function DashboardSummary() {
       {/* Categories Grid List */}
       <h2 style={{ fontSize: "18px", fontWeight: "750", color: "#ffffff", margin: "24px 0 16px 0" }}>Instruments Distribution</h2>
       <div className="form-grid form-grid-3">
-        {INSTRUMENT_TYPES.map((type) => {
+        {INSTRUMENT_TYPES.filter((type) => {
+          if (!searchTerm) return true;
+          return type.label.toLowerCase().includes(searchTerm.toLowerCase());
+        }).map((type) => {
           const count = getCategoryCount(type.id);
           const rawLastUpdated = getCategoryLastUpdated(type.id);
           const lastUpdatedStr = rawLastUpdated ? formatDateTime(rawLastUpdated) : "";

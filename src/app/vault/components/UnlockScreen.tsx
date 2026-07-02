@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { FolderKey, KeyRound, Info, ShieldAlert, EyeOff, Eye, Copy, Check } from "lucide-react";
+import { FolderKey, KeyRound, Info, ShieldAlert, EyeOff, Eye, Copy, Check, User } from "lucide-react";
 import { useVault } from "./VaultContext";
 
 export default function UnlockScreen() {
@@ -9,19 +9,57 @@ export default function UnlockScreen() {
     isDemo, session, passphrase, setPassphrase, passConfirm, setPassConfirm,
     salt, mnemonic, confirmMnemonic, setConfirmMnemonic, passVisible, setPassVisible,
     passError, setPassError, copySuccess, setCopySuccess, handleUnlock,
-    handleCreatePassphrase, handleVerifyMnemonic, handleLogout
+    handleCreatePassphrase, handleVerifyMnemonic, handleLogout, setOwnerDetails
   } = useVault();
 
-  // Local step state for onboarding: "passphrase" | "show-mnemonic" | "verify-mnemonic"
-  const [setupStep, setSetupStep] = useState<"passphrase" | "show-mnemonic" | "verify-mnemonic">("passphrase");
+  // Local step state for onboarding: "passphrase" | "owner-details" | "show-mnemonic"
+  const [setupStep, setSetupStep] = useState<"passphrase" | "owner-details" | "show-mnemonic">("passphrase");
   const [showWarningModal, setShowWarningModal] = useState(true);
 
+  // Owner Details Form State
+  const [ownerName, setOwnerName] = useState("");
+  const [ownerAddress, setOwnerAddress] = useState("");
+  const [ownerPhone, setOwnerPhone] = useState("");
+  const [ownerAadhaar, setOwnerAadhaar] = useState("");
+  const [ownerPan, setOwnerPan] = useState("");
+
   const onCreatePassphraseSubmit = (e: React.FormEvent) => {
-    handleCreatePassphrase(e);
-    // If successfully validated and mnemonic is generated, move to show-mnemonic
-    if (passphrase.length >= 8 && passphrase === passConfirm) {
-      setSetupStep("show-mnemonic");
+    const success = handleCreatePassphrase(e);
+    if (success) {
+      setSetupStep("owner-details");
     }
+  };
+
+  const onOwnerDetailsSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setPassError("");
+
+    // Validate Phone number (10 digits)
+    if (!/^\d{10}$/.test(ownerPhone)) {
+      setPassError("Phone number must be exactly 10 digits.");
+      return;
+    }
+    // Validate Aadhaar (12 digits)
+    if (!/^\d{12}$/.test(ownerAadhaar)) {
+      setPassError("Aadhaar card number must be exactly 12 digits.");
+      return;
+    }
+    // Validate PAN Card format (5 letters, 4 digits, 1 letter)
+    const panRegex = /[A-Z]{5}\d{4}[A-Z]{1}/i;
+    if (!panRegex.test(ownerPan)) {
+      setPassError("PAN card number must be in a valid format (e.g. ABCDE1234F).");
+      return;
+    }
+
+    setOwnerDetails({
+      name: ownerName,
+      address: ownerAddress,
+      phoneNo: ownerPhone,
+      aadhaarNo: ownerAadhaar,
+      panCardNo: ownerPan.toUpperCase(),
+    });
+
+    setSetupStep("show-mnemonic");
   };
 
   const handleCopyMnemonic = () => {
@@ -53,7 +91,7 @@ export default function UnlockScreen() {
                   type={passVisible ? "text" : "password"}
                   value={passphrase}
                   onChange={(e) => setPassphrase(e.target.value)}
-                  placeholder="Enter passphrase to derive decryption key"
+                  placeholder="Enter your master passphrase to unlock"
                   required
                   style={{ width: "100%", padding: "12px 48px 12px 14px", backgroundColor: "#1e293b", border: "1px solid var(--card-border)", borderRadius: "10px", color: "#fff", fontSize: "15px" }}
                 />
@@ -75,7 +113,7 @@ export default function UnlockScreen() {
             )}
 
             <button type="submit" className="btn-cta-primary" style={{ width: "100%", border: "none", marginTop: "10px" }}>
-              Decrypt Vault
+              Unlock Vault
             </button>
 
             <button type="button" onClick={handleLogout} className="btn-cta-secondary" style={{ width: "100%" }}>
@@ -151,7 +189,7 @@ export default function UnlockScreen() {
             <div style={{ backgroundColor: "rgba(99, 102, 241, 0.05)", border: "1px solid rgba(99, 102, 241, 0.15)", borderRadius: "10px", padding: "16px", display: "flex", gap: "12px" }}>
               <Info style={{ color: "var(--primary)", flexShrink: 0 }} size={20} />
               <p style={{ fontSize: "13px", color: "#cbd5e1", lineHeight: "1.5" }}>
-                This passphrase is used to encrypt your files. It is <strong>never</strong> uploaded to Google or any server. If you lose it, your data cannot be recovered.
+                This passphrase is used to encrypt your files. It must be at least <strong>8 characters</strong> and include <strong>1 uppercase</strong>, <strong>1 lowercase</strong>, <strong>1 number</strong>, and <strong>1 special character</strong> (e.g. Chirag@2102).
               </p>
             </div>
 
@@ -161,7 +199,7 @@ export default function UnlockScreen() {
                 type="password"
                 value={passphrase}
                 onChange={(e) => setPassphrase(e.target.value)}
-                placeholder="Min. 8 characters"
+                placeholder="Min. 8 chars (e.g. Chirag@2102)"
                 required
                 style={{ width: "100%", padding: "12px 14px", backgroundColor: "#1e293b", border: "1px solid var(--card-border)", borderRadius: "10px", color: "#fff", fontSize: "15px" }}
               />
@@ -193,6 +231,111 @@ export default function UnlockScreen() {
             <button type="button" onClick={handleLogout} className="btn-cta-secondary" style={{ width: "100%" }}>
               Cancel
             </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
+
+  // Render Owner Details step
+  if (setupStep === "owner-details") {
+    return (
+      <div className="signin-wrapper">
+        <div className="signin-card" style={{ maxWidth: "520px" }}>
+          <div className="signin-header">
+            <div className="logo-container flex-center">
+              <User style={{ width: "32px", height: "32px", color: "#fff" }} />
+            </div>
+            <h1 className="signin-title">Vault Owner Details</h1>
+            <p className="signin-subtitle">Please enter the vault owner's personal details.</p>
+          </div>
+
+          <form onSubmit={onOwnerDetailsSubmit} className="signin-body" style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+              <label className="form-label">Full Name <span style={{ color: "var(--danger)" }}>*</span></label>
+              <input
+                type="text"
+                value={ownerName}
+                onChange={(e) => setOwnerName(e.target.value)}
+                placeholder="Enter Full Legal Name"
+                required
+                className="form-input"
+                style={{ width: "100%", padding: "12px 14px", backgroundColor: "#1e293b", border: "1px solid var(--card-border)", borderRadius: "10px", color: "#fff", fontSize: "15px" }}
+              />
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+              <label className="form-label">Registered Mobile <span style={{ color: "var(--danger)" }}>*</span></label>
+              <input
+                type="text"
+                value={ownerPhone}
+                onChange={(e) => setOwnerPhone(e.target.value.replace(/\D/g, ''))}
+                placeholder="10-digit Mobile No"
+                required
+                pattern="\d{10}"
+                maxLength={10}
+                className="form-input"
+                style={{ width: "100%", padding: "12px 14px", backgroundColor: "#1e293b", border: "1px solid var(--card-border)", borderRadius: "10px", color: "#fff", fontSize: "15px" }}
+              />
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+              <label className="form-label">Aadhaar Card No <span style={{ color: "var(--danger)" }}>*</span></label>
+              <input
+                type="text"
+                value={ownerAadhaar}
+                onChange={(e) => setOwnerAadhaar(e.target.value.replace(/\D/g, ''))}
+                placeholder="12-digit Aadhaar No"
+                required
+                pattern="\d{12}"
+                maxLength={12}
+                className="form-input"
+                style={{ width: "100%", padding: "12px 14px", backgroundColor: "#1e293b", border: "1px solid var(--card-border)", borderRadius: "10px", color: "#fff", fontSize: "15px" }}
+              />
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+              <label className="form-label">PAN Card No <span style={{ color: "var(--danger)" }}>*</span></label>
+              <input
+                type="text"
+                value={ownerPan}
+                onChange={(e) => setOwnerPan(e.target.value.toUpperCase())}
+                placeholder="10-digit PAN No"
+                required
+                maxLength={10}
+                className="form-input"
+                style={{ width: "100%", padding: "12px 14px", backgroundColor: "#1e293b", border: "1px solid var(--card-border)", borderRadius: "10px", color: "#fff", fontSize: "15px", textTransform: "uppercase" }}
+              />
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+              <label className="form-label">Address <span style={{ color: "var(--danger)" }}>*</span></label>
+              <textarea
+                value={ownerAddress}
+                onChange={(e) => setOwnerAddress(e.target.value)}
+                placeholder="Enter Residential Address"
+                required
+                rows={3}
+                className="form-textarea"
+                style={{ width: "100%", padding: "12px 14px", backgroundColor: "#1e293b", border: "1px solid var(--card-border)", borderRadius: "10px", color: "#fff", fontSize: "15px", resize: "none" }}
+              />
+            </div>
+
+            {passError && (
+              <div style={{ display: "flex", gap: "8px", alignItems: "center", color: "#f87171", fontSize: "13px" }}>
+                <ShieldAlert size={16} />
+                <span>{passError}</span>
+              </div>
+            )}
+
+            <div style={{ display: "flex", gap: "10px" }}>
+              <button type="button" onClick={() => setSetupStep("passphrase")} className="btn-cta-secondary" style={{ flex: 1 }}>
+                Go Back
+              </button>
+              <button type="submit" className="btn-cta-primary" style={{ flex: 1, border: "none" }}>
+                Continue
+              </button>
+            </div>
           </form>
         </div>
       </div>
@@ -231,8 +374,8 @@ export default function UnlockScreen() {
                 {copySuccess ? <Check size={18} style={{ color: "var(--success)" }} /> : <Copy size={18} />}
                 <span>{copySuccess ? "Copied" : "Copy Words"}</span>
               </button>
-              <button onClick={() => setSetupStep("verify-mnemonic")} className="btn-cta-primary" style={{ flex: 1, border: "none" }}>
-                Confirm Mnemonic
+              <button onClick={() => handleVerifyMnemonic()} className="btn-cta-primary" style={{ flex: 1, border: "none" }}>
+                Complete Setup
               </button>
             </div>
           </div>

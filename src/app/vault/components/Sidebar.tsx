@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { FolderKey, LogOut, Notebook, ChevronDown, ChevronRight, Coins, UserCheck } from "lucide-react";
+import { FolderKey, LogOut, Notebook, ChevronDown, ChevronRight, Coins, UserCheck, User } from "lucide-react";
 import { useVault, INSTRUMENT_TYPES, getRecordDisplayName } from "./VaultContext";
 
 export default function Sidebar() {
@@ -12,7 +12,7 @@ export default function Sidebar() {
   const {
     session, isDemo, vaultIndex, getCategoryCount, handleLogout,
     instrumentsOpen, setInstrumentsOpen, openCategories, setOpenCategories,
-    nomineeDetails
+    nomineeDetails, searchTerm, ownerDetails
   } = useVault();
 
   // If a category has files, we can automatically expand it if we are currently visiting its route
@@ -81,6 +81,22 @@ export default function Sidebar() {
           )}
         </Link>
 
+        <Link 
+          href={isDemo ? "/vault/owner?demo=true" : "/vault/owner"}
+          className={`menu-item ${pathname === "/vault/owner" ? "active" : ""}`}
+          style={{ textDecoration: "none" }}
+        >
+          <span className="menu-icon-text">
+            <User size={18} />
+            <span>Vault Owner</span>
+          </span>
+          {ownerDetails && (
+            <span style={{ fontSize: "10px", backgroundColor: "rgba(56,189,248,0.15)", color: "#38bdf8", padding: "1px 6px", borderRadius: "10px", fontWeight: "bold" }}>
+              Saved
+            </span>
+          )}
+        </Link>
+
 
         <button 
           onClick={() => setInstrumentsOpen(!instrumentsOpen)}
@@ -97,7 +113,10 @@ export default function Sidebar() {
         {/* Submenu Dropdown Items */}
         {instrumentsOpen && (
           <div className="submenu-container">
-            {INSTRUMENT_TYPES.map((type) => {
+            {INSTRUMENT_TYPES.filter((type) => {
+              if (!searchTerm) return true;
+              return type.label.toLowerCase().includes(searchTerm.toLowerCase());
+            }).map((type) => {
               const count = getCategoryCount(type.id);
               const isCatActive = pathname === `/vault/${type.id}`;
               const isExpanded = !!openCategories[type.id];
@@ -156,10 +175,10 @@ export default function Sidebar() {
 
       {/* Logout/Lock */}
       <div style={{ marginTop: "auto", padding: "16px", borderTop: "1px solid var(--card-border)" }}>
-        <button onClick={handleLogout} className="menu-item" style={{ color: "var(--danger)" }}>
-          <span className="menu-icon-text">
+        <button onClick={handleLogout} className="menu-item" style={{ color: "var(--danger)", width: "100%", background: "none", border: "none" }}>
+          <span className="menu-icon-text" style={{ color: "var(--danger)" }}>
             <LogOut size={18} />
-            <span>Lock Vault</span>
+            <span>Logout</span>
           </span>
         </button>
       </div>

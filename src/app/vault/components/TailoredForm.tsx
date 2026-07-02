@@ -26,7 +26,7 @@ export default function TailoredForm({ categoryId, formData, updateFormField }: 
       return (
         <div className="form-grid form-grid-3">
           <div>
-            <label className="form-label">Select Person Type</label>
+            <label className="form-label">Select Person Type <span style={{ color: "var(--danger)" }}>*</span></label>
             <select 
               value={formData.personType || ""} 
               onChange={(e) => updateFormField("personType", e.target.value)} 
@@ -46,7 +46,7 @@ export default function TailoredForm({ categoryId, formData, updateFormField }: 
             </select>
           </div>
           <div>
-            <label className="form-label">Person Name</label>
+            <label className="form-label">Person Name <span style={{ color: "var(--danger)" }}>*</span></label>
             <input 
               type="text" 
               value={formData.personName || ""} 
@@ -57,7 +57,7 @@ export default function TailoredForm({ categoryId, formData, updateFormField }: 
             />
           </div>
           <div>
-            <label className="form-label">Person Contact No</label>
+            <label className="form-label">Person Contact No <span style={{ color: "var(--danger)" }}>*</span></label>
             <input 
               type="text" 
               value={formData.contactNo || ""} 
@@ -97,7 +97,7 @@ export default function TailoredForm({ categoryId, formData, updateFormField }: 
       return (
         <div className="form-grid form-grid-3">
           <div>
-            <label className="form-label">Property Name</label>
+            <label className="form-label">Property Name <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.propertyName || ""} onChange={(e) => updateFormField("propertyName", e.target.value)} className="form-input" placeholder="e.g. Landmark Apartment" required />
           </div>
           <div>
@@ -105,7 +105,7 @@ export default function TailoredForm({ categoryId, formData, updateFormField }: 
             <input type="text" value={formData.propertyType || ""} onChange={(e) => updateFormField("propertyType", e.target.value)} className="form-input" placeholder="e.g. Apartment, Land, Villa" />
           </div>
           <div>
-            <label className="form-label">Owner Name</label>
+            <label className="form-label">Owner Name <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.ownerName || ""} onChange={(e) => updateFormField("ownerName", e.target.value)} className="form-input" placeholder="Owner name" required />
           </div>
           <div>
@@ -121,10 +121,10 @@ export default function TailoredForm({ categoryId, formData, updateFormField }: 
           </div>
           <div>
             <label className="form-label">Estimated Value</label>
-            <input type="text" value={formData.propertyValue || ""} onChange={(e) => updateFormField("propertyValue", e.target.value)} className="form-input" placeholder="e.g. $250,000" />
+            <input type="text" value={formData.propertyValue || ""} onChange={(e) => updateFormField("propertyValue", e.target.value)} className="form-input" placeholder="e.g. ₹2,50,000" />
           </div>
           <div className="form-field-full">
-            <label className="form-label">Property Address</label>
+            <label className="form-label">Property Address <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.propertyAddress || ""} onChange={(e) => updateFormField("propertyAddress", e.target.value)} className="form-input" placeholder="Enter Address details" required />
           </div>
           <div>
@@ -142,7 +142,7 @@ export default function TailoredForm({ categoryId, formData, updateFormField }: 
       return (
         <div className="form-grid form-grid-3">
           <div>
-            <label className="form-label">DP Name / Broker Name</label>
+            <label className="form-label">DP Name / Broker Name <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.dpName || ""} onChange={(e) => updateFormField("dpName", e.target.value)} className="form-input" placeholder="e.g. Zerodha, NSDL" required />
           </div>
           <div>
@@ -154,11 +154,11 @@ export default function TailoredForm({ categoryId, formData, updateFormField }: 
             </select>
           </div>
           <div>
-            <label className="form-label">DP ID / Client ID / BO ID</label>
+            <label className="form-label">DP ID / Client ID / BO ID <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.clientId || ""} onChange={(e) => updateFormField("clientId", e.target.value)} className="form-input" placeholder="Enter BO ID / Client ID" required />
           </div>
           <div>
-            <label className="form-label">Nominee Name</label>
+            <label className="form-label">Nominee Name <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.nomineeName || ""} onChange={(e) => updateFormField("nomineeName", e.target.value)} className="form-input" placeholder="Nominee" required />
           </div>
           <div>
@@ -172,6 +172,10 @@ export default function TailoredForm({ categoryId, formData, updateFormField }: 
             <label className="form-label">Registered Mobile</label>
             <input type="text" value={formData.registeredMobile || ""} onChange={(e) => updateFormField("registeredMobile", e.target.value.replace(/\D/g, ''))} className="form-input" placeholder="10-digit Registered Mobile" pattern="\d{10}" maxLength={10} />
           </div>
+          <div>
+            <label className="form-label">Registered Email</label>
+            <input type="email" value={formData.registeredEmail || ""} onChange={(e) => updateFormField("registeredEmail", e.target.value)} className="form-input" placeholder="Registered Email Address" />
+          </div>
           <div className="form-field-full">
             <label className="form-label">What should my nominee know?</label>
             <textarea value={formData.nomineeKnow || ""} onChange={(e) => updateFormField("nomineeKnow", e.target.value)} className="form-textarea" placeholder="Enter instructions for nominee..." rows={4} />
@@ -183,11 +187,11 @@ export default function TailoredForm({ categoryId, formData, updateFormField }: 
       return (
         <div className="form-grid form-grid-3">
           <div>
-            <label className="form-label">Broker Name</label>
+            <label className="form-label">Broker Name <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.brokerName || ""} onChange={(e) => updateFormField("brokerName", e.target.value)} className="form-input" placeholder="e.g. AngelOne, Groww" required />
           </div>
           <div>
-            <label className="form-label">Client UCC / Code</label>
+            <label className="form-label">Client UCC / Code <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.clientUcc || ""} onChange={(e) => updateFormField("clientUcc", e.target.value)} className="form-input" placeholder="Enter Client UCC" required />
           </div>
           <div>
@@ -195,7 +199,7 @@ export default function TailoredForm({ categoryId, formData, updateFormField }: 
             <input type="text" value={formData.clientId || ""} onChange={(e) => updateFormField("clientId", e.target.value)} className="form-input" placeholder="Enter Client ID" />
           </div>
           <div>
-            <label className="form-label">Nominee Name</label>
+            <label className="form-label">Nominee Name <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.nomineeName || ""} onChange={(e) => updateFormField("nomineeName", e.target.value)} className="form-input" placeholder="Nominee" required />
           </div>
           <div>
@@ -224,7 +228,7 @@ export default function TailoredForm({ categoryId, formData, updateFormField }: 
       return (
         <div className="form-grid form-grid-3">
           <div>
-            <label className="form-label">Fund House / AMC / Investment Platform</label>
+            <label className="form-label">Fund House / AMC / Investment Platform <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.fundHouse || ""} onChange={(e) => updateFormField("fundHouse", e.target.value)} className="form-input" placeholder="e.g. SBI Mutual Fund, Groww" required />
           </div>
           <div>
@@ -232,11 +236,11 @@ export default function TailoredForm({ categoryId, formData, updateFormField }: 
             <input type="text" value={formData.amcPlatform || ""} onChange={(e) => updateFormField("amcPlatform", e.target.value)} className="form-input" placeholder="AMC / Platform Name" />
           </div>
           <div>
-            <label className="form-label">Folio Number</label>
+            <label className="form-label">Folio Number <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.folioNo || ""} onChange={(e) => updateFormField("folioNo", e.target.value)} className="form-input" placeholder="Enter Folio number" required />
           </div>
           <div>
-            <label className="form-label">Scheme Name</label>
+            <label className="form-label">Scheme Name <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.schemeName || ""} onChange={(e) => updateFormField("schemeName", e.target.value)} className="form-input" placeholder="e.g. Bluechip Growth Fund" required />
           </div>
           <div>
@@ -273,7 +277,7 @@ export default function TailoredForm({ categoryId, formData, updateFormField }: 
       return (
         <div className="form-grid form-grid-3">
           <div>
-            <label className="form-label">PMS Provider</label>
+            <label className="form-label">PMS Provider <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.providerName || ""} onChange={(e) => updateFormField("providerName", e.target.value)} className="form-input" placeholder="e.g. Kotak PMS, ASK" required />
           </div>
           <div>
@@ -281,7 +285,7 @@ export default function TailoredForm({ categoryId, formData, updateFormField }: 
             <input type="text" value={formData.portfolioName || ""} onChange={(e) => updateFormField("portfolioName", e.target.value)} className="form-input" placeholder="Portfolio Name" />
           </div>
           <div>
-            <label className="form-label">Account Number</label>
+            <label className="form-label">Account Number <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.accountNo || ""} onChange={(e) => updateFormField("accountNo", e.target.value)} className="form-input" placeholder="Enter PMS Account No" required />
           </div>
           <div>
@@ -293,7 +297,7 @@ export default function TailoredForm({ categoryId, formData, updateFormField }: 
             <input type="text" value={formData.contactNumber || ""} onChange={(e) => updateFormField("contactNumber", e.target.value.replace(/\D/g, ''))} className="form-input" placeholder="RM Contact No" pattern="\d{10}" maxLength={10} />
           </div>
           <div>
-            <label className="form-label">Nominee Name</label>
+            <label className="form-label">Nominee Name <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.nomineeName || ""} onChange={(e) => updateFormField("nomineeName", e.target.value)} className="form-input" placeholder="Nominee registered" required />
           </div>
           <div>
@@ -318,7 +322,7 @@ export default function TailoredForm({ categoryId, formData, updateFormField }: 
       return (
         <div className="form-grid form-grid-3">
           <div>
-            <label className="form-label">Fund Name</label>
+            <label className="form-label">Fund Name <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.fundName || ""} onChange={(e) => updateFormField("fundName", e.target.value)} className="form-input" placeholder="e.g. True Beacon AIF" required />
           </div>
           <div>
@@ -326,7 +330,7 @@ export default function TailoredForm({ categoryId, formData, updateFormField }: 
             <input type="text" value={formData.category || ""} onChange={(e) => updateFormField("category", e.target.value)} className="form-input" placeholder="e.g. Category II, Category III" />
           </div>
           <div>
-            <label className="form-label">Investment Code / Folio</label>
+            <label className="form-label">Investment Code / Folio <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.investmentCode || ""} onChange={(e) => updateFormField("investmentCode", e.target.value)} className="form-input" placeholder="Enter Investment Code" required />
           </div>
           <div>
@@ -338,7 +342,7 @@ export default function TailoredForm({ categoryId, formData, updateFormField }: 
             <input type="text" value={formData.contactNumber || ""} onChange={(e) => updateFormField("contactNumber", e.target.value.replace(/\D/g, ''))} className="form-input" placeholder="Contact number" pattern="\d{10}" maxLength={10} />
           </div>
           <div>
-            <label className="form-label">Nominee Name</label>
+            <label className="form-label">Nominee Name <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.nomineeName || ""} onChange={(e) => updateFormField("nomineeName", e.target.value)} className="form-input" placeholder="Nominee registered" required />
           </div>
           <div>
@@ -363,7 +367,7 @@ export default function TailoredForm({ categoryId, formData, updateFormField }: 
       return (
         <div className="form-grid form-grid-3">
           <div>
-            <label className="form-label">Company / Fund Name</label>
+            <label className="form-label">Company / Fund Name <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.companyName || ""} onChange={(e) => updateFormField("companyName", e.target.value)} className="form-input" placeholder="e.g. Acme Corp" required />
           </div>
           <div>
@@ -379,11 +383,11 @@ export default function TailoredForm({ categoryId, formData, updateFormField }: 
             <input type="text" value={formData.contactNumber || ""} onChange={(e) => updateFormField("contactNumber", e.target.value.replace(/\D/g, ''))} className="form-input" placeholder="Contact number" pattern="\d{10}" maxLength={10} />
           </div>
           <div>
-            <label className="form-label">Investment Amount</label>
+            <label className="form-label">Investment Amount <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.amount || ""} onChange={(e) => updateFormField("amount", e.target.value)} className="form-input" placeholder="e.g. ₹10,00,000" required />
           </div>
           <div>
-            <label className="form-label">Nominee Name</label>
+            <label className="form-label">Nominee Name <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.nomineeName || ""} onChange={(e) => updateFormField("nomineeName", e.target.value)} className="form-input" placeholder="Nominee" required />
           </div>
           <div>
@@ -404,7 +408,7 @@ export default function TailoredForm({ categoryId, formData, updateFormField }: 
       return (
         <div className="form-grid form-grid-3">
           <div>
-            <label className="form-label">Startup Name</label>
+            <label className="form-label">Startup Name <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.startupName || ""} onChange={(e) => updateFormField("startupName", e.target.value)} className="form-input" placeholder="e.g. TechLabs Pvt Ltd" required />
           </div>
           <div>
@@ -420,11 +424,11 @@ export default function TailoredForm({ categoryId, formData, updateFormField }: 
             <input type="text" value={formData.shareholdingDetails || ""} onChange={(e) => updateFormField("shareholdingDetails", e.target.value)} className="form-input" placeholder="e.g. Certificate No, Folio" />
           </div>
           <div>
-            <label className="form-label">Equity %</label>
+            <label className="form-label">Equity % <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.equityPercent || ""} onChange={(e) => updateFormField("equityPercent", e.target.value)} className="form-input" placeholder="e.g. 2.5%" required />
           </div>
           <div>
-            <label className="form-label">Amount Invested</label>
+            <label className="form-label">Amount Invested <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.amount || ""} onChange={(e) => updateFormField("amount", e.target.value)} className="form-input" placeholder="e.g. ₹5,00,000" required />
           </div>
           <div>
@@ -432,7 +436,7 @@ export default function TailoredForm({ categoryId, formData, updateFormField }: 
             <input type="text" value={formData.contactNumber || ""} onChange={(e) => updateFormField("contactNumber", e.target.value.replace(/\D/g, ''))} className="form-input" placeholder="Contact number" pattern="\d{10}" maxLength={10} />
           </div>
           <div>
-            <label className="form-label">Nominee Name</label>
+            <label className="form-label">Nominee Name <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.nomineeName || ""} onChange={(e) => updateFormField("nomineeName", e.target.value)} className="form-input" placeholder="Nominee" required />
           </div>
           <div className="form-field-full">
@@ -446,7 +450,7 @@ export default function TailoredForm({ categoryId, formData, updateFormField }: 
       return (
         <div className="form-grid form-grid-3">
           <div>
-            <label className="form-label">Account Number / UAN</label>
+            <label className="form-label">Account Number / UAN <span style={{ color: "var(--danger)" }}>*</span></label>
             <input 
               type="text" 
               value={formData.uanNumber || ""} 
@@ -472,7 +476,7 @@ export default function TailoredForm({ categoryId, formData, updateFormField }: 
             <input type="text" value={formData.employerBank || ""} onChange={(e) => updateFormField("employerBank", e.target.value)} className="form-input" placeholder="Employer Name or Bank Name" />
           </div>
           <div>
-            <label className="form-label">Nominee Name</label>
+            <label className="form-label">Nominee Name <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.nomineeName || ""} onChange={(e) => updateFormField("nomineeName", e.target.value)} className="form-input" placeholder="Nominee" required />
           </div>
           <div>
@@ -501,7 +505,7 @@ export default function TailoredForm({ categoryId, formData, updateFormField }: 
       return (
         <div className="form-grid form-grid-3">
           <div>
-            <label className="form-label">Bank Name</label>
+            <label className="form-label">Bank Name <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.bankName || ""} onChange={(e) => updateFormField("bankName", e.target.value)} className="form-input" placeholder="e.g. HDFC Bank" required />
           </div>
           <div>
@@ -509,7 +513,7 @@ export default function TailoredForm({ categoryId, formData, updateFormField }: 
             <input type="text" value={formData.branch || ""} onChange={(e) => updateFormField("branch", e.target.value)} className="form-input" placeholder="Branch Name" />
           </div>
           <div>
-            <label className="form-label">Account Number</label>
+            <label className="form-label">Account Number <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.accountNo || ""} onChange={(e) => updateFormField("accountNo", e.target.value)} className="form-input" placeholder="Enter Account number" required />
           </div>
           <div>
@@ -539,7 +543,7 @@ export default function TailoredForm({ categoryId, formData, updateFormField }: 
             <input type="text" value={formData.jointHolder || ""} onChange={(e) => updateFormField("jointHolder", e.target.value)} className="form-input" placeholder="Joint Holder Name (if any)" />
           </div>
           <div>
-            <label className="form-label">Nominee Name</label>
+            <label className="form-label">Nominee Name <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.nomineeName || ""} onChange={(e) => updateFormField("nomineeName", e.target.value)} className="form-input" placeholder="Nominee registered" required />
           </div>
           <div>
@@ -560,7 +564,7 @@ export default function TailoredForm({ categoryId, formData, updateFormField }: 
       return (
         <div className="form-grid form-grid-3">
           <div>
-            <label className="form-label">Bank Name / NBFC</label>
+            <label className="form-label">Bank Name / NBFC <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.bankName || ""} onChange={(e) => updateFormField("bankName", e.target.value)} className="form-input" placeholder="e.g. ICICI Bank, Bajaj Finance" required />
           </div>
           <div>
@@ -568,7 +572,7 @@ export default function TailoredForm({ categoryId, formData, updateFormField }: 
             <input type="text" value={formData.bankNbfc || ""} onChange={(e) => updateFormField("bankNbfc", e.target.value)} className="form-input" placeholder="Bank or NBFC" />
           </div>
           <div>
-            <label className="form-label">Receipt Number / FD Number</label>
+            <label className="form-label">Receipt Number / FD Number <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.receiptNo || ""} onChange={(e) => updateFormField("receiptNo", e.target.value)} className="form-input" placeholder="FD Number" required />
           </div>
           <div>
@@ -576,7 +580,7 @@ export default function TailoredForm({ categoryId, formData, updateFormField }: 
             <input type="text" value={formData.branch || ""} onChange={(e) => updateFormField("branch", e.target.value)} className="form-input" placeholder="Branch Name" />
           </div>
           <div>
-            <label className="form-label">FD Principal Amount</label>
+            <label className="form-label">FD Principal Amount <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.amount || ""} onChange={(e) => updateFormField("amount", e.target.value)} className="form-input" placeholder="Amount deposited" required />
           </div>
           <div>
@@ -593,7 +597,7 @@ export default function TailoredForm({ categoryId, formData, updateFormField }: 
             />
           </div>
           <div>
-            <label className="form-label">Nominee Name</label>
+            <label className="form-label">Nominee Name <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.nomineeName || ""} onChange={(e) => updateFormField("nomineeName", e.target.value)} className="form-input" placeholder="Nominee" required />
           </div>
           <div>
@@ -614,7 +618,7 @@ export default function TailoredForm({ categoryId, formData, updateFormField }: 
       return (
         <div className="form-grid form-grid-3">
           <div>
-            <label className="form-label">Exchange / Wallet Name</label>
+            <label className="form-label">Exchange / Wallet Name <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.exchangeWallet || ""} onChange={(e) => updateFormField("exchangeWallet", e.target.value)} className="form-input" placeholder="e.g. Ledger, Binance" required />
           </div>
           <div>
@@ -622,7 +626,7 @@ export default function TailoredForm({ categoryId, formData, updateFormField }: 
             <input type="text" value={formData.walletName || ""} onChange={(e) => updateFormField("walletName", e.target.value)} className="form-input" placeholder="e.g. MetaMask, TrustWallet" />
           </div>
           <div>
-            <label className="form-label">Coin / Token Symbol</label>
+            <label className="form-label">Coin / Token Symbol <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.coinToken || ""} onChange={(e) => updateFormField("coinToken", e.target.value)} className="form-input" placeholder="e.g. BTC, ETH" required />
           </div>
           <div>
@@ -655,7 +659,7 @@ export default function TailoredForm({ categoryId, formData, updateFormField }: 
       return (
         <div className="form-grid form-grid-3">
           <div>
-            <label className="form-label">NFT Name</label>
+            <label className="form-label">NFT Name <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.nftName || ""} onChange={(e) => updateFormField("nftName", e.target.value)} className="form-input" placeholder="e.g. Bored Ape #1234" required />
           </div>
           <div>
@@ -667,7 +671,7 @@ export default function TailoredForm({ categoryId, formData, updateFormField }: 
             <input type="text" value={formData.walletName || ""} onChange={(e) => updateFormField("walletName", e.target.value)} className="form-input" placeholder="e.g. MetaMask" />
           </div>
           <div>
-            <label className="form-label">Collection Name</label>
+            <label className="form-label">Collection Name <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.collectionName || ""} onChange={(e) => updateFormField("collectionName", e.target.value)} className="form-input" placeholder="e.g. BAYC" required />
           </div>
           <div>
@@ -684,7 +688,7 @@ export default function TailoredForm({ categoryId, formData, updateFormField }: 
             <input type="text" value={formData.recoveryPhraseLocation || ""} onChange={(e) => updateFormField("recoveryPhraseLocation", e.target.value)} className="form-input" placeholder="Recovery Phrase Location" />
           </div>
           <div>
-            <label className="form-label">Nominee Name</label>
+            <label className="form-label">Nominee Name <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.nomineeName || ""} onChange={(e) => updateFormField("nomineeName", e.target.value)} className="form-input" placeholder="Nominee" required />
           </div>
           <div>
@@ -709,15 +713,15 @@ export default function TailoredForm({ categoryId, formData, updateFormField }: 
             <input type="text" value={formData.investmentType || ""} onChange={(e) => updateFormField("investmentType", e.target.value)} className="form-input" placeholder="e.g. SGB, REIT, Bonds" />
           </div>
           <div>
-            <label className="form-label">Issuer Name</label>
+            <label className="form-label">Issuer Name <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.issuerName || ""} onChange={(e) => updateFormField("issuerName", e.target.value)} className="form-input" placeholder="e.g. RBI, NHAI, Sovereign Gold Bonds" required />
           </div>
           <div>
-            <label className="form-label">Certificate / Folio / Bond Ledger ID</label>
+            <label className="form-label">Certificate / Folio / Bond Ledger ID <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.certNo || ""} onChange={(e) => updateFormField("certNo", e.target.value)} className="form-input" placeholder="Enter Certificate or Folio No" required />
           </div>
           <div>
-            <label className="form-label">Investment Face Value / Amount</label>
+            <label className="form-label">Investment Face Value / Amount <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.amount || ""} onChange={(e) => updateFormField("amount", e.target.value)} className="form-input" placeholder="e.g. ₹50,00,000" required />
           </div>
           <div>
@@ -734,7 +738,7 @@ export default function TailoredForm({ categoryId, formData, updateFormField }: 
             />
           </div>
           <div>
-            <label className="form-label">Nominee Name</label>
+            <label className="form-label">Nominee Name <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.nomineeName || ""} onChange={(e) => updateFormField("nomineeName", e.target.value)} className="form-input" placeholder="Nominee" required />
           </div>
           <div>
@@ -755,11 +759,11 @@ export default function TailoredForm({ categoryId, formData, updateFormField }: 
       return (
         <div className="form-grid form-grid-3">
           <div>
-            <label className="form-label">Wallet Name</label>
+            <label className="form-label">Wallet Name <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.walletName || ""} onChange={(e) => updateFormField("walletName", e.target.value)} className="form-input" placeholder="e.g. Paytm, PhonePe, Google Pay" required />
           </div>
           <div>
-            <label className="form-label">Registered Mobile</label>
+            <label className="form-label">Registered Mobile <span style={{ color: "var(--danger)" }}>*</span></label>
             <input 
               type="text" 
               value={formData.registeredMobile || formData.linkedMobile || ""} 
@@ -805,7 +809,7 @@ export default function TailoredForm({ categoryId, formData, updateFormField }: 
       return (
         <div className="form-grid form-grid-3">
           <div>
-            <label className="form-label">Company Name (Asset Title)</label>
+            <label className="form-label">Company Name (Asset Title) <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.companyName || formData.assetTitle || ""} onChange={(e) => {
               updateFormField("companyName", e.target.value);
               updateFormField("assetTitle", e.target.value);
@@ -824,11 +828,11 @@ export default function TailoredForm({ categoryId, formData, updateFormField }: 
             <input type="text" value={formData.storageLocation || ""} onChange={(e) => updateFormField("storageLocation", e.target.value)} className="form-input" placeholder="e.g. Home Safe Locker" />
           </div>
           <div>
-            <label className="form-label">Estimated Value</label>
+            <label className="form-label">Estimated Value <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.amount || ""} onChange={(e) => updateFormField("amount", e.target.value)} className="form-input" placeholder="e.g. ₹5,00,000" required />
           </div>
           <div>
-            <label className="form-label">Nominee Name</label>
+            <label className="form-label">Nominee Name <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.nomineeName || ""} onChange={(e) => updateFormField("nomineeName", e.target.value)} className="form-input" placeholder="Nominee" required />
           </div>
           <div>
@@ -849,14 +853,14 @@ export default function TailoredForm({ categoryId, formData, updateFormField }: 
       return (
         <div className="form-grid form-grid-3">
           <div>
-            <label className="form-label">Insurance Company (Asset Title)</label>
+            <label className="form-label">Insurance Company (Asset Title) <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.insuranceCompany || formData.assetTitle || ""} onChange={(e) => {
               updateFormField("insuranceCompany", e.target.value);
               updateFormField("assetTitle", e.target.value);
             }} className="form-input" placeholder="e.g. LIC India" required />
           </div>
           <div>
-            <label className="form-label">Policy Number</label>
+            <label className="form-label">Policy Number <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.policyNo || ""} onChange={(e) => updateFormField("policyNo", e.target.value)} className="form-input" placeholder="Enter Policy No" required />
           </div>
           <div>
@@ -864,11 +868,11 @@ export default function TailoredForm({ categoryId, formData, updateFormField }: 
             <input type="text" value={formData.policyType || ""} onChange={(e) => updateFormField("policyType", e.target.value)} className="form-input" placeholder="e.g. Term Insurance, Endowment" />
           </div>
           <div>
-            <label className="form-label">Sum Assured / Value</label>
+            <label className="form-label">Sum Assured / Value <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.amount || ""} onChange={(e) => updateFormField("amount", e.target.value)} className="form-input" placeholder="e.g. ₹10,00,000" required />
           </div>
           <div>
-            <label className="form-label">Nominee Name</label>
+            <label className="form-label">Nominee Name <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.nomineeName || ""} onChange={(e) => updateFormField("nomineeName", e.target.value)} className="form-input" placeholder="Nominee" required />
           </div>
           <div>
@@ -886,14 +890,14 @@ export default function TailoredForm({ categoryId, formData, updateFormField }: 
       return (
         <div className="form-grid form-grid-3">
           <div>
-            <label className="form-label">Insurance Company (Asset Title)</label>
+            <label className="form-label">Insurance Company (Asset Title) <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.insuranceCompany || formData.assetTitle || ""} onChange={(e) => {
               updateFormField("insuranceCompany", e.target.value);
               updateFormField("assetTitle", e.target.value);
             }} className="form-input" placeholder="e.g. Star Health Insurance" required />
           </div>
           <div>
-            <label className="form-label">Policy Number</label>
+            <label className="form-label">Policy Number <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.policyNo || ""} onChange={(e) => updateFormField("policyNo", e.target.value)} className="form-input" placeholder="Enter Policy No" required />
           </div>
           <div>
@@ -905,11 +909,11 @@ export default function TailoredForm({ categoryId, formData, updateFormField }: 
             <input type="text" value={formData.tpaClaimContact || ""} onChange={(e) => updateFormField("tpaClaimContact", e.target.value)} className="form-input" placeholder="TPA Contact details" />
           </div>
           <div>
-            <label className="form-label">Cover Value</label>
+            <label className="form-label">Cover Value <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.amount || ""} onChange={(e) => updateFormField("amount", e.target.value)} className="form-input" placeholder="e.g. ₹5,00,000" required />
           </div>
           <div>
-            <label className="form-label">Nominee Name</label>
+            <label className="form-label">Nominee Name <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.nomineeName || ""} onChange={(e) => updateFormField("nomineeName", e.target.value)} className="form-input" placeholder="Nominee" required />
           </div>
           <div>
@@ -934,14 +938,14 @@ export default function TailoredForm({ categoryId, formData, updateFormField }: 
             <input type="text" value={formData.insuranceType || ""} onChange={(e) => updateFormField("insuranceType", e.target.value)} className="form-input" placeholder="e.g. Car Insurance" />
           </div>
           <div>
-            <label className="form-label">Insurance Company (Asset Title)</label>
+            <label className="form-label">Insurance Company (Asset Title) <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.insuranceCompany || formData.assetTitle || ""} onChange={(e) => {
               updateFormField("insuranceCompany", e.target.value);
               updateFormField("assetTitle", e.target.value);
             }} className="form-input" placeholder="e.g. HDFC Ergo" required />
           </div>
           <div>
-            <label className="form-label">Policy Number</label>
+            <label className="form-label">Policy Number <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.policyNo || ""} onChange={(e) => updateFormField("policyNo", e.target.value)} className="form-input" placeholder="Enter Policy No" required />
           </div>
           <div>
@@ -953,11 +957,11 @@ export default function TailoredForm({ categoryId, formData, updateFormField }: 
             <input type="text" value={formData.expiryDate || ""} onChange={(e) => updateFormField("expiryDate", e.target.value)} className="form-input" placeholder="Expiry Date Details" />
           </div>
           <div>
-            <label className="form-label">Sum Insured / Value</label>
+            <label className="form-label">Sum Insured / Value <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.amount || ""} onChange={(e) => updateFormField("amount", e.target.value)} className="form-input" placeholder="e.g. ₹3,50,000" required />
           </div>
           <div>
-            <label className="form-label">Nominee Name</label>
+            <label className="form-label">Nominee Name <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.nomineeName || ""} onChange={(e) => updateFormField("nomineeName", e.target.value)} className="form-input" placeholder="Nominee" required />
           </div>
           <div className="form-field-full">
@@ -971,14 +975,14 @@ export default function TailoredForm({ categoryId, formData, updateFormField }: 
       return (
         <div className="form-grid form-grid-3">
           <div>
-            <label className="form-label">Borrower Name (Asset Title)</label>
+            <label className="form-label">Borrower Name (Asset Title) <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.borrowerName || formData.assetTitle || ""} onChange={(e) => {
               updateFormField("borrowerName", e.target.value);
               updateFormField("assetTitle", e.target.value);
             }} className="form-input" placeholder="e.g. Rajesh Kumar" required />
           </div>
           <div>
-            <label className="form-label">Loan Amount</label>
+            <label className="form-label">Loan Amount <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.amount || ""} onChange={(e) => updateFormField("amount", e.target.value)} className="form-input" placeholder="e.g. ₹2,00,000" required />
           </div>
           <div>
@@ -994,7 +998,7 @@ export default function TailoredForm({ categoryId, formData, updateFormField }: 
             <input type="text" value={formData.repaymentStatus || ""} onChange={(e) => updateFormField("repaymentStatus", e.target.value)} className="form-input" placeholder="e.g. Ongoing, Due" />
           </div>
           <div>
-            <label className="form-label">Nominee Name / Successor</label>
+            <label className="form-label">Nominee Name / Successor <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.nomineeName || ""} onChange={(e) => updateFormField("nomineeName", e.target.value)} className="form-input" placeholder="Nominee" required />
           </div>
           <div>
@@ -1021,7 +1025,7 @@ export default function TailoredForm({ categoryId, formData, updateFormField }: 
       return (
         <div className="form-grid form-grid-3">
           <div>
-            <label className="form-label">Asset Name (Asset Title)</label>
+            <label className="form-label">Asset Name (Asset Title) <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.assetName || formData.assetTitle || ""} onChange={(e) => {
               updateFormField("assetName", e.target.value);
               updateFormField("assetTitle", e.target.value);
@@ -1047,11 +1051,11 @@ export default function TailoredForm({ categoryId, formData, updateFormField }: 
             <input type="text" value={formData.owner || ""} onChange={(e) => updateFormField("owner", e.target.value)} className="form-input" placeholder="Owner Name" />
           </div>
           <div>
-            <label className="form-label">Estimated Value</label>
+            <label className="form-label">Estimated Value <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.amount || ""} onChange={(e) => updateFormField("amount", e.target.value)} className="form-input" placeholder="e.g. ₹3,50,000" required />
           </div>
           <div>
-            <label className="form-label">Nominee Name</label>
+            <label className="form-label">Nominee Name <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.nomineeName || ""} onChange={(e) => updateFormField("nomineeName", e.target.value)} className="form-input" placeholder="Nominee" required />
           </div>
           <div className="form-field-full">
@@ -1069,11 +1073,11 @@ export default function TailoredForm({ categoryId, formData, updateFormField }: 
             <input type="text" value={formData.vehicleType || ""} onChange={(e) => updateFormField("vehicleType", e.target.value)} className="form-input" placeholder="e.g. Car, Motorcycle" />
           </div>
           <div>
-            <label className="form-label">Vehicle Model (Asset Title)</label>
+            <label className="form-label">Vehicle Model (Asset Title) <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.assetTitle || ""} onChange={(e) => updateFormField("assetTitle", e.target.value)} className="form-input" placeholder="e.g. Honda City" required />
           </div>
           <div>
-            <label className="form-label">Registration / Plate No</label>
+            <label className="form-label">Registration / Plate No <span style={{ color: "var(--danger)" }}>*</span></label>
             <input 
               type="text" 
               value={formData.registrationNo || ""} 
@@ -1097,11 +1101,11 @@ export default function TailoredForm({ categoryId, formData, updateFormField }: 
             <input type="text" value={formData.primaryDriver || ""} onChange={(e) => updateFormField("primaryDriver", e.target.value)} className="form-input" placeholder="Primary Driver" />
           </div>
           <div>
-            <label className="form-label">Estimated Value</label>
+            <label className="form-label">Estimated Value <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.amount || ""} onChange={(e) => updateFormField("amount", e.target.value)} className="form-input" placeholder="e.g. ₹6,00,000" required />
           </div>
           <div>
-            <label className="form-label">Nominee Name</label>
+            <label className="form-label">Nominee Name <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.nomineeName || ""} onChange={(e) => updateFormField("nomineeName", e.target.value)} className="form-input" placeholder="Nominee" required />
           </div>
           <div className="form-field-full">
@@ -1115,7 +1119,7 @@ export default function TailoredForm({ categoryId, formData, updateFormField }: 
       return (
         <div className="form-grid form-grid-3">
           <div>
-            <label className="form-label">Bank Name (Asset Title)</label>
+            <label className="form-label">Bank Name (Asset Title) <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.bankName || formData.assetTitle || ""} onChange={(e) => {
               updateFormField("bankName", e.target.value);
               updateFormField("assetTitle", e.target.value);
@@ -1126,7 +1130,7 @@ export default function TailoredForm({ categoryId, formData, updateFormField }: 
             <input type="text" value={formData.branch || ""} onChange={(e) => updateFormField("branch", e.target.value)} className="form-input" placeholder="Branch Name" />
           </div>
           <div>
-            <label className="form-label">Locker Number</label>
+            <label className="form-label">Locker Number <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.lockerNumber || formData.lockerNo || ""} onChange={(e) => {
               updateFormField("lockerNumber", e.target.value);
               updateFormField("lockerNo", e.target.value);
@@ -1141,7 +1145,7 @@ export default function TailoredForm({ categoryId, formData, updateFormField }: 
             <input type="text" value={formData.jointHolder || ""} onChange={(e) => updateFormField("jointHolder", e.target.value)} className="form-input" placeholder="Joint Holder Name" />
           </div>
           <div>
-            <label className="form-label">Nominee Name</label>
+            <label className="form-label">Nominee Name <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.nomineeName || ""} onChange={(e) => updateFormField("nomineeName", e.target.value)} className="form-input" placeholder="Nominee" required />
           </div>
           <div>
@@ -1159,14 +1163,14 @@ export default function TailoredForm({ categoryId, formData, updateFormField }: 
       return (
         <div className="form-grid form-grid-3">
           <div>
-            <label className="form-label">Membership Name (Asset Title)</label>
+            <label className="form-label">Membership Name (Asset Title) <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.membershipName || formData.assetTitle || ""} onChange={(e) => {
               updateFormField("membershipName", e.target.value);
               updateFormField("assetTitle", e.target.value);
             }} className="form-input" placeholder="e.g. Country Club" required />
           </div>
           <div>
-            <label className="form-label">Membership Number</label>
+            <label className="form-label">Membership Number <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.membershipNumber || formData.membershipId || ""} onChange={(e) => {
               updateFormField("membershipNumber", e.target.value);
               updateFormField("membershipId", e.target.value);
@@ -1185,7 +1189,7 @@ export default function TailoredForm({ categoryId, formData, updateFormField }: 
             <input type="text" value={formData.contactPerson || ""} onChange={(e) => updateFormField("contactPerson", e.target.value)} className="form-input" placeholder="Contact Person" />
           </div>
           <div>
-            <label className="form-label">Nominee Name / Beneficiary</label>
+            <label className="form-label">Nominee Name / Beneficiary <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.nomineeName || ""} onChange={(e) => updateFormField("nomineeName", e.target.value)} className="form-input" placeholder="Nominee" required />
           </div>
           <div>
@@ -1207,7 +1211,7 @@ export default function TailoredForm({ categoryId, formData, updateFormField }: 
             <input type="text" value={formData.liabilityType || ""} onChange={(e) => updateFormField("liabilityType", e.target.value)} className="form-input" placeholder="e.g. Home Loan, Personal Loan" />
           </div>
           <div>
-            <label className="form-label">Institution / Lender (Asset Title)</label>
+            <label className="form-label">Institution / Lender (Asset Title) <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.institutionLender || formData.assetTitle || ""} onChange={(e) => {
               updateFormField("institutionLender", e.target.value);
               updateFormField("assetTitle", e.target.value);
@@ -1226,11 +1230,11 @@ export default function TailoredForm({ categoryId, formData, updateFormField }: 
             <input type="text" value={formData.coBorrower || ""} onChange={(e) => updateFormField("coBorrower", e.target.value)} className="form-input" placeholder="Co-borrower Name (if any)" />
           </div>
           <div>
-            <label className="form-label">Outstanding Amount</label>
+            <label className="form-label">Outstanding Amount <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.amount || ""} onChange={(e) => updateFormField("amount", e.target.value)} className="form-input" placeholder="e.g. ₹25,00,000" required />
           </div>
           <div>
-            <label className="form-label">Nominee / Co-borrower Name</label>
+            <label className="form-label">Nominee / Co-borrower Name <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.nomineeName || ""} onChange={(e) => updateFormField("nomineeName", e.target.value)} className="form-input" placeholder="Co-borrower or contact" required />
           </div>
           <div>
@@ -1248,7 +1252,7 @@ export default function TailoredForm({ categoryId, formData, updateFormField }: 
       return (
         <div className="form-grid form-grid-3">
           <div>
-            <label className="form-label">Will Title (Asset Title)</label>
+            <label className="form-label">Will Title (Asset Title) <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.assetTitle || ""} onChange={(e) => updateFormField("assetTitle", e.target.value)} className="form-input" placeholder="e.g. Main Will 2026" required />
           </div>
           <div>
@@ -1259,14 +1263,14 @@ export default function TailoredForm({ categoryId, formData, updateFormField }: 
             </select>
           </div>
           <div>
-            <label className="form-label">Physical / Original Location</label>
+            <label className="form-label">Physical / Original Location <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.originalLocation || formData.location || ""} onChange={(e) => {
               updateFormField("originalLocation", e.target.value);
               updateFormField("location", e.target.value);
             }} className="form-input" placeholder="e.g. Lawyer's Office Safe" required />
           </div>
           <div>
-            <label className="form-label">Executor Name</label>
+            <label className="form-label">Executor Name <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.executorName || formData.nomineeName || ""} onChange={(e) => {
               updateFormField("executorName", e.target.value);
               updateFormField("nomineeName", e.target.value);
@@ -1300,14 +1304,14 @@ export default function TailoredForm({ categoryId, formData, updateFormField }: 
       return (
         <div className="form-grid form-grid-3">
           <div>
-            <label className="form-label">Trust Name (Asset Title)</label>
+            <label className="form-label">Trust Name (Asset Title) <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.trustName || formData.assetTitle || ""} onChange={(e) => {
               updateFormField("trustName", e.target.value);
               updateFormField("assetTitle", e.target.value);
             }} className="form-input" placeholder="e.g. Family Welfare Trust" required />
           </div>
           <div>
-            <label className="form-label">Trustee Name</label>
+            <label className="form-label">Trustee Name <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.trusteeName || formData.nomineeName || ""} onChange={(e) => {
               updateFormField("trusteeName", e.target.value);
               updateFormField("nomineeName", e.target.value);
@@ -1318,7 +1322,7 @@ export default function TailoredForm({ categoryId, formData, updateFormField }: 
             <input type="text" value={formData.trustDate || ""} onChange={(e) => updateFormField("trustDate", e.target.value)} className="form-input" placeholder="Trust Creation Date" />
           </div>
           <div>
-            <label className="form-label">Document Location</label>
+            <label className="form-label">Document Location <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.documentLocation || formData.location || ""} onChange={(e) => {
               updateFormField("documentLocation", e.target.value);
               updateFormField("location", e.target.value);
@@ -1347,14 +1351,14 @@ export default function TailoredForm({ categoryId, formData, updateFormField }: 
       return (
         <div className="form-grid form-grid-3">
           <div>
-            <label className="form-label">Website / App Name (Asset Title)</label>
+            <label className="form-label">Website / App Name (Asset Title) <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.websiteAppName || formData.assetTitle || ""} onChange={(e) => {
               updateFormField("websiteAppName", e.target.value);
               updateFormField("assetTitle", e.target.value);
             }} className="form-input" placeholder="e.g. Upstox Portal" required />
           </div>
           <div>
-            <label className="form-label">Username / Email</label>
+            <label className="form-label">Username / Email <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.usernameEmail || formData.username || ""} onChange={(e) => {
               updateFormField("usernameEmail", e.target.value);
               updateFormField("username", e.target.value);
@@ -1383,7 +1387,7 @@ export default function TailoredForm({ categoryId, formData, updateFormField }: 
             />
           </div>
           <div>
-            <label className="form-label">Nominee / Recipient Name</label>
+            <label className="form-label">Nominee / Recipient Name <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.nomineeName || ""} onChange={(e) => updateFormField("nomineeName", e.target.value)} className="form-input" placeholder="Who should receive this" required />
           </div>
           <div>
@@ -1391,7 +1395,7 @@ export default function TailoredForm({ categoryId, formData, updateFormField }: 
             <input type="text" value={formData.amount || ""} onChange={(e) => updateFormField("amount", e.target.value)} className="form-input" placeholder="Portfolio/Wallet value" />
           </div>
           <div className="form-field-full">
-            <label className="form-label">Password / Access Hints (Notes)</label>
+            <label className="form-label">Password / Access Hints (Notes) <span style={{ color: "var(--danger)" }}>*</span></label>
             <textarea value={formData.notes || ""} onChange={(e) => updateFormField("notes", e.target.value)} className="form-textarea" placeholder="Warning: Write hints rather than plaintext passwords for better security." rows={4} required />
           </div>
           <div className="form-field-full">
@@ -1405,18 +1409,18 @@ export default function TailoredForm({ categoryId, formData, updateFormField }: 
       return (
         <div className="form-grid form-grid-3">
           <div>
-            <label className="form-label">Business Name</label>
+            <label className="form-label">Business Name <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.businessName || formData.assetTitle || ""} onChange={(e) => {
               updateFormField("businessName", e.target.value);
               updateFormField("assetTitle", e.target.value);
             }} className="form-input" placeholder="e.g. Tech Solutions LLP" required />
           </div>
           <div>
-            <label className="form-label">Ownership Type</label>
+            <label className="form-label">Ownership Type <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.ownershipType || ""} onChange={(e) => updateFormField("ownershipType", e.target.value)} className="form-input" placeholder="e.g. Sole Proprietorship, LLP, Pvt Ltd" required />
           </div>
           <div>
-            <label className="form-label">Your Role</label>
+            <label className="form-label">Your Role <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.yourRole || ""} onChange={(e) => updateFormField("yourRole", e.target.value)} className="form-input" placeholder="e.g. Partner, Director, Owner" required />
           </div>
           <div>
@@ -1438,18 +1442,18 @@ export default function TailoredForm({ categoryId, formData, updateFormField }: 
       return (
         <div className="form-grid form-grid-3">
           <div>
-            <label className="form-label">Income Source</label>
+            <label className="form-label">Income Source <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.incomeSource || formData.assetTitle || ""} onChange={(e) => {
               updateFormField("incomeSource", e.target.value);
               updateFormField("assetTitle", e.target.value);
             }} className="form-input" placeholder="e.g. Rental Income, Salary" required />
           </div>
           <div>
-            <label className="form-label">Organization/Person</label>
+            <label className="form-label">Organization/Person <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.organizationPerson || ""} onChange={(e) => updateFormField("organizationPerson", e.target.value)} className="form-input" placeholder="Source Provider Name" required />
           </div>
           <div>
-            <label className="form-label">Frequency</label>
+            <label className="form-label">Frequency <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.frequency || ""} onChange={(e) => updateFormField("frequency", e.target.value)} className="form-input" placeholder="e.g. Monthly, Quarterly" required />
           </div>
           <div>
@@ -1471,14 +1475,14 @@ export default function TailoredForm({ categoryId, formData, updateFormField }: 
       return (
         <div className="form-grid form-grid-3">
           <div>
-            <label className="form-label">Payment Name</label>
+            <label className="form-label">Payment Name <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.paymentName || formData.assetTitle || ""} onChange={(e) => {
               updateFormField("paymentName", e.target.value);
               updateFormField("assetTitle", e.target.value);
             }} className="form-input" placeholder="e.g. Home Loan EMI, Netflix" required />
           </div>
           <div>
-            <label className="form-label">Payment Type (EMI/SIP/Subscription etc.)</label>
+            <label className="form-label">Payment Type (EMI/SIP/Subscription etc.) <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.paymentType || ""} onChange={(e) => updateFormField("paymentType", e.target.value)} className="form-input" placeholder="e.g. EMI, SIP, Subscription" required />
           </div>
           <div>
@@ -1507,20 +1511,12 @@ export default function TailoredForm({ categoryId, formData, updateFormField }: 
       // Generic fallback form for instruments with unlisted/simple shapes
       return (
         <div className="form-grid form-grid-3">
-          <div>
-            <label className="form-label">Asset Title / Label</label>
+          <div className="form-field-full">
+            <label className="form-label">Asset Title / Label <span style={{ color: "var(--danger)" }}>*</span></label>
             <input type="text" value={formData.propertyName || formData.personName || formData.assetTitle || ""} onChange={(e) => updateFormField("assetTitle", e.target.value)} className="form-input" placeholder="Name or title" required />
           </div>
-          <div>
-            <label className="form-label">Associated Nominee</label>
-            <input type="text" value={formData.nomineeName || ""} onChange={(e) => updateFormField("nomineeName", e.target.value)} className="form-input" placeholder="Nominee or Custodian" required />
-          </div>
-          <div>
-            <label className="form-label">Holding Value / Amount</label>
-            <input type="text" value={formData.amount || ""} onChange={(e) => updateFormField("amount", e.target.value)} className="form-input" placeholder="Value/Units" />
-          </div>
           <div className="form-field-full">
-            <label className="form-label">Detailed Description / Instructions</label>
+            <label className="form-label">Detailed Description / Instructions <span style={{ color: "var(--danger)" }}>*</span></label>
             <textarea value={formData.notes || ""} onChange={(e) => updateFormField("notes", e.target.value)} className="form-textarea" placeholder="Explain details here..." rows={6} required />
           </div>
         </div>

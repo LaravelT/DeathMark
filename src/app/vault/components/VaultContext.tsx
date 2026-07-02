@@ -596,6 +596,7 @@ export function VaultProvider({ children }: { children: React.ReactNode }) {
         }
       }
       setNomineeDetails(formData);
+      await syncVaultSnapshot(vaultIndex?.files, { aadhaar: formData.aadhaar, pan: formData.pan });
     } catch (err: any) {
       console.error("Failed to save nominee details:", err);
       throw err;
@@ -735,6 +736,46 @@ export function VaultProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  // Sync zero-knowledge vault snapshot to MongoDB encrypted with nominee credentials
+  const syncVaultSnapshot = async (filesToSync?: VaultFileEntry[], forceNominee?: { aadhaar: string, pan: string }) => {
+    const nomAadhaar = forceNominee?.aadhaar || nomineeDetails?.aadhaar;
+    const nomPan = forceNominee?.pan || nomineeDetails?.pan;
+    const emailToUse = session?.user?.email;
+
+    if (!emailToUse || !nomAadhaar || !nomPan) {
+      console.log("[Sync Snapshot] Missing nominee credentials. Skipping snapshot sync.");
+      return;
+    }
+
+    const files = filesToSync || vaultIndex?.files || [];
+
+    try {
+      const enc = new TextEncoder();
+      const rawSalt = enc.encode(emailToUse.toLowerCase().trim());
+      const saltBuffer = new Uint8Array(16);
+      for (let i = 0; i < Math.min(rawSalt.length, 16); i++) {
+        saltBuffer[i] = rawSalt[i];
+      }
+
+      const rawPassphrase = (nomAadhaar.trim() + nomPan.toUpperCase().trim());
+      const snapshotKey = await deriveKey(rawPassphrase, saltBuffer);
+
+      const plainText = JSON.stringify(files);
+      const encrypted = await encryptData(snapshotKey, plainText);
+
+      const encryptedSnapshot = `${encrypted.iv}.${encrypted.ciphertext}`;
+
+      await fetch("/api/vault/snapshot", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ encryptedSnapshot })
+      });
+      console.log("[Sync Snapshot] Successfully updated snapshot in database.");
+    } catch (err) {
+      console.error("[Sync Snapshot] Error:", err);
+    }
+  };
+
   // Add Record (text-only, no file uploads)
   const handleAddRecord = async (category: string, formData: Record<string, string>) => {
     if (!derivedKey) return;
@@ -798,6 +839,7 @@ export function VaultProvider({ children }: { children: React.ReactNode }) {
       }
 
       setVaultIndex(updatedIndex);
+      await syncVaultSnapshot(updatedIndex.files);
     } catch (err: any) {
       console.error(err);
       throw err;
@@ -840,6 +882,7 @@ export function VaultProvider({ children }: { children: React.ReactNode }) {
       }
 
       setVaultIndex(updatedIndex);
+      await syncVaultSnapshot(updatedIndex.files);
       return true;
     } catch (err: any) {
       console.error(err);

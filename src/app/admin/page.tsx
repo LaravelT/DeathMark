@@ -10,6 +10,14 @@ export default function AdminPage() {
   const [error, setError] = useState("");
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [selectedDoc, setSelectedDoc] = useState<string | null>(null);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  const handleCopyLink = (claim: any) => {
+    const url = `${window.location.origin}/claim/access?email=${encodeURIComponent(claim.ownerEmail)}`;
+    navigator.clipboard.writeText(url);
+    setCopiedId(claim._id);
+    setTimeout(() => setCopiedId(null), 2000);
+  };
 
   // Authentication State
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -294,8 +302,27 @@ export default function AdminPage() {
                               <span>Reject</span>
                             </button>
                           </div>
+                        ) : claim.status === "Approved" ? (
+                          <button
+                            onClick={() => handleCopyLink(claim)}
+                            className="btn-signin-ghost"
+                            style={{
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: "6px",
+                              fontSize: "12px",
+                              padding: "6px 12px",
+                              color: copiedId === claim._id ? "#10b981" : "#ec4899",
+                              borderColor: copiedId === claim._id ? "#10b981" : "#ec4899",
+                              backgroundColor: copiedId === claim._id ? "rgba(16,185,129,0.05)" : "rgba(236,72,153,0.05)",
+                              borderRadius: "6px",
+                              cursor: "pointer"
+                            }}
+                          >
+                            <span>{copiedId === claim._id ? "Copied!" : "Copy Access Link"}</span>
+                          </button>
                         ) : (
-                          <span style={{ color: "var(--muted)", fontSize: "12px" }}>Reviewed</span>
+                          <span style={{ color: "var(--muted)", fontSize: "12px" }}>Rejected</span>
                         )}
                       </td>
                     </tr>

@@ -406,34 +406,38 @@ export default function AdminPage() {
                             </button>
                           </div>
                         ) : claim.status === "Approved" ? (
-                          <button
-                            onClick={() => handleSendEmail(claim)}
-                            disabled={emailLoading === claim._id || (claim.copyCount || 0) >= 3}
-                            className="btn-signin-ghost"
-                            style={{
-                              display: "inline-flex",
-                              alignItems: "center",
-                              gap: "6px",
-                              fontSize: "12px",
-                              padding: "6px 12px",
-                              color: (claim.copyCount || 0) >= 3 ? "var(--muted)" : (emailSentId === claim._id ? "#10b981" : "#ec4899"),
-                              borderColor: (claim.copyCount || 0) >= 3 ? "var(--card-border)" : (emailSentId === claim._id ? "#10b981" : "#ec4899"),
-                              backgroundColor: (claim.copyCount || 0) >= 3 ? "rgba(255,255,255,0.02)" : (emailSentId === claim._id ? "rgba(16,185,129,0.05)" : "rgba(236,72,153,0.05)"),
-                              borderRadius: "6px",
-                              cursor: (claim.copyCount || 0) >= 3 ? "not-allowed" : "pointer"
-                            }}
-                          >
-                            <span>
-                              {(claim.copyCount || 0) >= 3 
-                                ? "Access link sent successfully" 
-                                : emailLoading === claim._id 
+                          (claim.copyCount || 0) >= 1 ? (
+                            <span style={{ color: "#10b981", fontWeight: "600", fontSize: "12px", whiteSpace: "nowrap" }}>
+                              Email Sent Successfully
+                            </span>
+                          ) : (
+                            <button
+                              onClick={() => handleSendEmail(claim)}
+                              disabled={emailLoading === claim._id}
+                              className="btn-signin-ghost"
+                              style={{
+                                display: "inline-flex",
+                                alignItems: "center",
+                                gap: "6px",
+                                fontSize: "12px",
+                                padding: "6px 12px",
+                                color: emailSentId === claim._id ? "#10b981" : "#ec4899",
+                                borderColor: emailSentId === claim._id ? "#10b981" : "#ec4899",
+                                backgroundColor: emailSentId === claim._id ? "rgba(16,185,129,0.05)" : "rgba(236,72,153,0.05)",
+                                borderRadius: "6px",
+                                cursor: "pointer"
+                              }}
+                            >
+                              <span>
+                                {emailLoading === claim._id 
                                   ? "Sending..." 
                                   : emailSentId === claim._id 
                                     ? "Email Sent!" 
                                     : "Send Email"
-                              }
-                            </span>
-                          </button>
+                                }
+                              </span>
+                            </button>
+                          )
                         ) : (
                           <span style={{ color: "var(--muted)", fontSize: "12px" }}>Rejected</span>
                         )}

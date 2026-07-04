@@ -29,7 +29,21 @@ function ClaimAccessContent() {
   useEffect(() => {
     if (!ownerEmail) {
       setError("Invalid access link. Owner email is missing.");
+      return;
     }
+
+    // Pre-check link expiration on page load
+    fetch(`/api/claim/snapshot?email=${encodeURIComponent(ownerEmail)}`)
+      .then(async (res) => {
+        if (res.status === 403) {
+          const data = await res.json();
+          if (data.error && data.error.includes("expired")) {
+            setError(data.error);
+            setStep(0); // Mark step as 0 to hide verification forms
+          }
+        }
+      })
+      .catch((err) => console.error("Error checking link expiration:", err));
   }, [ownerEmail]);
 
   const handleVerifyStep1 = async (e: React.FormEvent) => {
@@ -231,7 +245,7 @@ function ClaimAccessContent() {
       </div>
 
       <div className="signin-card" style={{ maxWidth: step === 3 ? "900px" : "500px", width: "100%" }}>
-        {step < 3 && (
+        {step > 0 && step < 3 && (
           <div className="signin-header">
             <div className="logo-container flex-center">
               <KeyRound style={{ width: "32px", height: "32px", color: "#fff" }} />
@@ -245,6 +259,17 @@ function ClaimAccessContent() {
           <div style={{ display: "flex", gap: "10px", alignItems: "center", padding: "12px", backgroundColor: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)", borderRadius: "8px", color: "#f87171", fontSize: "14px", marginBottom: "20px" }}>
             <AlertCircle size={18} style={{ flexShrink: 0 }} />
             <span>{error}</span>
+          </div>
+        )}
+
+        {step === 0 && (
+          <div className="signin-body" style={{ display: "flex", flexDirection: "column", gap: "20px", textAlign: "center" }}>
+            <p style={{ color: "var(--muted)", fontSize: "14px", lineHeight: "1.6" }}>
+              This secure access link has expired. For security reasons, asset verification links can only be accessed and decrypted once.
+            </p>
+            <a href="/" className="btn-cta-primary-premium" style={{ display: "inline-flex", textDecoration: "none", width: "100%", justifyContent: "center" }}>
+              Back to Home
+            </a>
           </div>
         )}
 

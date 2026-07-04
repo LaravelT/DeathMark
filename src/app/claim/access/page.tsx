@@ -13,6 +13,7 @@ function ClaimAccessContent() {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [isCheckingLink, setIsCheckingLink] = useState(true);
 
   // Step 1: Owner Verification
   const [ownerAadhaar, setOwnerAadhaar] = useState("");
@@ -29,6 +30,7 @@ function ClaimAccessContent() {
   useEffect(() => {
     if (!ownerEmail) {
       setError("Invalid access link. Owner email is missing.");
+      setIsCheckingLink(false);
       return;
     }
 
@@ -43,7 +45,10 @@ function ClaimAccessContent() {
           }
         }
       })
-      .catch((err) => console.error("Error checking link expiration:", err));
+      .catch((err) => console.error("Error checking link expiration:", err))
+      .finally(() => {
+        setIsCheckingLink(false);
+      });
   }, [ownerEmail]);
 
   const handleVerifyStep1 = async (e: React.FormEvent) => {
@@ -233,6 +238,26 @@ function ClaimAccessContent() {
       document.head.appendChild(script);
     }
   };
+
+  if (isCheckingLink) {
+    return (
+      <div className="hero-gradient flex-center" style={{ minHeight: "100vh", padding: "40px 20px", flexDirection: "column" }}>
+        <div style={{ display: "flex", gap: "8px", alignItems: "center", marginBottom: "32px" }}>
+          <div className="brand-logo-box">
+            <KeyRound className="w-5 h-5 text-white" />
+          </div>
+          <span className="brand-title">LegacyBridge Claim Access</span>
+        </div>
+        <div className="signin-card" style={{ maxWidth: "500px", width: "100%", textAlign: "center", padding: "40px" }}>
+          <div className="logo-container flex-center" style={{ margin: "0 auto 20px" }}>
+            <KeyRound style={{ width: "32px", height: "32px", color: "#fff" }} />
+          </div>
+          <h2 className="signin-title" style={{ fontSize: "18px" }}>Verifying Link Security...</h2>
+          <p style={{ color: "var(--muted)", fontSize: "14px", marginTop: "10px" }}>Please wait while we authorize the secure link.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="hero-gradient flex-center" style={{ minHeight: "100vh", padding: "40px 20px", flexDirection: "column" }}>

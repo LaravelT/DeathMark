@@ -27,6 +27,13 @@ export async function GET(req: Request) {
       );
     }
 
+    if (approvedClaim.expired) {
+      return NextResponse.json(
+        { error: "This secure access link has already been used and is expired." },
+        { status: 403 }
+      );
+    }
+
     // 2. Fetch the encrypted snapshot
     const usersCollection = db.collection("users");
     const user = await usersCollection.findOne({ email: email.toLowerCase().trim() });

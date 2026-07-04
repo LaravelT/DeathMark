@@ -11,6 +11,8 @@ export default function AdminPage() {
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [selectedDoc, setSelectedDoc] = useState<string | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [emailLoading, setEmailLoading] = useState<string | null>(null);
+  const [emailSentId, setEmailSentId] = useState<string | null>(null);
 
   // Authentication State
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -82,28 +84,36 @@ export default function AdminPage() {
     }
   };
 
-  const handleCopyLink = async (claim: any) => {
+  const handleSendEmail = async (claim: any) => {
     const currentCount = claim.copyCount || 0;
     if (currentCount >= 3) return;
 
+    setEmailLoading(claim._id);
     try {
-      const url = `${window.location.origin}/claim/access?email=${encodeURIComponent(claim.ownerEmail)}`;
-      await navigator.clipboard.writeText(url);
+      const accessLink = `${window.location.origin}/claim/access?email=${encodeURIComponent(claim.ownerEmail)}`;
       
-      // Increment count on server
-      const res = await fetch("/api/admin/claims/copy", {
+      const res = await fetch("/api/admin/claims/send-email", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ claimId: claim._id })
+        body: JSON.stringify({ claimId: claim._id, accessLink })
       });
 
+      const data = await res.json();
       if (res.ok) {
         setClaims(prev => prev.map(c => c._id === claim._id ? { ...c, copyCount: currentCount + 1 } : c));
-        setCopiedId(claim._id);
-        setTimeout(() => setCopiedId(null), 2000);
+        setEmailSentId(claim._id);
+        if (data.simulated) {
+          alert(data.message);
+        }
+        setTimeout(() => setEmailSentId(null), 3000);
+      } else {
+        alert("Failed to send email: " + data.error);
       }
-    } catch (e) {
-      console.error("Failed to copy link:", e);
+    } catch (e: any) {
+      console.error("Failed to send email:", e);
+      alert("Error: " + e.message);
+    } finally {
+      setEmailLoading(null);
     }
   };
 
@@ -397,8 +407,8 @@ export default function AdminPage() {
                           </div>
                         ) : claim.status === "Approved" ? (
                           <button
-                            onClick={() => handleCopyLink(claim)}
-                            disabled={(claim.copyCount || 0) >= 3}
+                            onClick={() => handleSendEmail(claim)}
+                            disabled={emailLoading === claim._id || (claim.copyCount || 0) >= 3}
                             className="btn-signin-ghost"
                             style={{
                               display: "inline-flex",
@@ -406,14 +416,23 @@ export default function AdminPage() {
                               gap: "6px",
                               fontSize: "12px",
                               padding: "6px 12px",
-                              color: (claim.copyCount || 0) >= 3 ? "var(--muted)" : (copiedId === claim._id ? "#10b981" : "#ec4899"),
-                              borderColor: (claim.copyCount || 0) >= 3 ? "var(--card-border)" : (copiedId === claim._id ? "#10b981" : "#ec4899"),
-                              backgroundColor: (claim.copyCount || 0) >= 3 ? "rgba(255,255,255,0.02)" : (copiedId === claim._id ? "rgba(16,185,129,0.05)" : "rgba(236,72,153,0.05)"),
+                              color: (claim.copyCount || 0) >= 3 ? "var(--muted)" : (emailSentId === claim._id ? "#10b981" : "#ec4899"),
+                              borderColor: (claim.copyCount || 0) >= 3 ? "var(--card-border)" : (emailSentId === claim._id ? "#10b981" : "#ec4899"),
+                              backgroundColor: (claim.copyCount || 0) >= 3 ? "rgba(255,255,255,0.02)" : (emailSentId === claim._id ? "rgba(16,185,129,0.05)" : "rgba(236,72,153,0.05)"),
                               borderRadius: "6px",
                               cursor: (claim.copyCount || 0) >= 3 ? "not-allowed" : "pointer"
                             }}
                           >
-                            <span>{(claim.copyCount || 0) >= 3 ? "Access link copied successfully" : (copiedId === claim._id ? "Copied!" : "Copy Access Link")}</span>
+                            <span>
+                              {(claim.copyCount || 0) >= 3 
+                                ? "Access link sent successfully" 
+                                : emailLoading === claim._id 
+                                  ? "Sending..." 
+                                  : emailSentId === claim._id 
+                                    ? "Email Sent!" 
+                                    : "Send Email"
+                              }
+                            </span>
                           </button>
                         ) : (
                           <span style={{ color: "var(--muted)", fontSize: "12px" }}>Rejected</span>

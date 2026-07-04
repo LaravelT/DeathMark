@@ -131,6 +131,16 @@ function ClaimAccessContent() {
 
       setDecryptedFiles(parsedFiles);
       setStep(3);
+      
+      try {
+        await fetch("/api/claim/expire", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: ownerEmail })
+        });
+      } catch (expireErr) {
+        console.error("Failed to expire claim link:", expireErr);
+      }
     } catch (err: any) {
       console.error(err);
       setError("Decryption failed. Please check nominee credentials and try again.");

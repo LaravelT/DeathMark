@@ -1,21 +1,35 @@
 import { NextResponse } from "next/server";
 import clientPromise from "@/lib/db";
+import { ObjectId } from "mongodb";
 
 export async function POST(req: Request) {
   try {
-    const { email } = await req.json();
+    const { email, claimId } = await req.json();
 
-    if (!email) {
-      return NextResponse.json({ error: "Missing email." }, { status: 400 });
+    if (!email && !claimId) {
+      return NextResponse.json({ error: "Missing email or claimId." }, { status: 400 });
     }
 
     const client = await clientPromise;
     const db = client.db("legacybridge");
     const claimsCollection = db.collection("claims");
 
+    const query: any = { status: "Approved" };
+    if (claimId && claimId !== "undefined") {
+      try {
+        query._id = new ObjectId(claimId);
+      } catch (err) {
+        return NextResponse.json({ error: "Invalid claimId format." }, { status: 400 });
+      }
+    } else if (email) {
+      query.ownerEmail = email.toLowerCase().trim();
+    } else {
+      return NextResponse.json({ error: "Insufficient details to locate claim." }, { status: 400 });
+    }
+
     // Mark the approved claim for this owner as expired
     await claimsCollection.updateOne(
-      { ownerEmail: email.toLowerCase().trim(), status: "Approved" },
+      query,
       { $set: { expired: true } }
     );
 

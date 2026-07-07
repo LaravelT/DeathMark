@@ -9,6 +9,7 @@ function ClaimAccessContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const ownerEmail = searchParams.get("email") || "";
+  const claimId = searchParams.get("claimId") || "";
 
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -35,7 +36,7 @@ function ClaimAccessContent() {
     }
 
     // Pre-check link expiration on page load
-    fetch(`/api/claim/snapshot?email=${encodeURIComponent(ownerEmail)}`)
+    fetch(`/api/claim/snapshot?email=${encodeURIComponent(ownerEmail)}&claimId=${claimId}`)
       .then(async (res) => {
         if (res.status === 403) {
           const data = await res.json();
@@ -109,7 +110,7 @@ function ClaimAccessContent() {
       }
 
       // 2. Fetch encrypted snapshot
-      const snapshotRes = await fetch(`/api/claim/snapshot?email=${encodeURIComponent(ownerEmail)}`);
+      const snapshotRes = await fetch(`/api/claim/snapshot?email=${encodeURIComponent(ownerEmail)}&claimId=${claimId}`);
       const snapshotData = await snapshotRes.json();
 
       if (!snapshotRes.ok) {
@@ -155,7 +156,7 @@ function ClaimAccessContent() {
         await fetch("/api/claim/expire", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email: ownerEmail })
+          body: JSON.stringify({ email: ownerEmail, claimId: claimId })
         });
       } catch (expireErr) {
         console.error("Failed to expire claim link:", expireErr);

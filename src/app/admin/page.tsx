@@ -90,7 +90,7 @@ export default function AdminPage() {
 
     setEmailLoading(claim._id);
     try {
-      const accessLink = `${window.location.origin}/claim/access?email=${encodeURIComponent(claim.ownerEmail)}`;
+      const accessLink = `${window.location.origin}/claim/access?email=${encodeURIComponent(claim.ownerEmail)}&claimId=${claim._id}`;
       
       const res = await fetch("/api/admin/claims/send-email", {
         method: "POST",

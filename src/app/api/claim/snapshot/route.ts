@@ -1,24 +1,37 @@
 import { NextResponse } from "next/server";
 import clientPromise from "@/lib/db";
+import { ObjectId } from "mongodb";
 
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
     const email = searchParams.get("email");
+    const claimId = searchParams.get("claimId");
 
-    if (!email) {
-      return NextResponse.json({ error: "Email is required." }, { status: 400 });
+    if (!email && !claimId) {
+      return NextResponse.json({ error: "Email or Claim ID is required." }, { status: 400 });
     }
 
     const client = await clientPromise;
     const db = client.db("legacybridge");
 
-    // 1. Verify if there is an Approved claim for this owner email
+    // 1. Verify if there is an Approved claim
     const claimsCollection = db.collection("claims");
-    const approvedClaim = await claimsCollection.findOne({
-      ownerEmail: email.toLowerCase().trim(),
-      status: "Approved"
-    });
+    
+    const query: any = { status: "Approved" };
+    if (claimId && claimId !== "undefined") {
+      try {
+        query._id = new ObjectId(claimId);
+      } catch (err) {
+        return NextResponse.json({ error: "Invalid Claim ID format." }, { status: 400 });
+      }
+    } else if (email) {
+      query.ownerEmail = email.toLowerCase().trim();
+    } else {
+      return NextResponse.json({ error: "Insufficient details to locate claim." }, { status: 400 });
+    }
+
+    const approvedClaim = await claimsCollection.findOne(query);
 
     if (!approvedClaim) {
       return NextResponse.json(
@@ -34,9 +47,14 @@ export async function GET(req: Request) {
       );
     }
 
+    const targetEmail = approvedClaim.ownerEmail || (email ? email.toLowerCase().trim() : "");
+    if (!targetEmail) {
+      return NextResponse.json({ error: "Vault owner email not found." }, { status: 404 });
+    }
+
     // 2. Fetch the encrypted snapshot
     const usersCollection = db.collection("users");
-    const user = await usersCollection.findOne({ email: email.toLowerCase().trim() });
+    const user = await usersCollection.findOne({ email: targetEmail });
 
     if (!user || !user.encryptedSnapshot) {
       return NextResponse.json(

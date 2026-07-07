@@ -16,10 +16,21 @@ export async function POST(req: Request) {
     }
 
     // Configure Cloudinary dynamically inside the request handler to ensure environment variables are fresh
+    // and strip any literal double/single quotes that might have been copied/pasted into the dashboard config.
+    const cloudName = (process.env.CLOUDINARY_CLOUD_NAME || "").replace(/^["']|["']$/g, "").trim();
+    const apiKey = (process.env.CLOUDINARY_API_KEY || "").replace(/^["']|["']$/g, "").trim();
+    const apiSecret = (process.env.CLOUDINARY_API_SECRET || "").replace(/^["']|["']$/g, "").trim();
+
+    if (!cloudName || !apiKey || !apiSecret) {
+      return NextResponse.json({ 
+        error: "Cloudinary credentials (CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET) are missing or empty on the Vercel production server." 
+      }, { status: 500 });
+    }
+
     cloudinary.config({
-      cloud_name: process.env.CLOUDINARY_CLOUD_NAME.trim(),
-      api_key: process.env.CLOUDINARY_API_KEY.trim(),
-      api_secret: process.env.CLOUDINARY_API_SECRET.trim(),
+      cloud_name: cloudName,
+      api_key: apiKey,
+      api_secret: apiSecret,
     });
 
     // Upload to Cloudinary

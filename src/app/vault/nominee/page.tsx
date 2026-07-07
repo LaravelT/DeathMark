@@ -145,17 +145,44 @@ export default function NomineePage() {
     }
     setIsSubmitting(true);
     try {
+      let finalAadhaarUrl = aadhaarImage;
+      let finalPanUrl = panImage;
+
+      // Upload Aadhaar to Cloudinary if it's base64 data
+      if (aadhaarImage && aadhaarImage.startsWith("data:")) {
+        const uploadRes = await fetch("/api/upload", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ file: aadhaarImage, folder: "nominees" })
+        });
+        const uploadData = await uploadRes.json();
+        if (!uploadRes.ok) throw new Error(uploadData.error || "Aadhaar upload failed.");
+        finalAadhaarUrl = uploadData.url;
+      }
+
+      // Upload PAN to Cloudinary if it's base64 data
+      if (panImage && panImage.startsWith("data:")) {
+        const uploadRes = await fetch("/api/upload", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ file: panImage, folder: "nominees" })
+        });
+        const uploadData = await uploadRes.json();
+        if (!uploadRes.ok) throw new Error(uploadData.error || "PAN upload failed.");
+        finalPanUrl = uploadData.url;
+      }
+
       const payload = {
         name,
         phone,
         email,
         aadhaar,
         aadhaarAddress,
-        aadhaarImage,
+        aadhaarImage: finalAadhaarUrl,
         dob,
         relation,
         pan: hasPan === "yes" ? pan.toUpperCase() : "",
-        panImage: hasPan === "yes" ? panImage : null,
+        panImage: hasPan === "yes" ? finalPanUrl : null,
       };
 
       await handleSaveNominee(payload);

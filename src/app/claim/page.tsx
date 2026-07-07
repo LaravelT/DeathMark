@@ -159,6 +159,22 @@ export default function ClaimPage() {
     setLoading(true);
 
     try {
+      // 1. Upload document to Cloudinary
+      let documentUrl = documentBase64;
+      if (documentBase64.startsWith("data:")) {
+        const uploadRes = await fetch("/api/upload", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ file: documentBase64, folder: "claims" })
+        });
+        const uploadData = await uploadRes.json();
+        if (!uploadRes.ok) {
+          throw new Error(uploadData.error || "Failed to upload supporting document to Cloudinary.");
+        }
+        documentUrl = uploadData.url;
+      }
+
+      // 2. Submit claim with Cloudinary URL
       const res = await fetch("/api/claim/submit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -167,7 +183,7 @@ export default function ClaimPage() {
           claimantName,
           claimantGmail,
           reason,
-          document: documentBase64
+          document: documentUrl
         })
       });
 

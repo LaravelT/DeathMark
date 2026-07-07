@@ -466,8 +466,28 @@ export default function AdminPage() {
         }}>
           <div className="signin-card" style={{ maxWidth: "700px", width: "100%", position: "relative", display: "flex", flexDirection: "column" }}>
             <h2 style={{ fontSize: "18px", color: "#fff", marginBottom: "16px" }}>Supporting Document Preview</h2>
-            <div style={{ overflow: "auto", maxHeight: "70vh", border: "1px solid var(--card-border)", borderRadius: "8px", backgroundColor: "#0f172a" }}>
-              <img src={selectedDoc} alt="Supporting Document" style={{ width: "100%", height: "auto", display: "block" }} />
+            <div style={{ 
+              display: "flex", 
+              justifyContent: "center", 
+              alignItems: "center", 
+              height: "450px", 
+              maxHeight: "60vh", 
+              border: "1px solid var(--card-border)", 
+              borderRadius: "8px", 
+              backgroundColor: "#0f172a",
+              overflow: "hidden",
+              padding: "12px"
+            }}>
+              <img 
+                src={selectedDoc} 
+                alt="Supporting Document" 
+                style={{ 
+                  maxWidth: "100%", 
+                  maxHeight: "100%", 
+                  objectFit: "contain", 
+                  display: "block" 
+                }} 
+              />
             </div>
             <button 
               onClick={() => setSelectedDoc(null)} 

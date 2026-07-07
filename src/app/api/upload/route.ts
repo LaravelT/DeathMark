@@ -15,6 +15,12 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Missing file data." }, { status: 400 });
     }
 
+    if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+      return NextResponse.json({ 
+        error: "Cloudinary credentials (CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET) are missing on the Vercel production server. Please configure them in the Vercel Dashboard." 
+      }, { status: 500 });
+    }
+
     // Upload to Cloudinary
     const uploadRes = await cloudinary.uploader.upload(file, {
       folder: folder || "legacybridge",

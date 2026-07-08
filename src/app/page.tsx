@@ -156,7 +156,7 @@ export default function Home() {
 
             <div className="hero-card reveal delay-1" aria-label="LegacyBridge vault preview">
               <div className="hero-card-top">
-                <img src="/assets/legacybridge-mark.svg" alt="" aria-hidden="true" style={{ width: "88px", borderRadius: "22px" }} />
+                <img src="/assets/logo-app-icon.png" alt="" aria-hidden="true" style={{ width: "88px", borderRadius: "22px", objectFit: "contain" }} />
                 <div>
                   <p>Protected Vault</p>
                   <h2 style={{ color: '#fff' }}>Stored in your Google Drive</h2>
@@ -422,8 +422,8 @@ export default function Home() {
         {/* Final CTA */}
         <section className="cta-section" id="start">
           <div className="shell cta-card reveal">
-          <div style={{ backgroundColor: "#fff", padding: "16px 32px", borderRadius: "20px", display: "inline-flex", flexDirection: "column", alignItems: "center", gap: "6px", margin: "0 auto 24px", boxShadow: "0 8px 24px rgba(0,0,0,0.15)" }}>
-            <img src="/assets/logo-vertical.png" alt="LegacyBridge" style={{ height: "200px", width: "auto", objectFit: "contain" }} />
+          <div style={{ display: "inline-flex", flexDirection: "column", alignItems: "center", margin: "0 auto 24px" }}>
+            <img src="/assets/logo-vertical.png" alt="LegacyBridge" style={{ height: "220px", width: "auto", objectFit: "contain" }} />
           </div>
             <h2 style={{ color: "#fff" }}>Build the bridge your family may need one day.</h2>
             <p>Start your 48-hour setup access. Your vault is saved encrypted in your own Google Drive.</p>
@@ -440,9 +440,7 @@ export default function Home() {
         <div className="shell footer-grid">
           <div>
             <Link href="#top" className="brand footer-brand">
-              <div style={{ backgroundColor: "#fff", padding: "10px 20px", borderRadius: "16px", display: "inline-block", marginBottom: "12px", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}>
-                <img src="/assets/logo-horizontal.png" alt="LegacyBridge" style={{ height: "55px", width: "auto", objectFit: "contain" }} />
-              </div>
+              <img src="/assets/logo-horizontal.png" alt="LegacyBridge" style={{ height: "65px", width: "auto", objectFit: "contain", filter: "brightness(0) invert(1)", opacity: 0.96 }} />
             </Link>
             <p>A product of Solution Planets.</p>
           </div>

@@ -219,7 +219,7 @@ export default function Home() {
               </p>
             </div>
             <div className="drive-grid">
-              <article class="drive-card reveal">
+              <article className="drive-card reveal">
                 <span>01</span>
                 <h3>User logs in with Google</h3>
                 <p>The user connects the Google account where the encrypted LegacyBridge vault will be stored.</p>

@@ -77,8 +77,8 @@
   .hero-card { position: relative; padding: 30px; border-radius: 34px; color: var(--white); background: radial-gradient(circle at top right, rgba(199,154,46,.38), transparent 32%), linear-gradient(150deg, #0d1b2a 0%, #14263a 56%, #07111d 100%); box-shadow: var(--shadow); overflow: hidden; }
   .hero-card::after { content: ""; position: absolute; inset: 16px; border: 1px solid rgba(255,255,255,.1); border-radius: 26px; pointer-events: none; }
   .hero-card-top, .drive-flow, .mini-alert { position: relative; z-index: 1; }
-  .hero-card-top { display: grid; grid-template-columns: 88px 1fr; gap: 18px; align-items: center; margin-bottom: 30px; }
-  .hero-card-top img { width: 88px; border-radius: 22px; box-shadow: 0 18px 30px rgba(0,0,0,.22); }
+  .hero-card-top { display: flex; flex-direction: column; gap: 18px; align-items: flex-start; margin-bottom: 30px; }
+  .hero-card-top img { height: 50px; width: auto; object-fit: contain; }
   .hero-card-top p { margin: 0 0 6px; color: var(--gold-2); font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: .14em; }
   .hero-card-top h2 { margin: 0; color: var(--white); font-size: clamp(30px, 3.4vw, 44px); }
   .drive-flow { display: grid; gap: 12px; }

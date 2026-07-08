@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 
 const categories = [
+  ['Location of Important Documents', 'Physical documents, property deeds, identity cards, files, and folder storage locations.'],
   ['Real Estate', 'Property name, type, address, ownership, co-owner, document location.'],
   ['Demat Account', 'Depository, DP/broker name, BO ID/client ID, nominee status, registered mobile.'],
   ['Trading Account', 'Broker name, client ID, registered mobile/email, nominee status.'],
@@ -48,8 +49,8 @@ const faqs = [
   ['Does LegacyBridge store my readable financial data on its server?', 'No readable wealth records should be stored on the LegacyBridge server. Financial vault data is encrypted in the browser and saved to the user’s Google Drive. The server may store limited account, subscription, verification, claim workflow metadata and encrypted snapshots required to operate the product.'],
   ['Can LegacyBridge employees read my vault?', 'The product is designed so raw vault records are encrypted before storage. Without the correct passphrase or verified nominee decryption flow, readable vault contents should not be accessible to LegacyBridge as plain data.'],
   ['What if someone hacks or gains access to my Google Drive?', 'If they only access your Google Drive directly, the vault file should appear encrypted and unreadable. However, if they also get access to your Google account, LegacyBridge login, device and secret passphrase, risk increases. Users should protect their Google account with 2-step verification and keep their passphrase private.'],
-  ['What if my Google Drive data is deleted?', 'Because the vault is stored in the user’s Google Drive AppData area, the user controls that Google account. LegacyBridge should detect missing vault files and guide restoration if backups or snapshots are available, but users should avoid revoking access or deleting app data.'],
-  ['Can you stop me from deleting my own Google Drive data?', 'No. If the data is in your Google account, you ultimately control it. LegacyBridge can reduce accidental deletion by using AppData storage and backup logic, but it cannot override the owner’s Google account control.'],
+  ['What if my Google Drive data is deleted?', 'Because the vault is stored in the user’s Google Drive AppData area, the user controls that Google account.'],
+  ['Can you stop me from deleting my own Google Drive data?', 'No. If the data is in your Google account, you ultimately control it.'],
   ['What happens if I forget my secret passphrase?', 'For strong privacy, the passphrase is critical. If you forget it, LegacyBridge may not be able to decrypt your normal owner vault. This is why the product should provide recovery guidance and a verified nominee snapshot flow where applicable.'],
   ['Should I save passwords, PINs or private keys?', 'No. Do not enter net banking passwords, login passwords, PINs, OTPs, private keys, seed phrases or recovery phrases. You may record where such access information is legally available or what your nominee should do next.'],
   ['Can nominee access be initiated only after death?', 'Primarily, yes, it is meant for access after the vault owner’s death. It may also be initiated in a serious medical incapacity situation where the primary owner is unable to act, subject to proof, verification and admin approval.'],
@@ -155,8 +156,8 @@ export default function Home() {
             </div>
 
             <div className="hero-card reveal delay-1" aria-label="LegacyBridge vault preview">
-              <div className="hero-card-top">
-                <img src="/assets/logo-app-icon.png" alt="" aria-hidden="true" style={{ width: "88px", borderRadius: "22px", objectFit: "contain" }} />
+              <div className="hero-card-top" style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
+                <img src="/assets/legacybridge-logo.png" alt="LegacyBridge" style={{ height: "80px", width: "auto", objectFit: "contain" }} />
                 <div>
                   <p>Protected Vault</p>
                   <h2 style={{ color: '#fff' }}>Stored in your Google Drive</h2>
@@ -255,7 +256,6 @@ export default function Home() {
               <div className="timeline-step reveal"><span>2</span><div><h3>Set secret passphrase</h3><p>This passphrase protects the encrypted vault. It is not stored as a normal app password.</p></div></div>
               <div className="timeline-step reveal"><span>3</span><div><h3>Add owner and nominee details</h3><p>These details help verify the correct nominee if a claim is ever initiated.</p></div></div>
               <div className="timeline-step reveal"><span>4</span><div><h3>Fill short wealth-information forms</h3><p>Record where assets exist, whom to contact, document location and what your nominee should know.</p></div></div>
-              <div className="timeline-step reveal"><span>5</span><div><h3>Generate family-ready PDF</h3><p>The output is a practical “Family Must Know” roadmap, not a net-worth or valuation report.</p></div></div>
             </div>
           </div>
         </section>
@@ -278,7 +278,7 @@ export default function Home() {
           <div className="shell">
             <div className="section-head reveal">
               <p className="eyebrow">Vault sections</p>
-              <h2>31 focused sections. Short forms. Useful information only.</h2>
+              <h2>32 focused sections. Short forms. Useful information only.</h2>
               <p>Each form ends with one human field: <strong>“What should my nominee know?”</strong></p>
             </div>
             <div className="category-grid" aria-label="LegacyBridge sections">
@@ -293,7 +293,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Shareable Output */}
+        {/* Shareable Output - Hidden
         <section className="pdf-section section-pad">
           <div className="shell pdf-grid align-center">
             <div className="pdf-mock reveal" aria-label="Family Must Know PDF preview">
@@ -312,6 +312,7 @@ export default function Home() {
             </div>
           </div>
         </section>
+        */}
 
         {/* Nominee Claim Journey */}
         <section className="dark-section section-pad" id="claim">
@@ -360,7 +361,6 @@ export default function Home() {
                   <li>Full vault access</li>
                   <li>Unlimited entries</li>
                   <li>Encrypted Google Drive storage</li>
-                  <li>Family Must Know PDF export</li>
                   <li>Nominee claim activation</li>
                   <li>Review reminders</li>
                 </ul>
@@ -374,7 +374,6 @@ export default function Home() {
                   <li>Lifetime vault access</li>
                   <li>No annual renewal worry</li>
                   <li>Unlimited entries</li>
-                  <li>PDF export</li>
                   <li>Nominee claim activation</li>
                   <li>Future standard updates</li>
                 </ul>
@@ -423,7 +422,7 @@ export default function Home() {
         <section className="cta-section" id="start">
           <div className="shell cta-card reveal">
           <div style={{ display: "inline-flex", flexDirection: "column", alignItems: "center", margin: "0 auto 24px" }}>
-            <img src="/assets/logo-vertical.png" alt="LegacyBridge" style={{ height: "220px", width: "auto", objectFit: "contain" }} />
+            <img src="/assets/legacybridge-logo.png" alt="LegacyBridge" style={{ height: "140px", width: "auto", objectFit: "contain", filter: "none" }} />
           </div>
             <h2 style={{ color: "#fff" }}>Build the bridge your family may need one day.</h2>
             <p>Start your 48-hour setup access. Your vault is saved encrypted in your own Google Drive.</p>
@@ -440,7 +439,7 @@ export default function Home() {
         <div className="shell footer-grid">
           <div>
             <Link href="#top" className="brand footer-brand">
-              <img src="/assets/logo-horizontal.png" alt="LegacyBridge" style={{ height: "65px", width: "auto", objectFit: "contain", filter: "brightness(0) invert(1)", opacity: 0.96 }} />
+              <img src="/assets/legacybridge-logo.png" alt="LegacyBridge" style={{ height: "100px", width: "auto", objectFit: "contain", opacity: 0.96, filter: "none" }} />
             </Link>
             <p>A product of Solution Planets.</p>
           </div>

@@ -100,7 +100,7 @@ export default function Home() {
       <header className="site-header" id="top">
         <nav className="nav shell" aria-label="Primary navigation">
           <Link href="#top" className="brand" aria-label="LegacyBridge home">
-            <img src="/assets/logo-horizontal.png" alt="LegacyBridge" style={{ height: "65px", width: "auto", objectFit: "contain" }} />
+            <img src="/assets/logo-horizontal-clean.png" alt="LegacyBridge" style={{ height: "48px", width: "auto", objectFit: "contain" }} />
           </Link>
 
           <button 
@@ -441,7 +441,7 @@ export default function Home() {
           <div>
             <Link href="#top" className="brand footer-brand">
               <div style={{ backgroundColor: "#fff", padding: "10px 20px", borderRadius: "16px", display: "inline-block", marginBottom: "12px", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}>
-                <img src="/assets/logo-horizontal.png" alt="LegacyBridge" style={{ height: "55px", width: "auto", objectFit: "contain" }} />
+                <img src="/assets/logo-horizontal-clean.png" alt="LegacyBridge" style={{ height: "42px", width: "auto", objectFit: "contain" }} />
               </div>
             </Link>
             <p>A product of Solution Planets.</p>

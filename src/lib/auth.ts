@@ -40,6 +40,9 @@ export const authOptions: NextAuthOptions = {
                 email: user.email,
                 lastLogin: new Date(),
               },
+              $setOnInsert: {
+                createdAt: new Date(),
+              }
             },
             { upsert: true }
           );

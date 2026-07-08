@@ -1,0 +1,20 @@
+<svg width="180" height="180" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">LegacyBridge Mark</title>
+  <desc id="desc">Shield with tree, bridge and family.</desc>
+  <defs>
+    <linearGradient id="gold" x1="72" y1="38" x2="136" y2="128" gradientUnits="userSpaceOnUse"><stop stop-color="#E4BE5C"/><stop offset="1" stop-color="#B9841C"/></linearGradient>
+    <linearGradient id="navy" x1="28" y1="18" x2="148" y2="152" gradientUnits="userSpaceOnUse"><stop stop-color="#11263D"/><stop offset="1" stop-color="#071423"/></linearGradient>
+  </defs>
+  <rect width="180" height="180" rx="40" fill="#0D1B2A"/>
+  <path d="M90 18L150 43V84C150 123 126 148 90 160C54 148 30 123 30 84V43L90 18Z" fill="white" stroke="white" stroke-width="7" stroke-linejoin="round"/>
+  <path d="M90 18L150 43V84C150 123 126 148 90 160C54 148 30 123 30 84V43L90 18Z" fill="white" stroke="url(#navy)" stroke-width="4" stroke-linejoin="round"/>
+  <path d="M46 102C60 78 76 69 90 69C104 69 120 78 134 102" stroke="#0D1B2A" stroke-width="7" stroke-linecap="round"/>
+  <path d="M50 103H130" stroke="#0D1B2A" stroke-width="6" stroke-linecap="round"/>
+  <path d="M61 99V120M75 83V130M105 83V130M119 99V120" stroke="#0D1B2A" stroke-width="5" stroke-linecap="round"/>
+  <path d="M90 78C90 62 90 48 90 40" stroke="url(#gold)" stroke-width="8" stroke-linecap="round"/>
+  <path d="M90 64C76 56 68 48 62 40M90 64C104 56 112 48 118 40M89 50C78 43 71 37 66 29M91 50C102 43 109 37 114 29" stroke="url(#gold)" stroke-width="5" stroke-linecap="round"/>
+  <g fill="url(#gold)">
+    <ellipse cx="58" cy="38" rx="6" ry="10" transform="rotate(-40 58 38)"/><ellipse cx="72" cy="30" rx="6" ry="10" transform="rotate(-22 72 30)"/><ellipse cx="90" cy="27" rx="6" ry="10"/><ellipse cx="108" cy="30" rx="6" ry="10" transform="rotate(22 108 30)"/><ellipse cx="122" cy="38" rx="6" ry="10" transform="rotate(40 122 38)"/><ellipse cx="67" cy="55" rx="5" ry="9" transform="rotate(-64 67 55)"/><ellipse cx="113" cy="55" rx="5" ry="9" transform="rotate(64 113 55)"/><ellipse cx="79" cy="45" rx="5" ry="8" transform="rotate(-40 79 45)"/><ellipse cx="101" cy="45" rx="5" ry="8" transform="rotate(40 101 45)"/>
+  </g>
+  <g fill="#0D1B2A"><circle cx="72" cy="113" r="7"/><path d="M61 140C63 126 66 120 72 120C79 120 81 126 83 140H61Z"/><circle cx="108" cy="113" r="7"/><path d="M97 140C99 126 102 120 108 120C115 120 117 126 119 140H97Z"/><circle cx="90" cy="121" r="5"/><path d="M81 141C83 132 85 127 90 127C95 127 98 132 100 141H81Z"/></g>
+</svg>

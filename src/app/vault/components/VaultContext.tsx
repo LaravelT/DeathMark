@@ -125,6 +125,9 @@ interface VaultContextType {
   ownerDetails: OwnerDetails | null;
   setOwnerDetails: React.Dispatch<React.SetStateAction<OwnerDetails | null>>;
   fetchOwnerDetails: () => Promise<void>;
+  isExpired: boolean;
+  setIsExpired: React.Dispatch<React.SetStateAction<boolean>>;
+  createdAt: string | null;
   needsPasswordUpdate: boolean;
   setNeedsPasswordUpdate: React.Dispatch<React.SetStateAction<boolean>>;
   handleSaveOwnerDetails: (details: OwnerDetails) => Promise<void>;
@@ -242,6 +245,8 @@ export function VaultProvider({ children }: { children: React.ReactNode }) {
 
   // Owner State
   const [ownerDetails, setOwnerDetails] = useState<OwnerDetails | null>(null);
+  const [isExpired, setIsExpired] = useState(false);
+  const [createdAt, setCreatedAt] = useState<string | null>(null);
   const [needsPasswordUpdate, setNeedsPasswordUpdate] = useState(false);
   const [tempDecryptedIndex, setTempDecryptedIndex] = useState<VaultIndex | null>(null);
   const [tempOldKey, setTempOldKey] = useState<CryptoKey | null>(null);
@@ -435,6 +440,8 @@ export function VaultProvider({ children }: { children: React.ReactNode }) {
       if (res.ok) {
         const data = await res.json();
         setOwnerDetails(data.ownerDetails);
+        setIsExpired(!!data.isExpired);
+        setCreatedAt(data.createdAt || null);
       }
     } catch (e) {
       console.error("Failed to fetch owner details:", e);
@@ -991,6 +998,7 @@ export function VaultProvider({ children }: { children: React.ReactNode }) {
       nomineeDetails, setNomineeDetails, nomineeFileId, setNomineeFileId, loadingNominee, setLoadingNominee,
       handleSaveNominee, handleDeleteNominee, fetchNomineeDetails, getCategoryLastUpdated, lastLogin,
       ownerDetails, setOwnerDetails, fetchOwnerDetails,
+      isExpired, setIsExpired, createdAt,
       needsPasswordUpdate, setNeedsPasswordUpdate, handleSaveOwnerDetails, handleUpdateWeakPassphrase
     }}>
       {children}

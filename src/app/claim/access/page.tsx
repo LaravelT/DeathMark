@@ -150,6 +150,13 @@ function ClaimAccessContent() {
       const parsedFiles = JSON.parse(decryptedText);
       setDecryptedFiles(parsedFiles);
       setStep(3);
+
+      // Mark link as expired immediately
+      fetch("/api/claim/expire", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: ownerEmail, claimId })
+      }).catch((e) => console.error("Failed to mark claim as expired:", e));
     } catch (err: any) {
       setError("Decryption failed. Please check your credentials or verify authorization.");
       console.error(err);

@@ -240,61 +240,61 @@ export default function NomineePage() {
         <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
           {/* Main details grid */}
           <div className="form-grid form-grid-3">
-            <div style={{ backgroundColor: "#1e293b", padding: "14px", borderRadius: "8px", border: "1px solid var(--card-border)" }}>
+            <div style={{ backgroundColor: "#faf7f0", padding: "14px", borderRadius: "8px", border: "1px solid rgba(217, 184, 133, 0.25)" }}>
               <span style={{ fontSize: "11px", color: "var(--muted)", fontWeight: "600", textTransform: "uppercase", display: "block", marginBottom: "4px" }}>
                 Nominee Name
               </span>
-              <strong style={{ fontSize: "15px", color: "#fff" }}>{nomineeDetails.name}</strong>
+              <strong style={{ fontSize: "15px", color: "var(--fg-color)" }}>{nomineeDetails.name}</strong>
             </div>
 
-            <div style={{ backgroundColor: "#1e293b", padding: "14px", borderRadius: "8px", border: "1px solid var(--card-border)" }}>
+            <div style={{ backgroundColor: "#faf7f0", padding: "14px", borderRadius: "8px", border: "1px solid rgba(217, 184, 133, 0.25)" }}>
               <span style={{ fontSize: "11px", color: "var(--muted)", fontWeight: "600", textTransform: "uppercase", display: "block", marginBottom: "4px" }}>
                 Phone Number
               </span>
-              <strong style={{ fontSize: "15px", color: "#fff" }}>{nomineeDetails.phone}</strong>
+              <strong style={{ fontSize: "15px", color: "var(--fg-color)" }}>{nomineeDetails.phone}</strong>
             </div>
 
-            <div style={{ backgroundColor: "#1e293b", padding: "14px", borderRadius: "8px", border: "1px solid var(--card-border)" }}>
+            <div style={{ backgroundColor: "#faf7f0", padding: "14px", borderRadius: "8px", border: "1px solid rgba(217, 184, 133, 0.25)" }}>
               <span style={{ fontSize: "11px", color: "var(--muted)", fontWeight: "600", textTransform: "uppercase", display: "block", marginBottom: "4px" }}>
                 Email Address
               </span>
-              <strong style={{ fontSize: "15px", color: "#fff" }}>{nomineeDetails.email}</strong>
+              <strong style={{ fontSize: "15px", color: "var(--fg-color)" }}>{nomineeDetails.email}</strong>
             </div>
 
-            <div style={{ backgroundColor: "#1e293b", padding: "14px", borderRadius: "8px", border: "1px solid var(--card-border)" }}>
+            <div style={{ backgroundColor: "#faf7f0", padding: "14px", borderRadius: "8px", border: "1px solid rgba(217, 184, 133, 0.25)" }}>
               <span style={{ fontSize: "11px", color: "var(--muted)", fontWeight: "600", textTransform: "uppercase", display: "block", marginBottom: "4px" }}>
                 Aadhaar Card No
               </span>
-              <strong style={{ fontSize: "15px", color: "#fff" }}>{nomineeDetails.aadhaar}</strong>
+              <strong style={{ fontSize: "15px", color: "var(--fg-color)" }}>{nomineeDetails.aadhaar}</strong>
             </div>
 
-            <div style={{ backgroundColor: "#1e293b", padding: "14px", borderRadius: "8px", border: "1px solid var(--card-border)" }}>
+            <div style={{ backgroundColor: "#faf7f0", padding: "14px", borderRadius: "8px", border: "1px solid rgba(217, 184, 133, 0.25)" }}>
               <span style={{ fontSize: "11px", color: "var(--muted)", fontWeight: "600", textTransform: "uppercase", display: "block", marginBottom: "4px" }}>
                 PAN Card No
               </span>
-              <strong style={{ fontSize: "15px", color: "#fff" }}>{nomineeDetails.pan || "Not Provided"}</strong>
+              <strong style={{ fontSize: "15px", color: "var(--fg-color)" }}>{nomineeDetails.pan || "Not Provided"}</strong>
             </div>
 
-            <div style={{ backgroundColor: "#1e293b", padding: "14px", borderRadius: "8px", border: "1px solid var(--card-border)" }}>
+            <div style={{ backgroundColor: "#faf7f0", padding: "14px", borderRadius: "8px", border: "1px solid rgba(217, 184, 133, 0.25)" }}>
               <span style={{ fontSize: "11px", color: "var(--muted)", fontWeight: "600", textTransform: "uppercase", display: "block", marginBottom: "4px" }}>
                 Date of Birth
               </span>
-              <strong style={{ fontSize: "15px", color: "#fff" }}>{nomineeDetails.dob || "Not Provided"}</strong>
+              <strong style={{ fontSize: "15px", color: "var(--fg-color)" }}>{nomineeDetails.dob || "Not Provided"}</strong>
             </div>
 
-            <div style={{ backgroundColor: "#1e293b", padding: "14px", borderRadius: "8px", border: "1px solid var(--card-border)" }}>
+            <div style={{ backgroundColor: "#faf7f0", padding: "14px", borderRadius: "8px", border: "1px solid rgba(217, 184, 133, 0.25)" }}>
               <span style={{ fontSize: "11px", color: "var(--muted)", fontWeight: "600", textTransform: "uppercase", display: "block", marginBottom: "4px" }}>
                 Relation
               </span>
-              <strong style={{ fontSize: "15px", color: "#fff" }}>{nomineeDetails.relation || "Not Provided"}</strong>
+              <strong style={{ fontSize: "15px", color: "var(--fg-color)" }}>{nomineeDetails.relation || "Not Provided"}</strong>
             </div>
           </div>
 
-          <div style={{ backgroundColor: "#1e293b", padding: "14px", borderRadius: "8px", border: "1px solid var(--card-border)" }}>
+          <div style={{ backgroundColor: "#faf7f0", padding: "14px", borderRadius: "8px", border: "1px solid rgba(217, 184, 133, 0.25)" }}>
             <span style={{ fontSize: "11px", color: "var(--muted)", fontWeight: "600", textTransform: "uppercase", display: "block", marginBottom: "4px" }}>
               Aadhaar Registered Address
             </span>
-            <strong style={{ fontSize: "15px", color: "#fff" }}>{nomineeDetails.aadhaarAddress}</strong>
+            <strong style={{ fontSize: "15px", color: "var(--fg-color)" }}>{nomineeDetails.aadhaarAddress}</strong>
           </div>
 
           {/* Document Previews Section */}
@@ -360,8 +360,8 @@ export default function NomineePage() {
               marginTop: "16px"
             }}
           >
-            <Shield style={{ color: "#10b981", flexShrink: 0 }} size={20} />
-            <span style={{ fontSize: "13px", color: "#a7f3d0" }}>
+            <Shield style={{ color: "#16803d", flexShrink: 0 }} size={20} />
+            <span style={{ fontSize: "13px", color: "#15803d", fontWeight: "600" }}>
               This nominee configuration is stored fully encrypted inside your private Google Drive space. It remains invisible to Google or external services.
             </span>
           </div>

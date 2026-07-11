@@ -44,22 +44,17 @@ function VaultLayoutInner({ children }: { children: React.ReactNode }) {
   // If trial has expired, prompt to pay/activate plan
   if (derivedKey && isExpired) {
     return (
-      <div className="signin-wrapper flex-center" style={{ minHeight: "100vh", padding: "20px", flexDirection: "column", backgroundColor: "#0b0f17" }}>
-        <div className="signin-card" style={{ maxWidth: "540px", textAlign: "center", padding: "40px 30px" }}>
-          <div style={{
-            width: "64px",
-            height: "64px",
-            borderRadius: "50%",
-            backgroundColor: "rgba(239, 68, 68, 0.1)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            margin: "0 auto 24px"
-          }}>
-            <ShieldAlert size={32} style={{ color: "#ef4444" }} />
+      <div className="signin-wrapper flex-center" style={{ minHeight: "100vh", padding: "20px", flexDirection: "column", backgroundColor: "#faf7f0" }}>
+        <div className="signin-card" style={{ maxWidth: "540px", textAlign: "center", padding: "40px 30px", backgroundColor: "#ffffff", borderRadius: "28px", border: "1px solid rgba(217, 184, 133, 0.25)", boxShadow: "0 20px 50px rgba(139, 92, 26, 0.04)" }}>
+          <div className="logo-shield-container" style={{ marginBottom: "20px" }}>
+            <img 
+              src="/assets/legacybridge-logo.png" 
+              alt="LegacyBridge Logo" 
+              style={{ height: "80px", width: "auto", objectFit: "contain" }} 
+            />
           </div>
-          <h1 className="signin-title" style={{ fontSize: "24px", marginBottom: "12px" }}>48-Hour Setup Access Expired</h1>
-          <p style={{ color: "#cbd5e1", fontSize: "15px", lineHeight: "1.6", marginBottom: "32px" }}>
+          <h1 className="signin-title" style={{ fontSize: "24px", marginBottom: "12px", color: "#1a150e" }}>48-Hour Setup Access Expired</h1>
+          <p style={{ color: "#6b5a45", fontSize: "15px", lineHeight: "1.6", marginBottom: "32px" }}>
             Your free 48-hour vault setup window has closed. All your vault data remains securely encrypted on your Google Drive. 
             To reactivate access, update your assets, or keep your legacy secure, please activate your subscription.
           </p>
@@ -139,29 +134,34 @@ function VaultLayoutInner({ children }: { children: React.ReactNode }) {
       <div className="signin-wrapper" style={{ overflowY: "auto", padding: "40px 20px" }}>
         <div className="signin-card" style={{ maxWidth: "560px", margin: "auto" }}>
           <div className="signin-header">
-            <div className="logo-container flex-center">
-              <User style={{ width: "32px", height: "32px", color: "#fff" }} />
+            <div className="logo-shield-container">
+              <img 
+                src="/assets/legacybridge-logo.png" 
+                alt="LegacyBridge Logo" 
+                style={{ height: "80px", width: "auto", objectFit: "contain" }} 
+              />
             </div>
-            <h1 className="signin-title">Vault Owner Details</h1>
-            <p className="signin-subtitle">Please fill in your details to continue.</p>
+            <h1 className="signin-title" style={{ color: "#1a150e" }}>Vault Owner Details</h1>
+            <p className="signin-subtitle" style={{ color: "#6b5a45" }}>Please fill in your details to continue.</p>
+            <div className="header-divider"></div>
           </div>
 
           <form onSubmit={handleSubmit} className="signin-body" style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
 
             <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-              <label className="form-label">Full Name <span style={{ color: "var(--danger)" }}>*</span></label>
+              <label className="form-label" style={{ color: "#1a150e" }}>Full Name <span style={{ color: "var(--danger)" }}>*</span></label>
               <input
                 type="text"
                 value={ownerName}
                 onChange={(e) => setOwnerName(e.target.value)}
                 placeholder="Enter Full Legal Name"
                 required
-                style={{ width: "100%", padding: "12px 14px", backgroundColor: "#1e293b", border: "1px solid var(--card-border)", borderRadius: "10px", color: "#fff", fontSize: "15px" }}
+                className="signin-input"
               />
             </div>
 
             <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-              <label className="form-label">Registered Mobile <span style={{ color: "var(--danger)" }}>*</span></label>
+              <label className="form-label" style={{ color: "#1a150e" }}>Registered Mobile <span style={{ color: "var(--danger)" }}>*</span></label>
               <input
                 type="text"
                 value={ownerPhone}
@@ -170,12 +170,12 @@ function VaultLayoutInner({ children }: { children: React.ReactNode }) {
                 required
                 pattern="\d{10}"
                 maxLength={10}
-                style={{ width: "100%", padding: "12px 14px", backgroundColor: "#1e293b", border: "1px solid var(--card-border)", borderRadius: "10px", color: "#fff", fontSize: "15px" }}
+                className="signin-input"
               />
             </div>
 
             <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-              <label className="form-label">Aadhaar Card No <span style={{ color: "var(--danger)" }}>*</span></label>
+              <label className="form-label" style={{ color: "#1a150e" }}>Aadhaar Card No <span style={{ color: "var(--danger)" }}>*</span></label>
               <input
                 type="text"
                 value={ownerAadhaar}
@@ -184,12 +184,12 @@ function VaultLayoutInner({ children }: { children: React.ReactNode }) {
                 required
                 pattern="\d{12}"
                 maxLength={12}
-                style={{ width: "100%", padding: "12px 14px", backgroundColor: "#1e293b", border: "1px solid var(--card-border)", borderRadius: "10px", color: "#fff", fontSize: "15px" }}
+                className="signin-input"
               />
             </div>
 
             <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-              <label className="form-label">PAN Card No <span style={{ color: "var(--danger)" }}>*</span></label>
+              <label className="form-label" style={{ color: "#1a150e" }}>PAN Card No <span style={{ color: "var(--danger)" }}>*</span></label>
               <input
                 type="text"
                 value={ownerPan}
@@ -197,19 +197,21 @@ function VaultLayoutInner({ children }: { children: React.ReactNode }) {
                 placeholder="10-digit PAN No"
                 required
                 maxLength={10}
-                style={{ width: "100%", padding: "12px 14px", backgroundColor: "#1e293b", border: "1px solid var(--card-border)", borderRadius: "10px", color: "#fff", fontSize: "15px", textTransform: "uppercase" }}
+                className="signin-input"
+                style={{ textTransform: "uppercase" }}
               />
             </div>
 
             <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-              <label className="form-label">Address <span style={{ color: "var(--danger)" }}>*</span></label>
+              <label className="form-label" style={{ color: "#1a150e" }}>Address <span style={{ color: "var(--danger)" }}>*</span></label>
               <textarea
                 value={ownerAddress}
                 onChange={(e) => setOwnerAddress(e.target.value)}
                 placeholder="Enter Residential Address"
                 required
                 rows={3}
-                style={{ width: "100%", padding: "12px 14px", backgroundColor: "#1e293b", border: "1px solid var(--card-border)", borderRadius: "10px", color: "#fff", fontSize: "15px", resize: "none" }}
+                className="signin-input"
+                style={{ resize: "none" }}
               />
             </div>
 

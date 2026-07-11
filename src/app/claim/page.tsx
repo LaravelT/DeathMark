@@ -206,8 +206,8 @@ export default function ClaimPage() {
   if (underReview || claimStatus) {
     let title = "Application Under Review";
     let message = "Your application is under review. You will receive an email in 7 days.";
-    let iconColor = "#ec4899";
-    let bgIconColor = "rgba(236, 72, 153, 0.1)";
+    let iconColor = "#b28e46";
+    let bgIconColor = "rgba(178, 142, 70, 0.1)";
 
     if (claimStatus === "Rejected") {
       title = "Application Rejected";
@@ -222,8 +222,8 @@ export default function ClaimPage() {
     }
 
     return (
-      <div className="hero-gradient flex-center" style={{ minHeight: "100vh", padding: "20px", flexDirection: "column" }}>
-        <div className="signin-card" style={{ maxWidth: "540px", textAlign: "center", padding: "40px 30px" }}>
+      <div className="signin-wrapper flex-center" style={{ minHeight: "100vh", padding: "20px", flexDirection: "column", backgroundColor: "#faf7f0" }}>
+        <div className="signin-card" style={{ maxWidth: "540px", textAlign: "center", padding: "40px 30px", backgroundColor: "#ffffff", borderRadius: "28px", border: "1px solid rgba(217, 184, 133, 0.25)", boxShadow: "0 20px 50px rgba(139, 92, 26, 0.04)" }}>
           <div style={{
             width: "64px",
             height: "64px",
@@ -236,8 +236,8 @@ export default function ClaimPage() {
           }}>
             <ShieldCheck size={32} style={{ color: iconColor }} />
           </div>
-          <h1 className="signin-title" style={{ fontSize: "24px", marginBottom: "12px" }}>{title}</h1>
-          <p style={{ color: "#cbd5e1", fontSize: "15px", lineHeight: "1.6", marginBottom: "32px" }}>
+          <h1 className="signin-title" style={{ fontSize: "24px", marginBottom: "12px", color: "#1a150e" }}>{title}</h1>
+          <p style={{ color: "#6b5a45", fontSize: "15px", lineHeight: "1.6", marginBottom: "32px" }}>
             {message}
           </p>
           <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
@@ -245,12 +245,12 @@ export default function ClaimPage() {
               <button 
                 onClick={handleResetPortal} 
                 className="btn-cta-primary" 
-                style={{ width: "100%", border: "none", backgroundColor: "#ec4899" }}
+                style={{ width: "100%", border: "none" }}
               >
                 Try Again / Restart Form
               </button>
             )}
-            <Link href="/" className="btn-cta-primary-premium" style={{ display: "inline-flex", textDecoration: "none", width: "100%", justifyContent: "center" }}>
+            <Link href="/" className="btn-cta-secondary" style={{ display: "inline-flex", textDecoration: "none", width: "100%", justifyContent: "center", alignItems: "center" }}>
               Back to Landing Page
             </Link>
           </div>
@@ -260,22 +260,31 @@ export default function ClaimPage() {
   }
 
   return (
-    <div className="hero-gradient flex-center" style={{ minHeight: "100vh", padding: "40px 20px", flexDirection: "column" }}>
+    <div className="signin-wrapper flex-center" style={{ minHeight: "100vh", padding: "40px 20px", flexDirection: "column", backgroundColor: "#faf7f0" }}>
       {/* Header Brand */}
-      <div style={{ display: "flex", gap: "8px", alignItems: "center", marginBottom: "32px" }}>
-        <div className="brand-logo-box">
-          <KeyRound className="w-5 h-5 text-white" />
-        </div>
-        <span className="brand-title">LegacyBridge</span>
+      <div style={{ display: "flex", gap: "10px", alignItems: "center", marginBottom: "32px" }}>
+        <img 
+          src="/assets/legacybridge-logo.png" 
+          alt="LegacyBridge Logo" 
+          style={{ height: "48px", width: "auto", objectFit: "contain" }} 
+        />
+        <span className="brand-title" style={{ fontSize: "20px", fontWeight: "700", color: "#1a150e", WebkitTextFillColor: "#1a150e", letterSpacing: "0.01em" }}>
+          LegacyBridge
+        </span>
       </div>
 
-      <div className="signin-card" style={{ maxWidth: "520px", width: "100%" }}>
+      <div className="signin-card" style={{ maxWidth: "520px", width: "100%", padding: "40px 30px", backgroundColor: "#ffffff", borderRadius: "28px", border: "1px solid rgba(217, 184, 133, 0.25)", boxShadow: "0 20px 50px rgba(139, 92, 26, 0.04)" }}>
         <div className="signin-header">
-          <div className="logo-container flex-center">
-            <FileText style={{ width: "32px", height: "32px", color: "#fff" }} />
+          <div className="logo-shield-container">
+            <img 
+              src="/assets/legacybridge-logo.png" 
+              alt="LegacyBridge Logo" 
+              style={{ height: "80px", width: "auto", objectFit: "contain" }} 
+            />
           </div>
-          <h1 className="signin-title">Beneficiary Claim Portal</h1>
-          <p className="signin-subtitle">Step {step} of 4: Verify details to claim assets</p>
+          <h1 className="signin-title" style={{ color: "#1a150e" }}>Beneficiary Claim Portal</h1>
+          <p className="signin-subtitle" style={{ color: "#6b5a45" }}>Step {step} of 4: Verify details to claim assets</p>
+          <div className="header-divider"></div>
         </div>
 
         {/* Steps Visual Indicator */}
@@ -286,9 +295,9 @@ export default function ClaimPage() {
                 width: "28px",
                 height: "28px",
                 borderRadius: "50%",
-                backgroundColor: step === s ? "#ec4899" : step > s ? "rgba(16,185,129,0.2)" : "#1e293b",
-                border: step === s ? "2px solid #ec4899" : "1px solid var(--card-border)",
-                color: step >= s ? "#fff" : "var(--muted)",
+                backgroundColor: step === s ? "#b28e46" : step > s ? "rgba(16,185,129,0.15)" : "#faf7f0",
+                border: step === s ? "2px solid #b28e46" : "1px solid rgba(217, 184, 133, 0.25)",
+                color: step === s ? "#fff" : step > s ? "#10b981" : "var(--muted)",
                 fontSize: "12px",
                 fontWeight: "600",
                 display: "flex",
@@ -297,13 +306,13 @@ export default function ClaimPage() {
               }}>
                 {s}
               </div>
-              {s < 4 && <div style={{ width: "40px", height: "2px", backgroundColor: step > s ? "#10b981" : "#1e293b" }} />}
+              {s < 4 && <div style={{ width: "40px", height: "2px", backgroundColor: step > s ? "#10b981" : "rgba(217, 184, 133, 0.25)" }} />}
             </div>
           ))}
         </div>
 
         {error && (
-          <div style={{ display: "flex", gap: "10px", alignItems: "center", padding: "12px", backgroundColor: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)", borderRadius: "8px", color: "#f87171", fontSize: "14px", marginBottom: "20px" }}>
+          <div style={{ display: "flex", gap: "10px", alignItems: "center", padding: "12px", backgroundColor: "#fef2f2", border: "1px solid rgba(239,68,68,0.2)", borderRadius: "8px", color: "#b91c1c", fontSize: "14px", marginBottom: "20px" }}>
             <AlertCircle size={18} style={{ flexShrink: 0 }} />
             <span>{error}</span>
           </div>
@@ -313,30 +322,30 @@ export default function ClaimPage() {
         {step === 1 && (
           <form onSubmit={handleNextStep} className="signin-body" style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
             <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-              <label className="form-label">Relative's Gmail Address <span style={{ color: "var(--danger)" }}>*</span></label>
+              <label className="form-label" style={{ color: "#1a150e" }}>Relative's Gmail Address <span style={{ color: "var(--danger)" }}>*</span></label>
               <input
                 type="email"
                 value={ownerEmail}
                 onChange={(e) => setOwnerEmail(e.target.value)}
                 placeholder="relative@gmail.com"
                 required
-                style={{ width: "100%", padding: "12px 14px", backgroundColor: "#1e293b", border: "1px solid var(--card-border)", borderRadius: "10px", color: "#fff", fontSize: "15px" }}
+                className="signin-input"
               />
             </div>
 
             <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-              <label className="form-label">Relative's Full Name <span style={{ color: "var(--danger)" }}>*</span></label>
+              <label className="form-label" style={{ color: "#1a150e" }}>Relative's Full Name <span style={{ color: "var(--danger)" }}>*</span></label>
               <input
                 type="text"
                 value={ownerName}
                 onChange={(e) => setOwnerName(e.target.value)}
                 placeholder="Enter Relative's Legal Name"
                 required
-                style={{ width: "100%", padding: "12px 14px", backgroundColor: "#1e293b", border: "1px solid var(--card-border)", borderRadius: "10px", color: "#fff", fontSize: "15px" }}
+                className="signin-input"
               />
             </div>
 
-            <button type="submit" className="btn-cta-primary" style={{ width: "100%", border: "none", marginTop: "10px", backgroundColor: "#ec4899" }} disabled={loading}>
+            <button type="submit" className="btn-cta-primary" style={{ width: "100%", border: "none", marginTop: "10px" }} disabled={loading}>
               {loading ? "Verifying..." : "Continue"}
             </button>
             <Link href="/" style={{ color: "var(--muted)", fontSize: "14px", textAlign: "center", textDecoration: "none", marginTop: "4px" }}>
@@ -349,7 +358,7 @@ export default function ClaimPage() {
         {step === 2 && (
           <form onSubmit={handleNextStep} className="signin-body" style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
             <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-              <label className="form-label">Relative's Aadhaar Card No <span style={{ color: "var(--danger)" }}>*</span></label>
+              <label className="form-label" style={{ color: "#1a150e" }}>Relative's Aadhaar Card No <span style={{ color: "var(--danger)" }}>*</span></label>
               <input
                 type="text"
                 value={ownerAadhaar}
@@ -358,12 +367,12 @@ export default function ClaimPage() {
                 required
                 pattern="\d{12}"
                 maxLength={12}
-                style={{ width: "100%", padding: "12px 14px", backgroundColor: "#1e293b", border: "1px solid var(--card-border)", borderRadius: "10px", color: "#fff", fontSize: "15px" }}
+                className="signin-input"
               />
             </div>
 
             <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-              <label className="form-label">Relative's PAN Card No <span style={{ color: "var(--danger)" }}>*</span></label>
+              <label className="form-label" style={{ color: "#1a150e" }}>Relative's PAN Card No <span style={{ color: "var(--danger)" }}>*</span></label>
               <input
                 type="text"
                 value={ownerPan}
@@ -371,7 +380,8 @@ export default function ClaimPage() {
                 placeholder="10-digit PAN No"
                 required
                 maxLength={10}
-                style={{ width: "100%", padding: "12px 14px", backgroundColor: "#1e293b", border: "1px solid var(--card-border)", borderRadius: "10px", color: "#fff", fontSize: "15px", textTransform: "uppercase" }}
+                className="signin-input"
+                style={{ textTransform: "uppercase" }}
               />
             </div>
 
@@ -379,7 +389,7 @@ export default function ClaimPage() {
               <button type="button" onClick={() => setStep(1)} className="btn-cta-secondary" style={{ flex: 1 }}>
                 Go Back
               </button>
-              <button type="submit" className="btn-cta-primary" style={{ flex: 1, border: "none", backgroundColor: "#ec4899" }} disabled={loading}>
+              <button type="submit" className="btn-cta-primary" style={{ flex: 1, border: "none" }} disabled={loading}>
                 {loading ? "Verifying..." : "Continue"}
               </button>
             </div>
@@ -390,7 +400,7 @@ export default function ClaimPage() {
         {step === 3 && (
           <form onSubmit={handleNextStep} className="signin-body" style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
             <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-              <label className="form-label">Nominee Aadhaar Card No <span style={{ color: "var(--danger)" }}>*</span></label>
+              <label className="form-label" style={{ color: "#1a150e" }}>Nominee Aadhaar Card No <span style={{ color: "var(--danger)" }}>*</span></label>
               <input
                 type="text"
                 value={nomineeAadhaar}
@@ -399,12 +409,12 @@ export default function ClaimPage() {
                 required
                 pattern="\d{12}"
                 maxLength={12}
-                style={{ width: "100%", padding: "12px 14px", backgroundColor: "#1e293b", border: "1px solid var(--card-border)", borderRadius: "10px", color: "#fff", fontSize: "15px" }}
+                className="signin-input"
               />
             </div>
 
             <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-              <label className="form-label">Nominee PAN Card No <span style={{ color: "var(--danger)" }}>*</span></label>
+              <label className="form-label" style={{ color: "#1a150e" }}>Nominee PAN Card No <span style={{ color: "var(--danger)" }}>*</span></label>
               <input
                 type="text"
                 value={nomineePan}
@@ -412,7 +422,8 @@ export default function ClaimPage() {
                 placeholder="10-digit Nominee PAN"
                 required
                 maxLength={10}
-                style={{ width: "100%", padding: "12px 14px", backgroundColor: "#1e293b", border: "1px solid var(--card-border)", borderRadius: "10px", color: "#fff", fontSize: "15px", textTransform: "uppercase" }}
+                className="signin-input"
+                style={{ textTransform: "uppercase" }}
               />
             </div>
 
@@ -420,7 +431,7 @@ export default function ClaimPage() {
               <button type="button" onClick={() => setStep(2)} className="btn-cta-secondary" style={{ flex: 1 }}>
                 Go Back
               </button>
-              <button type="submit" className="btn-cta-primary" style={{ flex: 1, border: "none", backgroundColor: "#ec4899" }} disabled={loading}>
+              <button type="submit" className="btn-cta-primary" style={{ flex: 1, border: "none" }} disabled={loading}>
                 {loading ? "Verifying..." : "Continue"}
               </button>
             </div>
@@ -431,44 +442,45 @@ export default function ClaimPage() {
         {step === 4 && (
           <form onSubmit={handleSubmitClaim} className="signin-body" style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
             <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-              <label className="form-label">Your Full Name <span style={{ color: "var(--danger)" }}>*</span></label>
+              <label className="form-label" style={{ color: "#1a150e" }}>Your Full Name <span style={{ color: "var(--danger)" }}>*</span></label>
               <input
                 type="text"
                 value={claimantName}
                 onChange={(e) => setClaimantName(e.target.value)}
                 placeholder="Enter Your Legal Name"
                 required
-                style={{ width: "100%", padding: "12px 14px", backgroundColor: "#1e293b", border: "1px solid var(--card-border)", borderRadius: "10px", color: "#fff", fontSize: "15px" }}
+                className="signin-input"
               />
             </div>
 
             <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-              <label className="form-label">Your Gmail Address <span style={{ color: "var(--danger)" }}>*</span></label>
+              <label className="form-label" style={{ color: "#1a150e" }}>Your Gmail Address <span style={{ color: "var(--danger)" }}>*</span></label>
               <input
                 type="email"
                 value={claimantGmail}
                 onChange={(e) => setClaimantGmail(e.target.value)}
                 placeholder="yourname@gmail.com"
                 required
-                style={{ width: "100%", padding: "12px 14px", backgroundColor: "#1e293b", border: "1px solid var(--card-border)", borderRadius: "10px", color: "#fff", fontSize: "15px" }}
+                className="signin-input"
               />
             </div>
 
             <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-              <label className="form-label">Why do you need these details? (Reason) <span style={{ color: "var(--danger)" }}>*</span></label>
+              <label className="form-label" style={{ color: "#1a150e" }}>Why do you need these details? (Reason) <span style={{ color: "var(--danger)" }}>*</span></label>
               <textarea
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
                 placeholder="Explain why you are requesting details of this asset vault..."
                 required
                 rows={4}
-                style={{ width: "100%", padding: "12px 14px", backgroundColor: "#1e293b", border: "1px solid var(--card-border)", borderRadius: "10px", color: "#fff", fontSize: "15px", resize: "none" }}
+                className="signin-input"
+                style={{ resize: "none" }}
               />
             </div>
 
             <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-              <label className="form-label">Supporting Document (e.g. Death Certificate) <span style={{ color: "var(--danger)" }}>*</span></label>
-              <div style={{ position: "relative", display: "flex", flexDirection: "column", gap: "10px", padding: "20px", border: "2px dashed var(--card-border)", borderRadius: "12px", backgroundColor: "rgba(0,0,0,0.1)", alignItems: "center" }}>
+              <label className="form-label" style={{ color: "#1a150e" }}>Supporting Document (e.g. Death Certificate) <span style={{ color: "var(--danger)" }}>*</span></label>
+              <div style={{ position: "relative", display: "flex", flexDirection: "column", gap: "10px", padding: "20px", border: "2px dashed rgba(217, 184, 133, 0.4)", borderRadius: "12px", backgroundColor: "#faf7f0", alignItems: "center" }}>
                 <Upload size={24} style={{ color: "var(--muted)", marginBottom: "4px" }} />
                 <span style={{ fontSize: "13px", color: "var(--muted)" }}>Click to upload file (Max 2MB)</span>
                 <input
@@ -479,7 +491,7 @@ export default function ClaimPage() {
                   style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", opacity: 0, cursor: "pointer" }}
                 />
                 {documentBase64 && (
-                  <span style={{ fontSize: "12px", color: "#ec4899", fontWeight: "600", display: "flex", alignItems: "center", gap: "4px" }}>
+                  <span style={{ fontSize: "12px", color: "var(--primary)", fontWeight: "600", display: "flex", alignItems: "center", gap: "4px" }}>
                     <ShieldCheck size={14} /> Document Uploaded
                   </span>
                 )}
@@ -490,7 +502,7 @@ export default function ClaimPage() {
               <button type="button" onClick={() => setStep(3)} className="btn-cta-secondary" style={{ flex: 1 }}>
                 Go Back
               </button>
-              <button type="submit" className="btn-cta-primary" style={{ flex: 1, border: "none", backgroundColor: "#ec4899" }} disabled={loading}>
+              <button type="submit" className="btn-cta-primary" style={{ flex: 1, border: "none" }} disabled={loading}>
                 {loading ? "Submitting..." : "Submit Claim"}
               </button>
             </div>

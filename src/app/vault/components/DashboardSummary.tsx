@@ -16,17 +16,17 @@ export default function DashboardSummary() {
     <div>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "24px", gap: "20px", flexWrap: "wrap" }}>
         <div>
-          <h1 className="page-title" style={{ marginBottom: "8px" }}>Secure Inheritance Vault</h1>
+          <h1 className="page-title" style={{ marginBottom: "8px", fontFamily: "'Playfair Display', Georgia, serif", fontSize: "30px", fontWeight: "700" }}>Secure Inheritance Vault</h1>
           <p style={{ color: "var(--muted)", fontSize: "14px", margin: 0 }}>
             Your zero-knowledge encrypted portfolio stored safely inside your Google Drive.
           </p>
         </div>
         {lastLogin && (
-          <div style={{ padding: "8px 14px", backgroundColor: "#1e293b", border: "1px solid var(--card-border)", borderRadius: "8px", textAlign: "right" }}>
+          <div style={{ padding: "8px 14px", backgroundColor: "#ffffff", border: "1px solid var(--card-border)", borderRadius: "12px", textAlign: "right", boxShadow: "0 4px 12px rgba(139, 92, 26, 0.02)" }}>
             <span style={{ fontSize: "10px", color: "var(--muted)", fontWeight: "600", textTransform: "uppercase", display: "block", marginBottom: "2px" }}>
               Last Login Session
             </span>
-            <strong style={{ fontSize: "13px", color: "#38bdf8" }}>{lastLogin}</strong>
+            <strong style={{ fontSize: "13px", color: "#b28e46" }}>{lastLogin}</strong>
           </div>
         )}
       </div>
@@ -39,18 +39,19 @@ export default function DashboardSummary() {
           alignItems: "center", 
           justifyContent: "space-between", 
           padding: "20px 24px", 
-          background: "linear-gradient(135deg, rgba(99, 102, 241, 0.12), rgba(168, 85, 247, 0.12))", 
-          border: "1px solid rgba(99, 102, 241, 0.25)", 
-          borderRadius: "12px", 
-          marginBottom: "24px" 
+          background: "#ffffff", 
+          border: "1px solid rgba(217, 184, 133, 0.25)", 
+          borderRadius: "16px", 
+          marginBottom: "24px",
+          boxShadow: "0 10px 30px rgba(139, 92, 26, 0.03)"
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-          <div className="flex-center" style={{ width: "48px", height: "48px", borderRadius: "12px", backgroundColor: nomineeDetails ? "rgba(16, 185, 129, 0.15)" : "rgba(245, 158, 11, 0.15)", color: nomineeDetails ? "#34d399" : "#fbbf24" }}>
+          <div className="flex-center" style={{ width: "48px", height: "48px", borderRadius: "12px", backgroundColor: "#fbf5e6", color: "#b28e46" }}>
             <UserCheck size={24} />
           </div>
           <div>
-            <h3 style={{ fontSize: "16px", fontWeight: "600", color: "#ffffff", margin: 0 }}>
+            <h3 style={{ fontSize: "16px", fontWeight: "750", color: "#1a150e", margin: 0 }}>
               {nomineeDetails ? `Primary Nominee: ${nomineeDetails.name}` : "No Primary Nominee Configured"}
             </h3>
             <p style={{ color: "var(--muted)", fontSize: "13px", margin: "4px 0 0 0" }}>
@@ -63,7 +64,7 @@ export default function DashboardSummary() {
         <button 
           onClick={() => router.push(isDemo ? "/vault/nominee?demo=true" : "/vault/nominee")} 
           className="btn-blue" 
-          style={{ padding: "8px 16px", fontSize: "13px" }}
+          style={{ padding: "10px 20px", fontSize: "13px", backgroundColor: "#0a122c", borderRadius: "8px", fontWeight: "700" }}
         >
           {nomineeDetails ? "Manage Nominee" : "Add Nominee for Your All Details"}
         </button>
@@ -71,41 +72,41 @@ export default function DashboardSummary() {
 
       {/* Statistics Cards */}
       <div className="form-grid form-grid-3" style={{ marginBottom: "24px" }}>
-        <div className="panel-card" style={{ display: "flex", alignItems: "center", gap: "16px", marginBottom: 0 }}>
-          <div className="flex-center" style={{ width: "48px", height: "48px", borderRadius: "12px", backgroundColor: "rgba(99, 102, 241, 0.1)", color: "var(--primary)" }}>
-            <Coins size={24} />
+        <div className="panel-card" style={{ display: "flex", alignItems: "center", gap: "16px", marginBottom: 0, padding: "20px", borderRadius: "16px" }}>
+          <div className="flex-center" style={{ width: "48px", height: "48px", borderRadius: "12px", backgroundColor: "#fbf5e6", color: "#b28e46" }}>
+            <Coins size={22} />
           </div>
           <div>
-            <span style={{ fontSize: "13px", color: "var(--muted)", display: "block" }}>Total Recorded Assets</span>
-            <strong style={{ fontSize: "24px", color: "#ffffff" }}>{totalAssets}</strong>
+            <span style={{ fontSize: "12px", color: "var(--muted)", display: "block" }}>Total Recorded Assets</span>
+            <strong style={{ fontSize: "24px", color: "#1a150e" }}>{totalAssets}</strong>
           </div>
         </div>
 
-        <div className="panel-card" style={{ display: "flex", alignItems: "center", gap: "16px", marginBottom: 0 }}>
-          <div className="flex-center" style={{ width: "48px", height: "48px", borderRadius: "12px", backgroundColor: "rgba(239, 68, 68, 0.1)", color: "#f87171" }}>
-            <ShieldAlert size={24} />
+        <div className="panel-card" style={{ display: "flex", alignItems: "center", gap: "16px", marginBottom: 0, padding: "20px", borderRadius: "16px" }}>
+          <div className="flex-center" style={{ width: "48px", height: "48px", borderRadius: "12px", backgroundColor: "#fbf5e6", color: "#b28e46" }}>
+            <ShieldAlert size={22} />
           </div>
           <div>
-            <span style={{ fontSize: "13px", color: "var(--muted)", display: "block" }}>Storage Status</span>
-            <strong style={{ fontSize: "15px", color: "var(--success)", display: "block", marginTop: "4px" }}>
+            <span style={{ fontSize: "12px", color: "var(--muted)", display: "block" }}>Storage Status</span>
+            <strong style={{ fontSize: "15px", color: "var(--success)", display: "block", marginTop: "4px", fontWeight: "700" }}>
               {isDemo ? "Browser LocalStorage" : "Connected: Google Drive"}
             </strong>
           </div>
         </div>
 
-        <div className="panel-card" style={{ display: "flex", alignItems: "center", gap: "16px", marginBottom: 0 }}>
-          <div className="flex-center" style={{ width: "48px", height: "48px", borderRadius: "12px", backgroundColor: "rgba(168, 85, 247, 0.1)", color: "var(--secondary)" }}>
-            <Building2 size={24} />
+        <div className="panel-card" style={{ display: "flex", alignItems: "center", gap: "16px", marginBottom: 0, padding: "20px", borderRadius: "16px" }}>
+          <div className="flex-center" style={{ width: "48px", height: "48px", borderRadius: "12px", backgroundColor: "#fbf5e6", color: "#b28e46" }}>
+            <Building2 size={22} />
           </div>
           <div>
-            <span style={{ fontSize: "13px", color: "var(--muted)", display: "block" }}>Instruments Enrolled</span>
-            <strong style={{ fontSize: "24px", color: "#ffffff" }}>{uniqueCategories}</strong>
+            <span style={{ fontSize: "12px", color: "var(--muted)", display: "block" }}>Instruments Enrolled</span>
+            <strong style={{ fontSize: "24px", color: "#1a150e" }}>{uniqueCategories}</strong>
           </div>
         </div>
       </div>
 
       {/* Categories Grid List */}
-      <h2 style={{ fontSize: "18px", fontWeight: "750", color: "#ffffff", margin: "24px 0 16px 0" }}>Instruments Distribution</h2>
+      <h2 style={{ fontSize: "19px", fontWeight: "750", color: "#1a150e", margin: "32px 0 16px 0" }}>Instruments Distribution</h2>
       <div className="form-grid form-grid-3">
         {INSTRUMENT_TYPES.filter((type) => {
           if (!searchTerm) return true;
@@ -114,32 +115,37 @@ export default function DashboardSummary() {
           const count = getCategoryCount(type.id);
           const rawLastUpdated = getCategoryLastUpdated(type.id);
           const lastUpdatedStr = rawLastUpdated ? formatDateTime(rawLastUpdated) : "";
+          
           return (
             <div 
               key={type.id} 
               onClick={() => router.push(isDemo ? `/vault/${type.id}?demo=true` : `/vault/${type.id}`)}
               className="panel-card" 
               style={{ 
-                padding: "16px 20px", 
+                padding: "18px 20px", 
                 cursor: "pointer", 
-                transition: "transform 0.15s", 
+                transition: "all 0.2s ease", 
                 borderLeft: count > 0 ? "4px solid var(--primary)" : "1px solid var(--card-border)",
+                borderTopRightRadius: "16px",
+                borderBottomRightRadius: "16px",
+                borderTopLeftRadius: count > 0 ? "0px" : "16px",
+                borderBottomLeftRadius: count > 0 ? "0px" : "16px",
                 marginBottom: 0,
                 display: "flex",
                 flexDirection: "column",
                 justifyContent: "space-between",
-                minHeight: "76px"
+                minHeight: "84px"
               }}
             >
               <div className="flex-between" style={{ width: "100%", alignItems: "center" }}>
-                <span style={{ fontSize: "14px", fontWeight: "600", color: "#cbd5e1" }}>{type.label}</span>
-                <span style={{ fontSize: "12px", padding: "2px 8px", borderRadius: "10px", backgroundColor: count > 0 ? "rgba(99, 102, 241, 0.15)" : "#1e293b", color: count > 0 ? "#818cf8" : "var(--muted)", fontWeight: "bold", whiteSpace: "nowrap" }}>
+                <span style={{ fontSize: "14px", fontWeight: "700", color: "#1a150e" }}>{type.label}</span>
+                <span style={{ fontSize: "11px", padding: "3px 8px", borderRadius: "10px", backgroundColor: count > 0 ? "#fbf5e6" : "#faf7f0", color: count > 0 ? "#b28e46" : "var(--muted)", fontWeight: "bold", whiteSpace: "nowrap" }}>
                   {count} Record(s)
                 </span>
               </div>
               {lastUpdatedStr && (
-                <div style={{ marginTop: "8px", borderTop: "1px solid rgba(255,255,255,0.03)", paddingTop: "6px", fontSize: "10.5px", color: "var(--muted)" }}>
-                  Last Updated: <span style={{ color: "rgba(99, 102, 241, 0.85)", fontWeight: "500" }}>{lastUpdatedStr}</span>
+                <div style={{ marginTop: "8px", borderTop: "1px solid rgba(217,184,133,0.12)", paddingTop: "6px", fontSize: "10.5px", color: "var(--muted)" }}>
+                  Last Update: <span style={{ color: "#b28e46", fontWeight: "600" }}>{lastUpdatedStr}</span>
                 </div>
               )}
             </div>

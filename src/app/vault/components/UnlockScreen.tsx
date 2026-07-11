@@ -57,15 +57,15 @@ export default function UnlockScreen() {
       return;
     }
 
-    setOwnerDetails({
+    const details = {
       name: ownerName,
       address: ownerAddress,
       phoneNo: ownerPhone,
       aadhaarNo: ownerAadhaar,
       panCardNo: ownerPan.toUpperCase(),
-    });
-
-    setSetupStep("show-mnemonic");
+    };
+    setOwnerDetails(details);
+    handleVerifyMnemonic(undefined, details);
   };
 
   const onUpdatePassphraseSubmit = async (e: React.FormEvent) => {
@@ -85,18 +85,23 @@ export default function UnlockScreen() {
       <div className="signin-wrapper">
         <div className="signin-card" style={{ maxWidth: "480px" }}>
           <div className="signin-header">
-            <div className="logo-container flex-center">
-              <KeyRound style={{ width: "32px", height: "32px", color: "#fff" }} />
+            <div className="logo-shield-container">
+              <img 
+                src="/assets/legacybridge-logo.png" 
+                alt="LegacyBridge Logo" 
+                style={{ height: "80px", width: "auto", objectFit: "contain" }} 
+              />
             </div>
             <h1 className="signin-title">Update Master Passphrase</h1>
             <p className="signin-subtitle">Set a secure passphrase to protect your vault.</p>
+            <div className="header-divider"></div>
           </div>
 
           <form onSubmit={onUpdatePassphraseSubmit} className="signin-body" style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
             
-            <div style={{ backgroundColor: "rgba(239, 68, 68, 0.08)", border: "1px solid rgba(239, 68, 68, 0.2)", borderRadius: "10px", padding: "16px", display: "flex", gap: "12px" }}>
-              <ShieldAlert style={{ color: "#f87171", flexShrink: 0 }} size={22} />
-              <p style={{ fontSize: "13px", color: "#fca5a5", lineHeight: "1.5", margin: 0 }}>
+            <div style={{ backgroundColor: "#fef2f2", border: "1px solid rgba(239, 68, 68, 0.2)", borderRadius: "10px", padding: "16px", display: "flex", gap: "12px" }}>
+              <ShieldAlert style={{ color: "#b91c1c", flexShrink: 0 }} size={22} />
+              <p style={{ fontSize: "13px", color: "#991b1b", lineHeight: "1.5", margin: 0 }}>
                 <strong>Important Notice:</strong> Our password criteria has changed. Your current passphrase does not meet the new security requirements (Min 8 characters, 1 uppercase, 1 lowercase, 1 number, and 1 special character). Please set a new passphrase.
               </p>
             </div>
@@ -110,7 +115,8 @@ export default function UnlockScreen() {
                   onChange={(e) => setNewPass(e.target.value)}
                   placeholder="Min. 8 chars (e.g. Chirag@2102)"
                   required
-                  style={{ width: "100%", padding: "12px 48px 12px 14px", backgroundColor: "#1e293b", border: "1px solid var(--card-border)", borderRadius: "10px", color: "#fff", fontSize: "15px" }}
+                  className="signin-input"
+                  style={{ paddingRight: "48px" }}
                 />
                 <button
                   type="button"
@@ -130,7 +136,7 @@ export default function UnlockScreen() {
                 onChange={(e) => setConfirmNewPass(e.target.value)}
                 placeholder="Repeat new passphrase"
                 required
-                style={{ width: "100%", padding: "12px 14px", backgroundColor: "#1e293b", border: "1px solid var(--card-border)", borderRadius: "10px", color: "#fff", fontSize: "15px" }}
+                className="signin-input"
               />
             </div>
 
@@ -160,13 +166,18 @@ export default function UnlockScreen() {
       <div className="signin-wrapper">
         <div className="signin-card" style={{ maxWidth: "460px" }}>
           <div className="signin-header">
-            <div className="logo-container flex-center">
-              <FolderKey style={{ width: "32px", height: "32px", color: "#fff" }} />
+            <div className="logo-shield-container">
+              <img 
+                src="/assets/legacybridge-logo.png" 
+                alt="LegacyBridge Logo" 
+                style={{ height: "80px", width: "auto", objectFit: "contain" }} 
+              />
             </div>
             <h1 className="signin-title">Unlock Vault</h1>
             <p className="signin-subtitle">
               {isDemo ? "Entering Sandbox (Local Browser)" : `Signed in as ${session?.user?.email}`}
             </p>
+            <div className="header-divider"></div>
           </div>
           
           <form onSubmit={handleUnlock} className="signin-body" style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
@@ -179,7 +190,8 @@ export default function UnlockScreen() {
                   onChange={(e) => setPassphrase(e.target.value)}
                   placeholder="Enter your master passphrase to unlock"
                   required
-                  style={{ width: "100%", padding: "12px 48px 12px 14px", backgroundColor: "#1e293b", border: "1px solid var(--card-border)", borderRadius: "10px", color: "#fff", fontSize: "15px" }}
+                  className="signin-input"
+                  style={{ paddingRight: "48px" }}
                 />
                 <button
                   type="button"
@@ -263,18 +275,23 @@ export default function UnlockScreen() {
 
         <div className="signin-card" style={{ maxWidth: "500px" }}>
           <div className="signin-header">
-            <div className="logo-container flex-center">
-              <KeyRound style={{ width: "32px", height: "32px", color: "#fff" }} />
+            <div className="logo-shield-container">
+              <img 
+                src="/assets/legacybridge-logo.png" 
+                alt="LegacyBridge Logo" 
+                style={{ height: "80px", width: "auto", objectFit: "contain" }} 
+              />
             </div>
             <h1 className="signin-title">Initialize Vault</h1>
             <p className="signin-subtitle">Set your master encryption passphrase.</p>
+            <div className="header-divider"></div>
           </div>
 
           <form onSubmit={onCreatePassphraseSubmit} className="signin-body" style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
 
-            <div style={{ backgroundColor: "rgba(99, 102, 241, 0.05)", border: "1px solid rgba(99, 102, 241, 0.15)", borderRadius: "10px", padding: "16px", display: "flex", gap: "12px" }}>
+            <div style={{ backgroundColor: "#faf7f0", border: "1px solid rgba(217, 184, 133, 0.25)", borderRadius: "10px", padding: "16px", display: "flex", gap: "12px" }}>
               <Info style={{ color: "var(--primary)", flexShrink: 0 }} size={20} />
-              <p style={{ fontSize: "13px", color: "#cbd5e1", lineHeight: "1.5" }}>
+              <p style={{ fontSize: "13px", color: "#6b5a45", lineHeight: "1.5" }}>
                 This passphrase is used to encrypt your files. It must be at least <strong>8 characters</strong> and include <strong>1 uppercase</strong>, <strong>1 lowercase</strong>, <strong>1 number</strong>, and <strong>1 special character</strong> (e.g. Chirag@2102).
               </p>
             </div>
@@ -287,10 +304,10 @@ export default function UnlockScreen() {
                 onChange={(e) => setPassphrase(e.target.value)}
                 placeholder="Min. 8 chars (e.g. Chirag@2102)"
                 required
-                style={{ width: "100%", padding: "12px 14px", backgroundColor: "#1e293b", border: "1px solid var(--card-border)", borderRadius: "10px", color: "#fff", fontSize: "15px" }}
+                className="signin-input"
               />
             </div>
-
+ 
             <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
               <label className="form-label">Confirm Passphrase</label>
               <input
@@ -299,7 +316,7 @@ export default function UnlockScreen() {
                 onChange={(e) => setPassConfirm(e.target.value)}
                 placeholder="Repeat passphrase"
                 required
-                style={{ width: "100%", padding: "12px 14px", backgroundColor: "#1e293b", border: "1px solid var(--card-border)", borderRadius: "10px", color: "#fff", fontSize: "15px" }}
+                className="signin-input"
               />
             </div>
 
@@ -329,11 +346,16 @@ export default function UnlockScreen() {
       <div className="signin-wrapper">
         <div className="signin-card" style={{ maxWidth: "520px" }}>
           <div className="signin-header">
-            <div className="logo-container flex-center">
-              <User style={{ width: "32px", height: "32px", color: "#fff" }} />
+            <div className="logo-shield-container">
+              <img 
+                src="/assets/legacybridge-logo.png" 
+                alt="LegacyBridge Logo" 
+                style={{ height: "80px", width: "auto", objectFit: "contain" }} 
+              />
             </div>
             <h1 className="signin-title">Vault Owner Details</h1>
             <p className="signin-subtitle">Please enter the vault owner's personal details.</p>
+            <div className="header-divider"></div>
           </div>
 
           <form onSubmit={onOwnerDetailsSubmit} className="signin-body" style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
@@ -345,8 +367,7 @@ export default function UnlockScreen() {
                 onChange={(e) => setOwnerName(e.target.value)}
                 placeholder="Enter Full Legal Name"
                 required
-                className="form-input"
-                style={{ width: "100%", padding: "12px 14px", backgroundColor: "#1e293b", border: "1px solid var(--card-border)", borderRadius: "10px", color: "#fff", fontSize: "15px" }}
+                className="signin-input"
               />
             </div>
 
@@ -360,8 +381,7 @@ export default function UnlockScreen() {
                 required
                 pattern="\d{10}"
                 maxLength={10}
-                className="form-input"
-                style={{ width: "100%", padding: "12px 14px", backgroundColor: "#1e293b", border: "1px solid var(--card-border)", borderRadius: "10px", color: "#fff", fontSize: "15px" }}
+                className="signin-input"
               />
             </div>
 
@@ -375,8 +395,7 @@ export default function UnlockScreen() {
                 required
                 pattern="\d{12}"
                 maxLength={12}
-                className="form-input"
-                style={{ width: "100%", padding: "12px 14px", backgroundColor: "#1e293b", border: "1px solid var(--card-border)", borderRadius: "10px", color: "#fff", fontSize: "15px" }}
+                className="signin-input"
               />
             </div>
 
@@ -389,8 +408,8 @@ export default function UnlockScreen() {
                 placeholder="10-digit PAN No"
                 required
                 maxLength={10}
-                className="form-input"
-                style={{ width: "100%", padding: "12px 14px", backgroundColor: "#1e293b", border: "1px solid var(--card-border)", borderRadius: "10px", color: "#fff", fontSize: "15px", textTransform: "uppercase" }}
+                className="signin-input"
+                style={{ textTransform: "uppercase" }}
               />
             </div>
 
@@ -402,8 +421,8 @@ export default function UnlockScreen() {
                 placeholder="Enter Residential Address"
                 required
                 rows={3}
-                className="form-textarea"
-                style={{ width: "100%", padding: "12px 14px", backgroundColor: "#1e293b", border: "1px solid var(--card-border)", borderRadius: "10px", color: "#fff", fontSize: "15px", resize: "none" }}
+                className="signin-input"
+                style={{ resize: "none" }}
               />
             </div>
 
@@ -434,23 +453,31 @@ export default function UnlockScreen() {
       <div className="signin-wrapper">
         <div className="signin-card" style={{ maxWidth: "520px" }}>
           <div className="signin-header">
+            <div className="logo-shield-container">
+              <img 
+                src="/assets/legacybridge-logo.png" 
+                alt="LegacyBridge Logo" 
+                style={{ height: "80px", width: "auto", objectFit: "contain" }} 
+              />
+            </div>
             <h1 className="signin-title">Recovery Seed</h1>
             <p className="signin-subtitle">Write these 12 words down offline.</p>
+            <div className="header-divider"></div>
           </div>
 
           <div className="signin-body" style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
-            <div style={{ backgroundColor: "rgba(239, 68, 68, 0.08)", border: "1px solid rgba(239, 68, 68, 0.2)", borderRadius: "10px", padding: "16px", display: "flex", gap: "12px" }}>
-              <ShieldAlert style={{ color: "#f87171", flexShrink: 0 }} size={22} />
-              <p style={{ fontSize: "13px", color: "#fca5a5", lineHeight: "1.5" }}>
+            <div style={{ backgroundColor: "#fef2f2", border: "1px solid rgba(239, 68, 68, 0.2)", borderRadius: "10px", padding: "16px", display: "flex", gap: "12px" }}>
+              <ShieldAlert style={{ color: "#b91c1c", flexShrink: 0 }} size={22} />
+              <p style={{ fontSize: "13px", color: "#991b1b", lineHeight: "1.5" }}>
                 <strong>Do not take a screenshot.</strong> Print it or copy it down on physical paper. Keep it in a safe place. Your executors or guardians will need this to reconstruct the vault if you are no longer here.
               </p>
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "10px", padding: "16px", backgroundColor: "#1e293b", borderRadius: "12px", border: "1px solid var(--card-border)" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "10px", padding: "16px", backgroundColor: "#fcf8f0", borderRadius: "12px", border: "1px solid rgba(217, 184, 133, 0.25)" }}>
               {mnemonic.split(" ").map((word, idx) => (
-                <div key={idx} style={{ padding: "8px", backgroundColor: "rgba(0,0,0,0.2)", borderRadius: "8px", border: "1px solid rgba(255,255,255,0.02)", display: "flex", gap: "8px" }}>
-                  <span style={{ color: "var(--muted)", fontSize: "12px" }}>{idx + 1}.</span>
-                  <strong style={{ color: "#fff", fontSize: "14px" }}>{word}</strong>
+                <div key={idx} style={{ padding: "8px", backgroundColor: "#ffffff", borderRadius: "8px", border: "1px solid rgba(217, 184, 133, 0.15)", display: "flex", gap: "8px" }}>
+                  <span style={{ color: "#8c7a6b", fontSize: "12px" }}>{idx + 1}.</span>
+                  <strong style={{ color: "#1a150e", fontSize: "14px" }}>{word}</strong>
                 </div>
               ))}
             </div>
@@ -475,8 +502,16 @@ export default function UnlockScreen() {
     <div className="signin-wrapper">
       <div className="signin-card" style={{ maxWidth: "500px" }}>
         <div className="signin-header">
+          <div className="logo-shield-container">
+            <img 
+              src="/assets/legacybridge-logo.png" 
+              alt="LegacyBridge Logo" 
+              style={{ height: "80px", width: "auto", objectFit: "contain" }} 
+            />
+          </div>
           <h1 className="signin-title">Confirm Recovery Seed</h1>
           <p className="signin-subtitle">Verify that you stored the 12 words correctly.</p>
+          <div className="header-divider"></div>
         </div>
 
         <form onSubmit={handleVerifyMnemonic} className="signin-body" style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
@@ -488,7 +523,8 @@ export default function UnlockScreen() {
               placeholder="word1 word2 word3..."
               required
               rows={3}
-              style={{ width: "100%", padding: "12px 14px", backgroundColor: "#1e293b", border: "1px solid var(--card-border)", borderRadius: "10px", color: "#fff", fontSize: "15px", resize: "none" }}
+              className="signin-input"
+              style={{ resize: "none" }}
             />
           </div>
 

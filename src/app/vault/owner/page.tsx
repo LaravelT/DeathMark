@@ -26,7 +26,7 @@ export default function VaultOwnerPage() {
         }}
       >
         <div>
-          <h2 className="page-title" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          <h2 className="page-title" style={{ display: "flex", alignItems: "center", gap: "8px", fontFamily: "'Playfair Display', Georgia, serif", fontSize: "24px" }}>
             <User style={{ color: "var(--primary)" }} />
             <span>Vault Owner Details</span>
           </h2>
@@ -37,46 +37,46 @@ export default function VaultOwnerPage() {
       </div>
 
       {!ownerDetails ? (
-        <div style={{ padding: "40px", textAlign: "center", border: "1px dashed var(--card-border)", borderRadius: "8px", backgroundColor: "rgba(0,0,0,0.1)" }}>
+        <div style={{ padding: "40px", textAlign: "center", border: "1px dashed var(--card-border)", borderRadius: "8px", backgroundColor: "#faf7f0" }}>
           <span style={{ color: "var(--muted)" }}>No owner details configured. Please reinitialize the vault to set details.</span>
         </div>
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
           <div className="form-grid form-grid-3">
-            <div style={{ backgroundColor: "#1e293b", padding: "14px", borderRadius: "8px", border: "1px solid var(--card-border)" }}>
+            <div style={{ backgroundColor: "#faf7f0", padding: "14px", borderRadius: "8px", border: "1px solid rgba(217, 184, 133, 0.25)" }}>
               <span style={{ fontSize: "11px", color: "var(--muted)", fontWeight: "600", textTransform: "uppercase", display: "block", marginBottom: "4px" }}>
                 Full Name
               </span>
-              <strong style={{ fontSize: "15px", color: "#fff", wordBreak: "break-all" }}>{ownerDetails.name}</strong>
+              <strong style={{ fontSize: "15px", color: "var(--fg-color)", wordBreak: "break-all" }}>{ownerDetails.name}</strong>
             </div>
 
-            <div style={{ backgroundColor: "#1e293b", padding: "14px", borderRadius: "8px", border: "1px solid var(--card-border)" }}>
+            <div style={{ backgroundColor: "#faf7f0", padding: "14px", borderRadius: "8px", border: "1px solid rgba(217, 184, 133, 0.25)" }}>
               <span style={{ fontSize: "11px", color: "var(--muted)", fontWeight: "600", textTransform: "uppercase", display: "block", marginBottom: "4px" }}>
                 Registered Mobile
               </span>
-              <strong style={{ fontSize: "15px", color: "#fff", wordBreak: "break-all" }}>{ownerDetails.phoneNo}</strong>
+              <strong style={{ fontSize: "15px", color: "var(--fg-color)", wordBreak: "break-all" }}>{ownerDetails.phoneNo}</strong>
             </div>
 
-            <div style={{ backgroundColor: "#1e293b", padding: "14px", borderRadius: "8px", border: "1px solid var(--card-border)" }}>
+            <div style={{ backgroundColor: "#faf7f0", padding: "14px", borderRadius: "8px", border: "1px solid rgba(217, 184, 133, 0.25)" }}>
               <span style={{ fontSize: "11px", color: "var(--muted)", fontWeight: "600", textTransform: "uppercase", display: "block", marginBottom: "4px" }}>
                 Aadhaar Card Number
               </span>
-              <strong style={{ fontSize: "15px", color: "#fff", wordBreak: "break-all" }}>{ownerDetails.aadhaarNo}</strong>
+              <strong style={{ fontSize: "15px", color: "var(--fg-color)", wordBreak: "break-all" }}>{ownerDetails.aadhaarNo}</strong>
             </div>
 
-            <div style={{ backgroundColor: "#1e293b", padding: "14px", borderRadius: "8px", border: "1px solid var(--card-border)" }}>
+            <div style={{ backgroundColor: "#faf7f0", padding: "14px", borderRadius: "8px", border: "1px solid rgba(217, 184, 133, 0.25)" }}>
               <span style={{ fontSize: "11px", color: "var(--muted)", fontWeight: "600", textTransform: "uppercase", display: "block", marginBottom: "4px" }}>
                 PAN Card Number
               </span>
-              <strong style={{ fontSize: "15px", color: "#fff", wordBreak: "break-all" }}>{ownerDetails.panCardNo}</strong>
+              <strong style={{ fontSize: "15px", color: "var(--fg-color)", wordBreak: "break-all" }}>{ownerDetails.panCardNo}</strong>
             </div>
           </div>
 
-          <div style={{ backgroundColor: "#1e293b", padding: "14px", borderRadius: "8px", border: "1px solid var(--card-border)" }}>
+          <div style={{ backgroundColor: "#faf7f0", padding: "14px", borderRadius: "8px", border: "1px solid rgba(217, 184, 133, 0.25)" }}>
             <span style={{ fontSize: "11px", color: "var(--muted)", fontWeight: "600", textTransform: "uppercase", display: "block", marginBottom: "4px" }}>
               Address
             </span>
-            <strong style={{ fontSize: "15px", color: "#fff", whiteSpace: "pre-line", wordBreak: "break-word" }}>{ownerDetails.address}</strong>
+            <strong style={{ fontSize: "15px", color: "var(--fg-color)", whiteSpace: "pre-line", wordBreak: "break-word" }}>{ownerDetails.address}</strong>
           </div>
 
           <div 
@@ -91,8 +91,8 @@ export default function VaultOwnerPage() {
               marginTop: "8px"
             }}
           >
-            <Shield style={{ color: "#10b981", flexShrink: 0 }} size={20} />
-            <span style={{ fontSize: "13px", color: "#a7f3d0" }}>
+            <Shield style={{ color: "#16803d", flexShrink: 0 }} size={20} />
+            <span style={{ fontSize: "13px", color: "#15803d", fontWeight: "600" }}>
               Your data has been successfully stored in the Google Drive of your registered email address.
             </span>
           </div>

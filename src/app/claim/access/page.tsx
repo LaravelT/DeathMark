@@ -134,7 +134,7 @@ function ClaimAccessContent() {
         throw new Error("Invalid snapshot payload structure.");
       }
 
-      // Derive key (must match the syncPBKDF2 parameters)
+      // Derive key
       const enc = new TextEncoder();
       const rawSalt = enc.encode(ownerEmail.toLowerCase().trim());
       const saltBuffer = new Uint8Array(16);
@@ -148,64 +148,76 @@ function ClaimAccessContent() {
       // Decrypt
       const decryptedText = await decryptData(snapshotKey, { iv: ivB64, ciphertext: ciphertextB64 });
       const parsedFiles = JSON.parse(decryptedText);
-
       setDecryptedFiles(parsedFiles);
       setStep(3);
-      
-      try {
-        await fetch("/api/claim/expire", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email: ownerEmail, claimId: claimId })
-        });
-      } catch (expireErr) {
-        console.error("Failed to expire claim link:", expireErr);
-      }
     } catch (err: any) {
+      setError("Decryption failed. Please check your credentials or verify authorization.");
       console.error(err);
-      setError("Decryption failed. Please check nominee credentials and try again.");
     } finally {
       setLoading(false);
     }
   };
 
   const handleExportPDF = () => {
-    // Generate beautiful PDF report
-    const categoriesHtml = decryptedFiles.reduce((acc: string, file: any) => {
-      let detailsHtml = "";
-      Object.entries(file.details).forEach(([key, val]) => {
-        if (key === "id" || key === "category" || key === "createdAt" || typeof val !== "string") return;
-        const label = key.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase());
-        detailsHtml += `
-          <div style="font-size: 11px; display: flex; justify-content: space-between; border-bottom: 1px solid #f1f5f9; padding-bottom: 2px;">
-            <span style="color: #64748b; font-weight: 500;">${label}:</span>
-            <span style="color: #0f172a; font-weight: 600; text-align: right;">${val || "-"}</span>
+    // Group files by category
+    const filesByCategory: Record<string, any[]> = {};
+    decryptedFiles.forEach((file) => {
+      if (!filesByCategory[file.category]) {
+        filesByCategory[file.category] = [];
+      }
+      filesByCategory[file.category].push(file);
+    });
+
+    let categoriesHtml = "";
+
+    Object.entries(filesByCategory).forEach(([catId, catFiles]) => {
+      let filesHtml = "";
+      catFiles.forEach((file) => {
+        let detailsHtml = "";
+        Object.entries(file.details).forEach(([key, val]) => {
+          if (key === "id" || key === "category" || key === "createdAt") return;
+          const label = key
+            .replace(/([A-Z])/g, " $1")
+            .replace(/^./, (str) => str.toUpperCase());
+          detailsHtml += `
+            <div style="font-size: 11px; display: flex; justify-content: space-between; border-bottom: 1px solid #f1f5f9; padding-bottom: 2px;">
+              <span style="color: #64748b; font-weight: 500;">${label}:</span>
+              <span style="color: #0f172a; font-weight: 600; text-align: right;">${val || "-"}</span>
+            </div>
+          `;
+        });
+
+        filesHtml += `
+          <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; margin-bottom: 10px; page-break-inside: avoid;">
+            <div style="font-size: 13px; font-weight: 600; color: #b28e46; margin-bottom: 8px; border-bottom: 1px dashed #e2e8f0; padding-bottom: 4px;">${file.name}</div>
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px 12px;">
+              ${detailsHtml}
+            </div>
           </div>
         `;
       });
 
-      return acc + `
-        <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; margin-bottom: 10px; page-break-inside: avoid;">
-          <div style="font-size: 13px; font-weight: 600; color: #4338ca; margin-bottom: 8px; border-bottom: 1px dashed #e2e8f0; padding-bottom: 4px;">${file.name} (${file.category.replace(/_/g, ' ').toUpperCase()})</div>
-          <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px 12px;">
-            ${detailsHtml}
-          </div>
+      const catLabel = catId.replace(/_/g, ' ').toUpperCase();
+      categoriesHtml += `
+        <div style="margin-bottom: 24px; page-break-inside: avoid;">
+          <div style="font-size: 14px; font-weight: 700; color: #0f172a; margin-bottom: 10px; border-bottom: 1px solid #cbd5e1; padding-bottom: 4px; letter-spacing: 0.5px;">${catLabel}</div>
+          ${filesHtml}
         </div>
       `;
-    }, "");
+    });
 
     const element = document.createElement("div");
     element.innerHTML = `
       <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 30px; color: #1e293b; background-color: #fff;">
-        <h1 style="color: #6366f1; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; margin-bottom: 5px; font-size: 22px; font-weight: 700;">LegacyBridge Asset Vault Report</h1>
+        <h1 style="color: #b28e46; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; margin-bottom: 5px; font-size: 22px; font-weight: 700;">LegacyBridge Secure Vault Claim Report</h1>
         <div style="font-size: 11px; color: #64748b; margin-bottom: 20px;">
-          Owner: ${ownerName || ownerEmail} | Generated on: ${new Date().toLocaleString()} | Decrypted with Nominee Authentication.
+          Vault Owner: ${ownerName} (${ownerEmail}) | Generated on: ${new Date().toLocaleString()}
         </div>
         
         ${categoriesHtml || '<p style="color: #64748b; text-align: center; padding: 30px;">No asset records found in this vault.</p>'}
 
         <div style="margin-top: 40px; font-size: 10px; color: #94a3b8; text-align: center; border-top: 1px solid #e2e8f0; padding-top: 12px;">
-          LegacyBridge Secure Vault Report — End of Document
+          LegacyBridge Secure Vault Claim Report — End of Document
         </div>
       </div>
     `;
@@ -215,7 +227,7 @@ function ClaimAccessContent() {
     const runHtml2Pdf = () => {
       const opt = {
         margin: 10,
-        filename: `legacybridge_${ownerEmail}_vault.pdf`,
+        filename: `legacybridge_claim_report_${ownerEmail}.pdf`,
         image: { type: 'jpeg', quality: 0.98 },
         html2canvas: { scale: 2, useCORS: true },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
@@ -242,47 +254,60 @@ function ClaimAccessContent() {
 
   if (isCheckingLink) {
     return (
-      <div className="hero-gradient flex-center" style={{ minHeight: "100vh", padding: "40px 20px", flexDirection: "column" }}>
-        <div style={{ display: "flex", gap: "8px", alignItems: "center", marginBottom: "32px" }}>
-          <div className="brand-logo-box">
-            <KeyRound className="w-5 h-5 text-white" />
-          </div>
-          <span className="brand-title">LegacyBridge Claim Access</span>
+      <div className="signin-wrapper flex-center" style={{ minHeight: "100vh", padding: "20px", flexDirection: "column", backgroundColor: "#faf7f0" }}>
+        <div style={{ display: "flex", gap: "10px", alignItems: "center", marginBottom: "32px" }}>
+          <img 
+            src="/assets/legacybridge-logo.png" 
+            alt="LegacyBridge Logo" 
+            style={{ height: "48px", width: "auto", objectFit: "contain" }} 
+          />
+          <span className="brand-title" style={{ fontSize: "20px", fontWeight: "700", color: "#1a150e", WebkitTextFillColor: "#1a150e", letterSpacing: "0.01em" }}>LegacyBridge Claim Access</span>
         </div>
-        <div className="signin-card" style={{ maxWidth: "500px", width: "100%", textAlign: "center", padding: "40px" }}>
-          <div className="logo-container flex-center" style={{ margin: "0 auto 20px" }}>
-            <KeyRound style={{ width: "32px", height: "32px", color: "#fff" }} />
+        <div className="signin-card" style={{ maxWidth: "500px", width: "100%", textAlign: "center", padding: "40px", backgroundColor: "#ffffff", borderRadius: "28px", border: "1px solid rgba(217, 184, 133, 0.25)", boxShadow: "0 20px 50px rgba(139, 92, 26, 0.04)" }}>
+          <div className="logo-shield-container" style={{ marginBottom: "20px" }}>
+            <img 
+              src="/assets/legacybridge-logo.png" 
+              alt="LegacyBridge Logo" 
+              style={{ height: "80px", width: "auto", objectFit: "contain" }} 
+            />
           </div>
-          <h2 className="signin-title" style={{ fontSize: "18px" }}>Verifying Link Security...</h2>
-          <p style={{ color: "var(--muted)", fontSize: "14px", marginTop: "10px" }}>Please wait while we authorize the secure link.</p>
+          <h2 className="signin-title" style={{ fontSize: "18px", color: "#1a150e" }}>Verifying Link Security...</h2>
+          <p style={{ color: "#6b5a45", fontSize: "14px", marginTop: "10px" }}>Please wait while we authorize the secure link.</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="hero-gradient flex-center" style={{ minHeight: "100vh", padding: "40px 20px", flexDirection: "column" }}>
+    <div className="signin-wrapper flex-center" style={{ minHeight: "100vh", padding: "40px 20px", flexDirection: "column", backgroundColor: "#faf7f0" }}>
       {/* Header Brand */}
-      <div style={{ display: "flex", gap: "8px", alignItems: "center", marginBottom: "32px" }}>
-        <div className="brand-logo-box">
-          <KeyRound className="w-5 h-5 text-white" />
-        </div>
-        <span className="brand-title">LegacyBridge Claim Access</span>
+      <div style={{ display: "flex", gap: "10px", alignItems: "center", marginBottom: "32px" }}>
+        <img 
+          src="/assets/legacybridge-logo.png" 
+          alt="LegacyBridge Logo" 
+          style={{ height: "48px", width: "auto", objectFit: "contain" }} 
+        />
+        <span className="brand-title" style={{ fontSize: "20px", fontWeight: "700", color: "#1a150e", WebkitTextFillColor: "#1a150e", letterSpacing: "0.01em" }}>LegacyBridge Claim Access</span>
       </div>
 
-      <div className="signin-card" style={{ maxWidth: step === 3 ? "900px" : "500px", width: "100%" }}>
+      <div className="signin-card" style={{ maxWidth: step === 3 ? "900px" : "500px", width: "100%", padding: "40px 30px", backgroundColor: "#ffffff", borderRadius: "28px", border: "1px solid rgba(217, 184, 133, 0.25)", boxShadow: "0 20px 50px rgba(139, 92, 26, 0.04)" }}>
         {step > 0 && step < 3 && (
           <div className="signin-header">
-            <div className="logo-container flex-center">
-              <KeyRound style={{ width: "32px", height: "32px", color: "#fff" }} />
+            <div className="logo-shield-container">
+              <img 
+                src="/assets/legacybridge-logo.png" 
+                alt="LegacyBridge Logo" 
+                style={{ height: "80px", width: "auto", objectFit: "contain" }} 
+              />
             </div>
-            <h1 className="signin-title">Secure Claim Decryptor</h1>
-            <p className="signin-subtitle">Step {step} of 2: Authorize to decrypt asset vault</p>
+            <h1 className="signin-title" style={{ color: "#1a150e" }}>Secure Claim Decryptor</h1>
+            <p className="signin-subtitle" style={{ color: "#6b5a45" }}>Step {step} of 2: Authorize to decrypt asset vault</p>
+            <div className="header-divider"></div>
           </div>
         )}
 
         {error && (
-          <div style={{ display: "flex", gap: "10px", alignItems: "center", padding: "12px", backgroundColor: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)", borderRadius: "8px", color: "#f87171", fontSize: "14px", marginBottom: "20px" }}>
+          <div style={{ display: "flex", gap: "10px", alignItems: "center", padding: "12px", backgroundColor: "#fef2f2", border: "1px solid rgba(239,68,68,0.2)", borderRadius: "8px", color: "#b91c1c", fontSize: "14px", marginBottom: "20px" }}>
             <AlertCircle size={18} style={{ flexShrink: 0 }} />
             <span>{error}</span>
           </div>
@@ -290,10 +315,10 @@ function ClaimAccessContent() {
 
         {step === 0 && (
           <div className="signin-body" style={{ display: "flex", flexDirection: "column", gap: "20px", textAlign: "center" }}>
-            <p style={{ color: "var(--muted)", fontSize: "14px", lineHeight: "1.6" }}>
+            <p style={{ color: "#6b5a45", fontSize: "14px", lineHeight: "1.6" }}>
               This secure access link has expired. For security reasons, asset verification links can only be accessed and decrypted once.
             </p>
-            <a href="/" className="btn-cta-primary-premium" style={{ display: "inline-flex", textDecoration: "none", width: "100%", justifyContent: "center" }}>
+            <a href="/" className="btn-cta-secondary" style={{ display: "inline-flex", textDecoration: "none", width: "100%", justifyContent: "center" }}>
               Back to Home
             </a>
           </div>
@@ -302,12 +327,12 @@ function ClaimAccessContent() {
         {/* Step 1: Owner Details Verification */}
         {step === 1 && (
           <form onSubmit={handleVerifyStep1} className="signin-body" style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-            <p style={{ fontSize: "14px", color: "var(--muted)", margin: "0 0 10px 0", lineHeight: "1.5" }}>
+            <p style={{ fontSize: "14px", color: "#6b5a45", margin: "0 0 10px 0", lineHeight: "1.5" }}>
               Please enter the <strong>Relative's (Vault Owner's)</strong> details to verify your claim authorization link.
             </p>
 
             <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-              <label className="form-label">Relative's Aadhaar Card No <span style={{ color: "var(--danger)" }}>*</span></label>
+              <label className="form-label" style={{ color: "#1a150e" }}>Relative's Aadhaar Card No <span style={{ color: "var(--danger)" }}>*</span></label>
               <input
                 type="text"
                 value={ownerAadhaar}
@@ -316,12 +341,12 @@ function ClaimAccessContent() {
                 required
                 pattern="\d{12}"
                 maxLength={12}
-                style={{ width: "100%", padding: "12px 14px", backgroundColor: "#1e293b", border: "1px solid var(--card-border)", borderRadius: "10px", color: "#fff", fontSize: "15px" }}
+                className="signin-input"
               />
             </div>
 
             <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-              <label className="form-label">Relative's PAN Card No <span style={{ color: "var(--danger)" }}>*</span></label>
+              <label className="form-label" style={{ color: "#1a150e" }}>Relative's PAN Card No <span style={{ color: "var(--danger)" }}>*</span></label>
               <input
                 type="text"
                 value={ownerPan}
@@ -329,11 +354,12 @@ function ClaimAccessContent() {
                 placeholder="10-digit PAN No"
                 required
                 maxLength={10}
-                style={{ width: "100%", padding: "12px 14px", backgroundColor: "#1e293b", border: "1px solid var(--card-border)", borderRadius: "10px", color: "#fff", fontSize: "15px", textTransform: "uppercase" }}
+                className="signin-input"
+                style={{ textTransform: "uppercase" }}
               />
             </div>
 
-            <button type="submit" className="btn-cta-primary" style={{ width: "100%", border: "none", marginTop: "10px", backgroundColor: "#ec4899" }} disabled={loading}>
+            <button type="submit" className="btn-cta-primary" style={{ width: "100%", border: "none", marginTop: "10px" }} disabled={loading}>
               {loading ? "Verifying..." : "Verify Owner Credentials"}
             </button>
           </form>
@@ -342,12 +368,12 @@ function ClaimAccessContent() {
         {/* Step 2: Nominee Credentials Decryption */}
         {step === 2 && (
           <form onSubmit={handleDecryptStep2} className="signin-body" style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-            <p style={{ fontSize: "14px", color: "var(--muted)", margin: "0 0 10px 0", lineHeight: "1.5" }}>
+            <p style={{ fontSize: "14px", color: "#6b5a45", margin: "0 0 10px 0", lineHeight: "1.5" }}>
               Owner details verified. Now enter <strong>Your (Nominee's)</strong> credentials. These are used as the key to decrypt the vault.
             </p>
 
             <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-              <label className="form-label">Nominee's Aadhaar Card No <span style={{ color: "var(--danger)" }}>*</span></label>
+              <label className="form-label" style={{ color: "#1a150e" }}>Nominee's Aadhaar Card No <span style={{ color: "var(--danger)" }}>*</span></label>
               <input
                 type="text"
                 value={nomineeAadhaar}
@@ -356,12 +382,12 @@ function ClaimAccessContent() {
                 required
                 pattern="\d{12}"
                 maxLength={12}
-                style={{ width: "100%", padding: "12px 14px", backgroundColor: "#1e293b", border: "1px solid var(--card-border)", borderRadius: "10px", color: "#fff", fontSize: "15px" }}
+                className="signin-input"
               />
             </div>
 
             <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-              <label className="form-label">Nominee's PAN Card No <span style={{ color: "var(--danger)" }}>*</span></label>
+              <label className="form-label" style={{ color: "#1a150e" }}>Nominee's PAN Card No <span style={{ color: "var(--danger)" }}>*</span></label>
               <input
                 type="text"
                 value={nomineePan}
@@ -369,7 +395,8 @@ function ClaimAccessContent() {
                 placeholder="10-digit Nominee PAN"
                 required
                 maxLength={10}
-                style={{ width: "100%", padding: "12px 14px", backgroundColor: "#1e293b", border: "1px solid var(--card-border)", borderRadius: "10px", color: "#fff", fontSize: "15px", textTransform: "uppercase" }}
+                className="signin-input"
+                style={{ textTransform: "uppercase" }}
               />
             </div>
 
@@ -377,7 +404,7 @@ function ClaimAccessContent() {
               <button type="button" onClick={() => setStep(1)} className="btn-cta-secondary" style={{ flex: 1 }}>
                 Go Back
               </button>
-              <button type="submit" className="btn-cta-primary" style={{ flex: 1, border: "none", backgroundColor: "#ec4899" }} disabled={loading}>
+              <button type="submit" className="btn-cta-primary" style={{ flex: 1, border: "none" }} disabled={loading}>
                 {loading ? "Decrypting..." : "Decrypt Vault"}
               </button>
             </div>
@@ -389,12 +416,12 @@ function ClaimAccessContent() {
           <div className="signin-body">
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid var(--card-border)", paddingBottom: "16px", marginBottom: "24px" }}>
               <div>
-                <h1 className="page-title" style={{ fontSize: "20px", display: "flex", alignItems: "center", gap: "8px" }}>
+                <h1 className="page-title" style={{ fontSize: "20px", display: "flex", alignItems: "center", gap: "8px", fontFamily: "'Playfair Display', Georgia, serif" }}>
                   <ShieldCheck style={{ color: "var(--success)" }} />
                   <span>Decrypted Vault Assets</span>
                 </h1>
                 <span style={{ fontSize: "13px", color: "var(--muted)" }}>
-                  Relative Name: <strong>{ownerName}</strong> (${ownerEmail})
+                  Relative Name: <strong>{ownerName}</strong> ({ownerEmail})
                 </span>
               </div>
               <div style={{ display: "flex", gap: "10px" }}>
@@ -404,20 +431,21 @@ function ClaimAccessContent() {
                   gap: "6px",
                   fontSize: "12px",
                   padding: "8px 14px",
-                  borderRadius: "6px",
+                  borderRadius: "8px",
                   border: "1px solid var(--card-border)",
-                  color: "#cbd5e1",
-                  backgroundColor: "rgba(255,255,255,0.02)",
+                  color: "#6b5a45",
+                  backgroundColor: "#ffffff",
                   textDecoration: "none",
-                  cursor: "pointer"
+                  cursor: "pointer",
+                  fontWeight: "600"
                 }}>
                   <ArrowLeft size={14} />
                   <span>Back to Home</span>
                 </a>
                 <button 
                   onClick={handleExportPDF} 
-                  className="btn-signin-ghost" 
-                  style={{ display: "flex", alignItems: "center", gap: "6px", border: "1px solid #ec4899", color: "#ec4899" }}
+                  className="btn-outline" 
+                  style={{ display: "flex", alignItems: "center", gap: "6px" }}
                 >
                   <Download size={14} />
                   <span>Export PDF</span>
@@ -430,8 +458,8 @@ function ClaimAccessContent() {
             ) : (
               <div style={{ display: "flex", flexDirection: "column", gap: "16px", maxHeight: "60vh", overflowY: "auto", paddingRight: "10px" }}>
                 {decryptedFiles.map((file, idx) => (
-                  <div key={file.id || idx} style={{ backgroundColor: "#1e293b", padding: "16px", borderRadius: "10px", border: "1px solid var(--card-border)" }}>
-                    <div style={{ fontSize: "14px", fontWeight: "600", color: "#fff", marginBottom: "12px", textTransform: "capitalize", borderBottom: "1px solid rgba(255,255,255,0.05)", paddingBottom: "6px" }}>
+                  <div key={file.id || idx} style={{ backgroundColor: "#faf7f0", padding: "16px", borderRadius: "12px", border: "1px solid rgba(217, 184, 133, 0.25)" }}>
+                    <div style={{ fontSize: "14px", fontWeight: "700", color: "#1a150e", marginBottom: "12px", textTransform: "capitalize", borderBottom: "1px solid rgba(217,184,133,0.12)", paddingBottom: "6px" }}>
                       {file.name} <span style={{ fontSize: "11px", color: "var(--muted)", fontWeight: "normal", float: "right" }}>{file.category.replace(/_/g, ' ')}</span>
                     </div>
                     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "10px 20px" }}>
@@ -441,7 +469,7 @@ function ClaimAccessContent() {
                         return (
                           <div key={k} style={{ display: "flex", flexDirection: "column" }}>
                             <span style={{ fontSize: "11px", color: "var(--muted)", textTransform: "uppercase" }}>{label}</span>
-                            <span style={{ fontSize: "14px", color: "#e2e8f0", wordBreak: "break-all" }}>{v || "-"}</span>
+                            <span style={{ fontSize: "14px", color: "#5c4d3c", wordBreak: "break-all", fontWeight: "600" }}>{v || "-"}</span>
                           </div>
                         );
                       })}
@@ -459,7 +487,7 @@ function ClaimAccessContent() {
 
 export default function ClaimAccessPage() {
   return (
-    <Suspense fallback={<div className="hero-gradient flex-center" style={{ minHeight: "100vh", color: "#fff" }}>Loading Secure Portal...</div>}>
+    <Suspense fallback={<div className="signin-wrapper flex-center" style={{ minHeight: "100vh", color: "#1a150e", backgroundColor: "#faf7f0" }}>Loading Secure Portal...</div>}>
       <ClaimAccessContent />
     </Suspense>
   );

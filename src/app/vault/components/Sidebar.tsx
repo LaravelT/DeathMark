@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { FolderKey, LogOut, Notebook, ChevronDown, ChevronRight, Coins, UserCheck, User } from "lucide-react";
+import { FolderKey, LogOut, Notebook, ChevronDown, ChevronRight, Coins, UserCheck, User, ShieldCheck } from "lucide-react";
 import { useVault, INSTRUMENT_TYPES, getRecordDisplayName } from "./VaultContext";
 
 export default function Sidebar() {
@@ -33,12 +33,16 @@ export default function Sidebar() {
   return (
     <aside className="sidebar-container">
       {/* Logo */}
-      <div className="profile-section" style={{ borderBottom: "1px solid var(--card-border)", padding: "16px" }}>
-        <div className="flex-center" style={{ gap: "8px" }}>
-          <div className="flex-center" style={{ width: "32px", height: "32px", borderRadius: "8px", background: "linear-gradient(135deg, var(--primary), var(--secondary))" }}>
-            <FolderKey style={{ width: "16px", height: "16px", color: "#fff" }} />
-          </div>
-          <span className="brand-title" style={{ fontSize: "16px", color: "var(--primary)" }}>digi <strong style={{ color: "#fff" }}>STRONG</strong></span>
+      <div className="profile-section" style={{ borderBottom: "1px solid var(--card-border)", padding: "12px 16px" }}>
+        <div className="flex-center" style={{ gap: "10px", justifyContent: "flex-start", width: "100%" }}>
+          <img 
+            src="/assets/legacybridge-logo.png" 
+            alt="LegacyBridge Logo" 
+            style={{ height: "64px", width: "64px", objectFit: "contain", marginLeft: "-8px", marginRight: "-4px" }} 
+          />
+          <span className="brand-title" style={{ fontSize: "17px", fontWeight: "700", color: "#1a150e", WebkitTextFillColor: "#1a150e", letterSpacing: "0.01em" }}>
+            LegacyBridge
+          </span>
         </div>
       </div>
 
@@ -171,6 +175,27 @@ export default function Sidebar() {
             })}
           </div>
         )}
+      </div>
+
+      {/* Encryption Badge Card */}
+      <div style={{ padding: "0 16px", marginBottom: "12px" }}>
+        <div style={{
+          backgroundColor: "#faf7f0",
+          border: "1px solid rgba(217, 184, 133, 0.25)",
+          borderRadius: "12px",
+          padding: "12px 14px",
+          display: "flex",
+          alignItems: "center",
+          gap: "12px"
+        }}>
+          <div style={{ color: "#b28e46", display: "flex", alignItems: "center" }}>
+            <ShieldCheck size={20} />
+          </div>
+          <div>
+            <h4 style={{ fontSize: "11px", fontWeight: "700", color: "#1a150e", margin: 0 }}>Your data is encrypted</h4>
+            <p style={{ fontSize: "10px", color: "#8c7a6b", margin: 0, marginTop: "2px" }}>Zero-Knowledge. Always.</p>
+          </div>
+        </div>
       </div>
 
       {/* Logout/Lock */}

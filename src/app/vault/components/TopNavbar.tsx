@@ -104,14 +104,23 @@ export default function TopNavbar() {
 
   return (
     <header className="top-navbar">
-      <div style={{ display: "flex", alignItems: "center", gap: "12px", width: "360px" }}>
-        <Search size={18} style={{ color: "var(--muted)" }} />
+      <div style={{ 
+        display: "flex", 
+        alignItems: "center", 
+        gap: "10px", 
+        width: "360px", 
+        backgroundColor: "#faf7f0", 
+        border: "1px solid rgba(217, 184, 133, 0.25)", 
+        borderRadius: "10px", 
+        padding: "8px 14px"
+      }}>
+        <Search size={16} style={{ color: "var(--muted)" }} />
         <input 
           type="text" 
           value={searchTerm} 
           onChange={(e) => setSearchTerm(e.target.value)} 
           placeholder="Search records here..." 
-          style={{ border: "none", outline: "none", fontSize: "14px", width: "100%", backgroundColor: "transparent", color: "#fff" }} 
+          style={{ border: "none", outline: "none", fontSize: "14px", width: "100%", backgroundColor: "transparent", color: "var(--fg-color)" }} 
         />
       </div>
 

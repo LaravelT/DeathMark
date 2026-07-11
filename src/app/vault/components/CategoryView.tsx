@@ -146,11 +146,11 @@ export default function CategoryView({ categoryId }: CategoryViewProps) {
         <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
           <div className="form-grid form-grid-3">
             {Object.entries(selectedEntry.details || {}).map(([key, val]) => (
-              <div key={key} style={{ backgroundColor: "#1e293b", padding: "14px", borderRadius: "8px", border: "1px solid var(--card-border)" }}>
+              <div key={key} style={{ backgroundColor: "#faf7f0", padding: "14px", borderRadius: "8px", border: "1px solid rgba(217, 184, 133, 0.25)" }}>
                 <span style={{ fontSize: "11px", color: "var(--muted)", fontWeight: "600", textTransform: "uppercase", display: "block", marginBottom: "4px" }}>
                   {key.replace(/([A-Z])/g, ' $1').trim()}
                 </span>
-                <strong style={{ fontSize: "15px", color: "#fff", wordBreak: "break-all" }}>{val || "N/A"}</strong>
+                <strong style={{ fontSize: "15px", color: "var(--fg-color)", wordBreak: "break-all" }}>{val || "N/A"}</strong>
               </div>
             ))}
           </div>

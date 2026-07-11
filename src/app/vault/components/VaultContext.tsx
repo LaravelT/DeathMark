@@ -151,7 +151,7 @@ interface VaultContextType {
   checkExistingVault: () => Promise<void>;
   handleUnlock: (e: React.FormEvent) => Promise<void>;
   handleCreatePassphrase: (e: React.FormEvent) => boolean;
-  handleVerifyMnemonic: (e?: React.FormEvent) => Promise<void>;
+  handleVerifyMnemonic: (e?: React.FormEvent, customOwnerDetails?: OwnerDetails) => Promise<void>;
   handleAddRecord: (category: string, formData: Record<string, string>) => Promise<void>;
   handleDeleteRecord: (entry: VaultFileEntry) => Promise<boolean>;
   handleVerifyIntegrity: () => Promise<void>;
@@ -680,11 +680,13 @@ export function VaultProvider({ children }: { children: React.ReactNode }) {
   };
 
   // Step 2: Confirm Recovery Seed and Initialize Empty Vault
-  const handleVerifyMnemonic = async (e?: React.FormEvent) => {
+  const handleVerifyMnemonic = async (e?: React.FormEvent, customOwnerDetails?: OwnerDetails) => {
     if (e) e.preventDefault();
     setPassError("");
     setLoading(true);
     setLoadingMessage("Creating secure vault containers...");
+
+    const detailsToSave = customOwnerDetails || ownerDetails;
 
     try {
 
@@ -710,8 +712,8 @@ export function VaultProvider({ children }: { children: React.ReactNode }) {
 
       if (isDemo) {
         localStorage.setItem("deathmark_vault_container", containerText);
-        if (ownerDetails) {
-          localStorage.setItem("deathmark_owner_details", JSON.stringify(ownerDetails));
+        if (detailsToSave) {
+          localStorage.setItem("deathmark_owner_details", JSON.stringify(detailsToSave));
         }
       } else {
         const accessToken = session?.accessToken!;
@@ -725,7 +727,7 @@ export function VaultProvider({ children }: { children: React.ReactNode }) {
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({ ownerDetails }),
+            body: JSON.stringify({ ownerDetails: detailsToSave }),
           });
         } catch (e) {
           console.error("Failed to mark vault initialization in database:", e);

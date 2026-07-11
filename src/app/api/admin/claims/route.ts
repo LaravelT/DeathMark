@@ -39,3 +39,25 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
+
+export async function DELETE(req: Request) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const claimId = searchParams.get("claimId");
+
+    if (!claimId) {
+      return NextResponse.json({ error: "Missing claimId." }, { status: 400 });
+    }
+
+    const client = await clientPromise;
+    const db = client.db("legacybridge");
+    const claimsCollection = db.collection("claims");
+
+    await claimsCollection.deleteOne({ _id: new ObjectId(claimId) });
+
+    return NextResponse.json({ success: true });
+  } catch (error: any) {
+    console.error("[Admin Claims DELETE API] Error:", error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}

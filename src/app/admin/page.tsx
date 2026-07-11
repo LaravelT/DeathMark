@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { KeyRound, ShieldAlert, FileText, CheckCircle, XCircle, ArrowLeft, RefreshCw, Eye, UserCheck, Settings, LogOut } from "lucide-react";
+import { KeyRound, ShieldAlert, FileText, CheckCircle, XCircle, ArrowLeft, RefreshCw, Eye, UserCheck, Settings, LogOut, Trash2 } from "lucide-react";
 import Link from "next/link";
 
 const formatAdminDate = (isoString?: string): string => {
@@ -33,6 +33,7 @@ export default function AdminPage() {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [emailLoading, setEmailLoading] = useState<string | null>(null);
   const [emailSentId, setEmailSentId] = useState<string | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState<string | null>(null);
 
   // Authentication State
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -136,7 +137,23 @@ export default function AdminPage() {
       setEmailLoading(null);
     }
   };
-
+  const handleDeleteClaim = async (claimId: string) => {
+    if (!confirm("Are you sure you want to permanently delete this claim?")) return;
+    setDeleteLoading(claimId);
+    try {
+      const res = await fetch(`/api/admin/claims?claimId=${claimId}`, {
+        method: "DELETE"
+      });
+      if (!res.ok) throw new Error("Delete failed.");
+      
+      // Update state locally
+      setClaims(prev => prev.filter(c => c._id !== claimId));
+    } catch (err: any) {
+      alert("Failed to delete claim: " + err.message);
+    } finally {
+      setDeleteLoading(null);
+    }
+  };
   if (!isAuthenticated) {
     return (
       <div className="signin-wrapper flex-center" style={{ minHeight: "100vh", padding: "20px", flexDirection: "column", backgroundColor: "#faf7f0" }}>
@@ -396,85 +413,111 @@ export default function AdminPage() {
                         </span>
                       </td>
                       <td style={{ padding: "16px 12px" }}>
-                        {claim.status === "Pending Review" ? (
-                          <div style={{ display: "flex", gap: "8px" }}>
-                            <button 
-                              onClick={() => handleAction(claim._id, "Approved")} 
-                              disabled={actionLoading === claim._id}
-                              style={{ 
-                                display: "flex", 
-                                alignItems: "center", 
-                                gap: "4px", 
-                                backgroundColor: "#10b981", 
-                                color: "#fff", 
-                                border: "none", 
-                                padding: "6px 10px", 
-                                borderRadius: "6px", 
-                                cursor: "pointer", 
-                                fontSize: "12px",
-                                fontWeight: "600"
-                              }}
-                            >
-                              <CheckCircle size={14} />
-                              <span>Approve</span>
-                            </button>
-                            <button 
-                              onClick={() => handleAction(claim._id, "Rejected")} 
-                              disabled={actionLoading === claim._id}
-                              style={{ 
-                                display: "flex", 
-                                alignItems: "center", 
-                                gap: "4px", 
-                                backgroundColor: "#b91c1c", 
-                                color: "#fff", 
-                                border: "none", 
-                                padding: "6px 10px", 
-                                borderRadius: "6px", 
-                                cursor: "pointer", 
-                                fontSize: "12px",
-                                fontWeight: "600"
-                              }}
-                            >
-                              <XCircle size={14} />
-                              <span>Reject</span>
-                            </button>
+                        <div style={{ display: "flex", alignItems: "center", gap: "12px", justifyContent: "space-between" }}>
+                          <div>
+                            {claim.status === "Pending Review" ? (
+                              <div style={{ display: "flex", gap: "8px" }}>
+                                <button 
+                                  onClick={() => handleAction(claim._id, "Approved")} 
+                                  disabled={actionLoading === claim._id}
+                                  style={{ 
+                                    display: "flex", 
+                                    alignItems: "center", 
+                                    gap: "4px", 
+                                    backgroundColor: "#10b981", 
+                                    color: "#fff", 
+                                    border: "none", 
+                                    padding: "6px 10px", 
+                                    borderRadius: "6px", 
+                                    cursor: "pointer", 
+                                    fontSize: "12px",
+                                    fontWeight: "600"
+                                  }}
+                                >
+                                  <CheckCircle size={14} />
+                                  <span>Approve</span>
+                                </button>
+                                <button 
+                                  onClick={() => handleAction(claim._id, "Rejected")} 
+                                  disabled={actionLoading === claim._id}
+                                  style={{ 
+                                    display: "flex", 
+                                    alignItems: "center", 
+                                    gap: "4px", 
+                                    backgroundColor: "#b91c1c", 
+                                    color: "#fff", 
+                                    border: "none", 
+                                    padding: "6px 10px", 
+                                    borderRadius: "6px", 
+                                    cursor: "pointer", 
+                                    fontSize: "12px",
+                                    fontWeight: "600"
+                                  }}
+                                >
+                                  <XCircle size={14} />
+                                  <span>Reject</span>
+                                </button>
+                              </div>
+                            ) : claim.status === "Approved" ? (
+                              (claim.copyCount || 0) >= 1 ? (
+                                <span style={{ color: "#10b981", fontWeight: "600", fontSize: "12px", whiteSpace: "nowrap" }}>
+                                  Email Sent Successfully
+                                </span>
+                              ) : (
+                                <button
+                                  onClick={() => handleSendEmail(claim)}
+                                  disabled={emailLoading === claim._id}
+                                  className="btn-outline"
+                                  style={{
+                                    display: "inline-flex",
+                                    alignItems: "center",
+                                    gap: "6px",
+                                    fontSize: "12px",
+                                    padding: "6px 12px",
+                                    color: emailSentId === claim._id ? "#10b981" : "var(--primary)",
+                                    borderColor: emailSentId === claim._id ? "#10b981" : "rgba(217,184,133,0.4)",
+                                    backgroundColor: emailSentId === claim._id ? "rgba(16,185,129,0.05)" : "rgba(178,142,70,0.05)",
+                                    borderRadius: "6px",
+                                    cursor: "pointer"
+                                  }}
+                                >
+                                  <span>
+                                    {emailLoading === claim._id 
+                                      ? "Sending..." 
+                                      : emailSentId === claim._id 
+                                        ? "Email Sent!" 
+                                        : "Send Email"
+                                    }
+                                  </span>
+                                </button>
+                              )
+                            ) : (
+                              <span style={{ color: "var(--muted)", fontSize: "12px" }}>Rejected</span>
+                            )}
                           </div>
-                        ) : claim.status === "Approved" ? (
-                          (claim.copyCount || 0) >= 1 ? (
-                            <span style={{ color: "#10b981", fontWeight: "600", fontSize: "12px", whiteSpace: "nowrap" }}>
-                              Email Sent Successfully
-                            </span>
-                          ) : (
-                            <button
-                              onClick={() => handleSendEmail(claim)}
-                              disabled={emailLoading === claim._id}
-                              className="btn-outline"
-                              style={{
-                                display: "inline-flex",
-                                alignItems: "center",
-                                gap: "6px",
-                                fontSize: "12px",
-                                padding: "6px 12px",
-                                color: emailSentId === claim._id ? "#10b981" : "var(--primary)",
-                                borderColor: emailSentId === claim._id ? "#10b981" : "rgba(217,184,133,0.4)",
-                                backgroundColor: emailSentId === claim._id ? "rgba(16,185,129,0.05)" : "rgba(178,142,70,0.05)",
-                                borderRadius: "6px",
-                                cursor: "pointer"
-                              }}
-                            >
-                              <span>
-                                {emailLoading === claim._id 
-                                  ? "Sending..." 
-                                  : emailSentId === claim._id 
-                                    ? "Email Sent!" 
-                                    : "Send Email"
-                                }
-                              </span>
-                            </button>
-                          )
-                        ) : (
-                          <span style={{ color: "var(--muted)", fontSize: "12px" }}>Rejected</span>
-                        )}
+                          
+                          <button
+                            onClick={() => handleDeleteClaim(claim._id)}
+                            disabled={deleteLoading === claim._id}
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              backgroundColor: "transparent",
+                              border: "1px solid rgba(239, 68, 68, 0.25)",
+                              color: "#b91c1c",
+                              padding: "6px",
+                              borderRadius: "6px",
+                              cursor: "pointer",
+                              transition: "all 0.2s"
+                            }}
+                            onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(239, 68, 68, 0.08)"; }}
+                            onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "transparent"; }}
+                            title="Delete claim record"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}

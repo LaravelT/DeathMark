@@ -6,6 +6,8 @@ import nodemailer from "nodemailer";
 export async function POST(req: Request) {
   try {
     const { claimId, accessLink } = await req.json();
+    const url = new URL(req.url);
+    const origin = url.origin;
 
     if (!claimId || !accessLink) {
       return NextResponse.json({ error: "Missing required fields." }, { status: 400 });
@@ -64,7 +66,7 @@ export async function POST(req: Request) {
       html: `
         <div style="font-family: sans-serif; padding: 25px; color: #1a150e; background-color: #faf7f0; border-radius: 12px; max-width: 600px; margin: 0 auto; border: 1px solid rgba(217, 184, 133, 0.25);">
           <div style="text-align: center; margin-bottom: 20px;">
-            <img src="${window.location.origin}/assets/legacybridge-logo.png" alt="LegacyBridge Logo" style="height: 60px; width: auto;" />
+            <img src="${origin}/assets/legacybridge-logo.png" alt="LegacyBridge Logo" style="height: 60px; width: auto;" />
           </div>
           <h2 style="color: #b28e46; font-size: 20px; border-bottom: 2px solid rgba(217, 184, 133, 0.12); padding-bottom: 12px; margin-bottom: 20px; text-align: center;">LegacyBridge Asset Vault Approved</h2>
           <p style="font-size: 15px; line-height: 1.6;">Hello <strong>${claim.claimantName}</strong>,</p>

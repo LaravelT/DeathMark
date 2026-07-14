@@ -51,7 +51,22 @@ export default function SignIn() {
                 <h3 className="info-title">Private Hidden Folder</h3>
                 <p className="info-text">All files are stored in a hidden app folder directly on your personal Google Drive.</p>
               </div>
-            </div>
+          </div>
+          
+          {/* Gmail-only registration note */}
+          <div style={{
+            backgroundColor: "#221a0f",
+            border: "1px solid rgba(217, 184, 133, 0.4)",
+            padding: "10px 14px",
+            borderRadius: "12px",
+            fontSize: "13px",
+            lineHeight: "1.4",
+            color: "#fcfaf7",
+            fontWeight: "500",
+            marginTop: "20px",
+            textAlign: "center"
+          }}>
+            ⚠️ Please note: Registration is only supported for <strong>Gmail (@gmail.com)</strong> accounts.
           </div>
 
           {/* Continue with Google button */}

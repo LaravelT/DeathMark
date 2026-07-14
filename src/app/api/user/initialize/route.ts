@@ -23,7 +23,8 @@ export async function POST(req: Request) {
       updateFields.ownerDetails = body.ownerDetails;
     }
     if (body.passphrase) {
-      updateFields.vaultPassphrase = body.passphrase;
+      const { encryptServerSide } = await import("@/lib/serverCrypto");
+      updateFields.vaultPassphrase = encryptServerSide(body.passphrase);
     }
 
     console.log("[Initialize API] Updating user in MongoDB:", session.user.email);

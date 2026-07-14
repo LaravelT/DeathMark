@@ -104,9 +104,11 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: "Invalid OTP." }, { status: 400 });
       }
 
-      // Fetch user's stored passphrase
+      // Fetch user's stored passphrase and decrypt it
+      const { decryptServerSide } = await import("@/lib/serverCrypto");
       const user = await usersCollection.findOne({ email });
-      const oldPassphrase = user?.vaultPassphrase || "";
+      const oldPassphraseEnc = user?.vaultPassphrase || "";
+      const oldPassphrase = oldPassphraseEnc ? decryptServerSide(oldPassphraseEnc) : "";
 
       // OTP verified. Delete OTP record.
       await otpsCollection.deleteOne({ email });
@@ -119,10 +121,13 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: "Missing new passphrase." }, { status: 400 });
       }
 
-      // Update the stored passphrase in the database
+      // Update and encrypt the stored passphrase in the database
+      const { encryptServerSide } = await import("@/lib/serverCrypto");
+      const newPassphraseEnc = encryptServerSide(newPassphrase);
+
       await usersCollection.updateOne(
         { email },
-        { $set: { vaultPassphrase: newPassphrase } }
+        { $set: { vaultPassphrase: newPassphraseEnc } }
       );
 
       return NextResponse.json({ success: true });

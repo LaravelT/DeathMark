@@ -51,6 +51,7 @@ export default function SignIn() {
                 <h3 className="info-title">Private Hidden Folder</h3>
                 <p className="info-text">All files are stored in a hidden app folder directly on your personal Google Drive.</p>
               </div>
+            </div>
           </div>
           
           {/* Gmail-only registration note */}

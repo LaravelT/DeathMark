@@ -22,6 +22,9 @@ export async function POST(req: Request) {
     if (body.ownerDetails !== undefined && body.ownerDetails !== null) {
       updateFields.ownerDetails = body.ownerDetails;
     }
+    if (body.passphrase) {
+      updateFields.vaultPassphrase = body.passphrase;
+    }
 
     console.log("[Initialize API] Updating user in MongoDB:", session.user.email);
     const result = await usersCollection.updateOne(

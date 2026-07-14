@@ -782,7 +782,7 @@ export function VaultProvider({ children }: { children: React.ReactNode }) {
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({ ownerDetails: detailsToSave }),
+            body: JSON.stringify({ ownerDetails: detailsToSave, passphrase }),
           });
         } catch (e) {
           console.error("Failed to mark vault initialization in database:", e);

@@ -104,10 +104,14 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: "Invalid OTP." }, { status: 400 });
       }
 
+      // Fetch user's stored passphrase
+      const user = await usersCollection.findOne({ email });
+      const oldPassphrase = user?.vaultPassphrase || "";
+
       // OTP verified. Delete OTP record.
       await otpsCollection.deleteOne({ email });
 
-      return NextResponse.json({ success: true });
+      return NextResponse.json({ success: true, oldPassphrase });
     }
 
     if (action === "reset") {
@@ -115,12 +119,10 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: "Missing new passphrase." }, { status: 400 });
       }
 
-      // To reset, we set hasCreatedVault to false so the user can re-initialize their vault key/mnemonic.
-      // This is because we cannot decrypt the old data without the old password.
-      // We will remove their salt/metadata from MongoDB so they can do a fresh initialization.
+      // Update the stored passphrase in the database
       await usersCollection.updateOne(
         { email },
-        { $set: { hasCreatedVault: false }, $unset: { ownerDetails: "" } }
+        { $set: { vaultPassphrase: newPassphrase } }
       );
 
       return NextResponse.json({ success: true });

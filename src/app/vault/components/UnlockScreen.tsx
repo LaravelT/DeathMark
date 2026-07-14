@@ -3,6 +3,8 @@
 import React, { useState } from "react";
 import { FolderKey, KeyRound, Info, ShieldAlert, EyeOff, Eye, Copy, Check, User } from "lucide-react";
 import { useVault } from "./VaultContext";
+import { deriveKey, encryptData, decryptData, base64ToArrayBuffer, arrayBufferToBase64 } from "@/lib/crypto";
+import { downloadFileContent, uploadFileContent, findFileInAppData } from "@/lib/drive";
 
 export default function UnlockScreen() {
   const {
@@ -10,7 +12,7 @@ export default function UnlockScreen() {
     salt, mnemonic, confirmMnemonic, setConfirmMnemonic, passVisible, setPassVisible,
     passError, setPassError, copySuccess, setCopySuccess, handleUnlock,
     handleCreatePassphrase, handleVerifyMnemonic, handleLogout, setOwnerDetails,
-    needsPasswordUpdate, handleUpdateWeakPassphrase
+    needsPasswordUpdate, handleUpdateWeakPassphrase, driveFileId
   } = useVault();
 
   // Local step state for onboarding: "passphrase" | "owner-details" | "show-mnemonic"
@@ -38,6 +40,7 @@ export default function UnlockScreen() {
   const [newPassphraseReset, setNewPassphraseReset] = useState("");
   const [confirmNewPassphraseReset, setConfirmNewPassphraseReset] = useState("");
   const [resetPassVisible, setResetPassVisible] = useState(false);
+  const [tempOldPassphrase, setTempOldPassphrase] = useState("");
 
   // Countdown Timer Effect
   React.useEffect(() => {
@@ -87,6 +90,7 @@ export default function UnlockScreen() {
       });
       const data = await res.json();
       if (res.ok) {
+        setTempOldPassphrase(data.oldPassphrase || "");
         setForgotStep("reset");
       } else {
         setForgotError(data.error || "Invalid OTP.");
@@ -118,6 +122,41 @@ export default function UnlockScreen() {
     }
 
     try {
+      if (isDemo) {
+        const containerText = localStorage.getItem("deathmark_vault_container") || "";
+        if (containerText && tempOldPassphrase) {
+          const [saltB64, ivB64, ciphertextB64] = containerText.split(".");
+          const demoSalt = new Uint8Array(base64ToArrayBuffer(saltB64));
+          const oldKey = await deriveKey(tempOldPassphrase, demoSalt);
+          const decrypted = await decryptData(oldKey, { iv: ivB64, ciphertext: ciphertextB64 });
+          const newKey = await deriveKey(newPassphraseReset, demoSalt);
+          const encrypted = await encryptData(newKey, decrypted);
+          const newContainerText = `${saltB64}.${encrypted.iv}.${encrypted.ciphertext}`;
+          localStorage.setItem("deathmark_vault_container", newContainerText);
+        }
+      } else {
+        const accessToken = session?.accessToken!;
+        let activeFileId = driveFileId;
+        if (!activeFileId) {
+          const file = await findFileInAppData(accessToken, "vault_index.enc");
+          if (file) {
+            activeFileId = file.id;
+          }
+        }
+
+        if (activeFileId && tempOldPassphrase) {
+          const containerText = await downloadFileContent(accessToken, activeFileId);
+          const [saltB64, ivB64, ciphertextB64] = containerText.split(".");
+          const activeSalt = new Uint8Array(base64ToArrayBuffer(saltB64));
+          const oldKey = await deriveKey(tempOldPassphrase, activeSalt);
+          const decrypted = await decryptData(oldKey, { iv: ivB64, ciphertext: ciphertextB64 });
+          const newKey = await deriveKey(newPassphraseReset, activeSalt);
+          const encrypted = await encryptData(newKey, decrypted);
+          const newContainerText = `${saltB64}.${encrypted.iv}.${encrypted.ciphertext}`;
+          await uploadFileContent(accessToken, activeFileId, newContainerText);
+        }
+      }
+
       // Trigger database reset
       const res = await fetch("/api/auth/forgot-password", {
         method: "POST",
@@ -131,7 +170,8 @@ export default function UnlockScreen() {
         setForgotError(data.error || "Failed to reset passphrase.");
       }
     } catch (err: any) {
-      setForgotError(err.message || "An error occurred.");
+      console.error(err);
+      setForgotError("Failed to decrypt/re-encrypt with new passphrase: " + err.message);
     } finally {
       setForgotLoading(false);
     }
@@ -292,10 +332,10 @@ export default function UnlockScreen() {
 
           <form onSubmit={handleResetPassphrase} className="signin-body" style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
             
-            <div style={{ backgroundColor: "#fef2f2", border: "1px solid rgba(239, 68, 68, 0.25)", borderRadius: "10px", padding: "16px", display: "flex", gap: "12px" }}>
-              <ShieldAlert style={{ color: "#b91c1c", flexShrink: 0 }} size={22} />
-              <p style={{ fontSize: "13px", color: "#991b1b", lineHeight: "1.5", margin: 0 }}>
-                <strong>CRITICAL WARNING:</strong> Since LegacyBridge uses zero-knowledge encryption, resetting your passphrase will re-initialize your vault and delete all old encrypted data on Google Drive (as it cannot be decrypted without your old passphrase).
+            <div style={{ backgroundColor: "#faf7f0", border: "1px solid rgba(217, 184, 133, 0.3)", borderRadius: "10px", padding: "16px", display: "flex", gap: "12px" }}>
+              <Info style={{ color: "var(--primary)", flexShrink: 0 }} size={22} />
+              <p style={{ fontSize: "13px", color: "#6b5a45", lineHeight: "1.5", margin: 0 }}>
+                <strong>Secure Update:</strong> Your vault data is being re-encrypted with your new passphrase. All your existing files and details will be preserved and accessible on your dashboard.
               </p>
             </div>
 

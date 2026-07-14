@@ -123,7 +123,7 @@ export default function UnlockScreen() {
 
     try {
       if (isDemo) {
-        const containerText = localStorage.getItem("deathmark_vault_container") || "";
+        const containerText = localStorage.getItem("legacybridge_vault_container") || "";
         if (containerText && tempOldPassphrase) {
           const [saltB64, ivB64, ciphertextB64] = containerText.split(".");
           const demoSalt = new Uint8Array(base64ToArrayBuffer(saltB64));
@@ -132,7 +132,7 @@ export default function UnlockScreen() {
           const newKey = await deriveKey(newPassphraseReset, demoSalt);
           const encrypted = await encryptData(newKey, decrypted);
           const newContainerText = `${saltB64}.${encrypted.iv}.${encrypted.ciphertext}`;
-          localStorage.setItem("deathmark_vault_container", newContainerText);
+          localStorage.setItem("legacybridge_vault_container", newContainerText);
         }
       } else {
         const accessToken = session?.accessToken!;

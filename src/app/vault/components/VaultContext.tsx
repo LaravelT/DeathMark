@@ -293,7 +293,7 @@ export function VaultProvider({ children }: { children: React.ReactNode }) {
 
     try {
       if (isDemo) {
-        const localIndex = localStorage.getItem("deathmark_vault_container");
+        const localIndex = localStorage.getItem("legacybridge_vault_container");
         if (localIndex) {
           const [saltB64] = localIndex.split(".");
           setSalt(new Uint8Array(base64ToArrayBuffer(saltB64)));
@@ -346,7 +346,7 @@ export function VaultProvider({ children }: { children: React.ReactNode }) {
       let containerText = "";
 
       if (isDemo) {
-        containerText = localStorage.getItem("deathmark_vault_container") || "";
+        containerText = localStorage.getItem("legacybridge_vault_container") || "";
       } else {
         const accessToken = session?.accessToken!;
         if (!driveFileId) throw new Error("Drive file reference missing.");
@@ -388,7 +388,7 @@ export function VaultProvider({ children }: { children: React.ReactNode }) {
       const newContainerText = `${saltB64}.${encryptedIndex.iv}.${encryptedIndex.ciphertext}`;
 
       if (isDemo) {
-        localStorage.setItem("deathmark_vault_container", newContainerText);
+        localStorage.setItem("legacybridge_vault_container", newContainerText);
       } else {
         const accessToken = session?.accessToken!;
         await uploadFileContent(accessToken, driveFileId!, newContainerText);
@@ -414,7 +414,7 @@ export function VaultProvider({ children }: { children: React.ReactNode }) {
     setLoadingNominee(true);
     try {
       if (isDemo) {
-        const containerText = localStorage.getItem("deathmark_nominee_container");
+        const containerText = localStorage.getItem("legacybridge_nominee_container");
         if (containerText) {
           const [, ivB64, ciphertextB64] = containerText.split(".");
           const decrypted = await decryptData(key, { iv: ivB64, ciphertext: ciphertextB64 });
@@ -444,22 +444,22 @@ export function VaultProvider({ children }: { children: React.ReactNode }) {
   // Fetch Owner Details
   const fetchOwnerDetails = async () => {
     if (isDemo) {
-      const local = localStorage.getItem("deathmark_owner_details");
+      const local = localStorage.getItem("legacybridge_owner_details");
       if (local) {
         setOwnerDetails(JSON.parse(local));
       }
       
-      let demoPlan = localStorage.getItem("deathmark_plan") || null;
-      let demoPlanActivatedAt = localStorage.getItem("deathmark_plan_activated_at") || null;
-      let demoPlanExpiresAt = localStorage.getItem("deathmark_plan_expires_at") || null;
+      let demoPlan = localStorage.getItem("legacybridge_plan") || null;
+      let demoPlanActivatedAt = localStorage.getItem("legacybridge_plan_activated_at") || null;
+      let demoPlanExpiresAt = localStorage.getItem("legacybridge_plan_expires_at") || null;
       
       if (!demoPlan) {
         demoPlan = "free_trial";
         demoPlanActivatedAt = new Date().toISOString();
         demoPlanExpiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString();
-        localStorage.setItem("deathmark_plan", demoPlan);
-        localStorage.setItem("deathmark_plan_activated_at", demoPlanActivatedAt);
-        localStorage.setItem("deathmark_plan_expires_at", demoPlanExpiresAt);
+        localStorage.setItem("legacybridge_plan", demoPlan);
+        localStorage.setItem("legacybridge_plan_activated_at", demoPlanActivatedAt);
+        localStorage.setItem("legacybridge_plan_expires_at", demoPlanExpiresAt);
       }
       
       let demoIsExpired = false;
@@ -501,7 +501,7 @@ export function VaultProvider({ children }: { children: React.ReactNode }) {
     setLoadingMessage("Saving owner details...");
     try {
       if (isDemo) {
-        localStorage.setItem("deathmark_owner_details", JSON.stringify(details));
+        localStorage.setItem("legacybridge_owner_details", JSON.stringify(details));
         setOwnerDetails(details);
       } else {
         const res = await fetch("/api/user/initialize", {
@@ -575,7 +575,7 @@ export function VaultProvider({ children }: { children: React.ReactNode }) {
       const newContainerText = `${saltB64}.${encryptedIndex.iv}.${encryptedIndex.ciphertext}`;
 
       if (isDemo) {
-        localStorage.setItem("deathmark_vault_container", newContainerText);
+        localStorage.setItem("legacybridge_vault_container", newContainerText);
       } else {
         const accessToken = session?.accessToken!;
         if (!driveFileId) throw new Error("Drive file reference missing.");
@@ -621,9 +621,9 @@ export function VaultProvider({ children }: { children: React.ReactNode }) {
       const containerText = `${saltB64}.${encrypted.iv}.${encrypted.ciphertext}`;
 
       if (isDemo) {
-        localStorage.setItem("deathmark_nominee_container", containerText);
-        localStorage.setItem("deathmark_nominee_aadhaar", formData.aadhaar);
-        localStorage.setItem("deathmark_nominee_pan", formData.pan);
+        localStorage.setItem("legacybridge_nominee_container", containerText);
+        localStorage.setItem("legacybridge_nominee_aadhaar", formData.aadhaar);
+        localStorage.setItem("legacybridge_nominee_pan", formData.pan);
       } else {
         const accessToken = session?.accessToken!;
         let fileId = nomineeFileId;
@@ -675,7 +675,7 @@ export function VaultProvider({ children }: { children: React.ReactNode }) {
     setLoadingNominee(true);
     try {
       if (isDemo) {
-        localStorage.removeItem("deathmark_nominee_container");
+        localStorage.removeItem("legacybridge_nominee_container");
       } else {
         const accessToken = session?.accessToken!;
         let fileId = nomineeFileId;
@@ -766,9 +766,9 @@ export function VaultProvider({ children }: { children: React.ReactNode }) {
       const containerText = `${saltB64}.${encrypted.iv}.${encrypted.ciphertext}`;
 
       if (isDemo) {
-        localStorage.setItem("deathmark_vault_container", containerText);
+        localStorage.setItem("legacybridge_vault_container", containerText);
         if (detailsToSave) {
-          localStorage.setItem("deathmark_owner_details", JSON.stringify(detailsToSave));
+          localStorage.setItem("legacybridge_owner_details", JSON.stringify(detailsToSave));
         }
       } else {
         const accessToken = session?.accessToken!;
@@ -900,7 +900,7 @@ export function VaultProvider({ children }: { children: React.ReactNode }) {
       const containerText = `${saltB64}.${encryptedIndex.iv}.${encryptedIndex.ciphertext}`;
 
       if (isDemo) {
-        localStorage.setItem("deathmark_vault_container", containerText);
+        localStorage.setItem("legacybridge_vault_container", containerText);
       } else {
         const accessToken = session?.accessToken!;
         await uploadFileContent(accessToken, driveFileId!, containerText);
@@ -947,7 +947,7 @@ export function VaultProvider({ children }: { children: React.ReactNode }) {
       const containerText = `${saltB64}.${encryptedIndex.iv}.${encryptedIndex.ciphertext}`;
 
       if (isDemo) {
-        localStorage.setItem("deathmark_vault_container", containerText);
+        localStorage.setItem("legacybridge_vault_container", containerText);
       } else {
         const accessToken = session?.accessToken!;
         await uploadFileContent(accessToken, driveFileId!, containerText);
@@ -1010,7 +1010,7 @@ export function VaultProvider({ children }: { children: React.ReactNode }) {
       )}`;
       const downloadAnchor = document.createElement("a");
       downloadAnchor.setAttribute("href", jsonString);
-      downloadAnchor.setAttribute("download", `deathmark_vault_export_${new Date().toISOString().split('T')[0]}.json`);
+      downloadAnchor.setAttribute("download", `legacybridge_vault_export_${new Date().toISOString().split('T')[0]}.json`);
       document.body.appendChild(downloadAnchor);
       downloadAnchor.click();
       downloadAnchor.remove();
@@ -1057,19 +1057,19 @@ export function VaultProvider({ children }: { children: React.ReactNode }) {
     setLoadingMessage("Updating subscription plan...");
     try {
       if (isDemo) {
-        localStorage.setItem("deathmark_plan", planType);
+        localStorage.setItem("legacybridge_plan", planType);
         const nowStr = new Date().toISOString();
-        localStorage.setItem("deathmark_plan_activated_at", nowStr);
+        localStorage.setItem("legacybridge_plan_activated_at", nowStr);
         if (planType === "free_trial") {
           const expiresStr = new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString();
-          localStorage.setItem("deathmark_plan_expires_at", expiresStr);
+          localStorage.setItem("legacybridge_plan_expires_at", expiresStr);
           setPlanExpiresAt(expiresStr);
         } else if (planType === "annual") {
           const expiresStr = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString();
-          localStorage.setItem("deathmark_plan_expires_at", expiresStr);
+          localStorage.setItem("legacybridge_plan_expires_at", expiresStr);
           setPlanExpiresAt(expiresStr);
         } else {
-          localStorage.removeItem("deathmark_plan_expires_at");
+          localStorage.removeItem("legacybridge_plan_expires_at");
           setPlanExpiresAt(null);
         }
         setPlan(planType);

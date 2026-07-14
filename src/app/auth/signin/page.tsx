@@ -67,7 +67,7 @@ export default function SignIn() {
             marginTop: "20px",
             textAlign: "center"
           }}>
-            ⚠️ Please note: Registration is only supported for <strong>Gmail (@gmail.com)</strong> accounts.
+            ⚠️ Please note: Registration is supported only for Google accounts, including <strong>Gmail (@gmail.com)</strong> and <strong>Google Workspace</strong> accounts.
           </div>
 
           {/* Continue with Google button */}

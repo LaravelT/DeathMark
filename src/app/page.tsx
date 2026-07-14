@@ -393,7 +393,24 @@ export default function Home() {
             <div className="section-copy reveal">
               <p className="eyebrow">FAQ</p>
               <h2>Basic and technical clarity before users register.</h2>
-              <p>These answers are written to remove the biggest trust, privacy and usefulness doubts.</p>
+              <p style={{ marginBottom: "32px" }}>These answers are written to remove the biggest trust, privacy and usefulness doubts.</p>
+              
+              {/* Contact Us Section */}
+              <div className="contact-us-section" style={{ marginTop: "40px", borderTop: "1px solid rgba(13,27,42,0.08)", paddingTop: "24px" }}>
+                <h4 style={{ fontSize: "16px", fontWeight: "700", margin: "0 0 12px 0", color: "#0D1B2A" }}>Contact Us</h4>
+                <p style={{ fontSize: "14.5px", lineHeight: "1.6", margin: "0 0 16px 0", color: "var(--muted)" }}>
+                  Legacy Bridge is a platform developed by <strong>Solution Planets</strong>.
+                </p>
+                <div style={{ fontSize: "14.5px", lineHeight: "1.8", color: "var(--muted)" }}>
+                  <div style={{ marginBottom: "8px" }}>
+                    <strong>Email:</strong> <a href="mailto:info@solutionplanets.com" style={{ color: "#b28e46", textDecoration: "none", fontWeight: "600" }}>info@solutionplanets.com</a>
+                  </div>
+                  <div style={{ display: "flex", flexDirection: "column", marginTop: "12px" }}>
+                    <strong>Solution Planets</strong>
+                    <span>Mumbai, India</span>
+                  </div>
+                </div>
+              </div>
             </div>
             <div className="faq-list reveal delay-1" id="faqList">
               {faqs.map((item, index) => (
@@ -449,6 +466,7 @@ export default function Home() {
             <Link href="#faq">FAQ</Link>
             <Link href="/privacy">Privacy Policy</Link>
             <Link href="/terms">Terms & Conditions</Link>
+            <Link href="/return-cancellation">Return & Cancellation Policy</Link>
           </div>
           <p className="copyright">© {new Date().getFullYear()} Solution Planets. All rights reserved.</p>
         </div>

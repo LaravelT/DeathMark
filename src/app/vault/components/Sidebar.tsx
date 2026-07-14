@@ -101,6 +101,17 @@ export default function Sidebar() {
           )}
         </Link>
 
+        <Link 
+          href={isDemo ? "/vault/plans?demo=true" : "/vault/plans"}
+          className={`menu-item ${pathname === "/vault/plans" ? "active" : ""}`}
+          style={{ textDecoration: "none" }}
+        >
+          <span className="menu-icon-text">
+            <Coins size={18} />
+            <span>Plans & Pricing</span>
+          </span>
+        </Link>
+
 
         <button 
           onClick={() => setInstrumentsOpen(!instrumentsOpen)}

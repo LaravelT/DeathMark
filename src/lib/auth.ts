@@ -42,6 +42,9 @@ export const authOptions: NextAuthOptions = {
               },
               $setOnInsert: {
                 createdAt: new Date(),
+                plan: "free_trial",
+                planActivatedAt: new Date(),
+                planExpiresAt: new Date(Date.now() + 48 * 60 * 60 * 1000)
               }
             },
             { upsert: true }

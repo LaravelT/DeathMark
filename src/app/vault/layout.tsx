@@ -1,6 +1,7 @@
 "use client";
 
-import React, { Suspense } from "react";
+import React, { Suspense, useEffect } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import { VaultProvider, useVault } from "./components/VaultContext";
 import UnlockScreen from "./components/UnlockScreen";
 import Sidebar from "./components/Sidebar";
@@ -8,9 +9,11 @@ import TopNavbar from "./components/TopNavbar";
 import { User, ShieldAlert } from "lucide-react";
 
 function VaultLayoutInner({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+  const router = useRouter();
   const { 
     derivedKey, loading, loadingMessage, ownerDetails, 
-    handleSaveOwnerDetails, handleLogout, isExpired 
+    handleSaveOwnerDetails, handleLogout, isExpired, plan, readOnly, isDemo
   } = useVault();
 
   // Local Form state for owner details (in case they are prompted on login)
@@ -20,6 +23,12 @@ function VaultLayoutInner({ children }: { children: React.ReactNode }) {
   const [ownerAadhaar, setOwnerAadhaar] = React.useState("");
   const [ownerPan, setOwnerPan] = React.useState("");
   const [formError, setFormError] = React.useState("");
+
+  useEffect(() => {
+    if (derivedKey && plan === null && pathname !== "/vault/plans") {
+      router.push(isDemo ? "/vault/plans?demo=true" : "/vault/plans");
+    }
+  }, [derivedKey, plan, pathname, isDemo, router]);
 
   // If loading session/Google appData configuration
   if (loading) {
@@ -39,66 +48,6 @@ function VaultLayoutInner({ children }: { children: React.ReactNode }) {
   // If not authenticated or unlocked yet, show unlock onboarding forms
   if (!derivedKey) {
     return <UnlockScreen />;
-  }
-
-  // If trial has expired, prompt to pay/activate plan
-  if (derivedKey && isExpired) {
-    return (
-      <div className="signin-wrapper flex-center" style={{ minHeight: "100vh", padding: "20px", flexDirection: "column", backgroundColor: "#faf7f0" }}>
-        <div className="signin-card" style={{ maxWidth: "540px", textAlign: "center", padding: "40px 30px", backgroundColor: "#ffffff", borderRadius: "28px", border: "1px solid rgba(217, 184, 133, 0.25)", boxShadow: "0 20px 50px rgba(139, 92, 26, 0.04)" }}>
-          <div className="logo-shield-container" style={{ marginBottom: "20px" }}>
-            <img 
-              src="/assets/legacybridge-logo.png" 
-              alt="LegacyBridge Logo" 
-              style={{ height: "80px", width: "auto", objectFit: "contain" }} 
-            />
-          </div>
-          <h1 className="signin-title" style={{ fontSize: "24px", marginBottom: "12px", color: "#1a150e" }}>48-Hour Setup Access Expired</h1>
-          <p style={{ color: "#6b5a45", fontSize: "15px", lineHeight: "1.6", marginBottom: "32px" }}>
-            Your free 48-hour vault setup window has closed. All your vault data remains securely encrypted on your Google Drive. 
-            To reactivate access, update your assets, or keep your legacy secure, please activate your subscription.
-          </p>
-          <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-            <button 
-              onClick={() => alert("Payment Gateway Integration coming soon! (Simulated payment success)")}
-              className="btn-cta-primary-premium" 
-              style={{ width: "100%", justifyContent: "center", border: "none", cursor: "pointer" }}
-            >
-              Activate Annual Subscription (₹999/yr)
-            </button>
-            
-            <a 
-              href="/claim" 
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "8px",
-                padding: "12px",
-                borderRadius: "10px",
-                border: "1px solid var(--card-border)",
-                color: "#ec4899",
-                backgroundColor: "rgba(236, 72, 153, 0.05)",
-                textDecoration: "none",
-                fontSize: "15px",
-                fontWeight: "600"
-              }}
-            >
-              Go to Nominee Claim Portal
-            </a>
-
-            <button 
-              type="button" 
-              onClick={handleLogout} 
-              className="btn-cta-secondary" 
-              style={{ width: "100%", cursor: "pointer" }}
-            >
-              Logout / Lock Vault
-            </button>
-          </div>
-        </div>
-      </div>
-    );
   }
 
   // If authenticated but no owner details, force owner details registration
@@ -241,6 +190,24 @@ function VaultLayoutInner({ children }: { children: React.ReactNode }) {
       <Sidebar />
       <div className="main-wrapper">
         <TopNavbar />
+        {readOnly && (
+          <div 
+            style={{ 
+              backgroundColor: "#fef2f2", 
+              borderBottom: "1px solid #fee2e2", 
+              color: "#b91c1c", 
+              padding: "12px 24px", 
+              fontSize: "14px", 
+              fontWeight: "600",
+              display: "flex",
+              alignItems: "center",
+              gap: "8px"
+            }}
+          >
+            <ShieldAlert size={16} style={{ flexShrink: 0 }} />
+            <span>Read-Only Mode: Your free trial has expired. Please upgrade your plan to add or edit records.</span>
+          </div>
+        )}
         <main className="page-container">
           {children}
         </main>

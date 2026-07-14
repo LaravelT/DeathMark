@@ -20,7 +20,7 @@ export default function CategoryView({ categoryId }: CategoryViewProps) {
 
   const {
     isDemo, vaultIndex, searchTerm,
-    handleAddRecord, handleDeleteRecord, getCategoryLastUpdated
+    handleAddRecord, handleDeleteRecord, getCategoryLastUpdated, readOnly
   } = useVault();
 
   // Local Component States
@@ -132,15 +132,16 @@ export default function CategoryView({ categoryId }: CategoryViewProps) {
               Type: {currentInfo.label}
             </span>
           </div>
-          
-          <button 
-            onClick={() => onDelete(selectedEntry)} 
-            className="btn-pink"
-            style={{ padding: "8px 16px" }}
-          >
-            <Trash2 size={14} />
-            <span>Delete Record</span>
-          </button>
+          {!readOnly && (
+            <button 
+              onClick={() => onDelete(selectedEntry)} 
+              className="btn-pink"
+              style={{ padding: "8px 16px" }}
+            >
+              <Trash2 size={14} />
+              <span>Delete Record</span>
+            </button>
+          )}
         </div>
 
         <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
@@ -194,8 +195,13 @@ export default function CategoryView({ categoryId }: CategoryViewProps) {
           <TailoredForm categoryId={categoryId} formData={formData} updateFormField={updateFormField} />
 
           <div style={{ display: "flex", gap: "12px", marginTop: "8px" }}>
-            <button type="submit" className="btn-blue" style={{ minWidth: "100px" }}>
-              Submit
+            <button 
+              type="submit" 
+              className="btn-blue" 
+              style={{ minWidth: "100px", opacity: readOnly ? 0.5 : 1, cursor: readOnly ? "not-allowed" : "pointer" }}
+              disabled={readOnly}
+            >
+              {readOnly ? "Read Only" : "Submit"}
             </button>
             <button type="button" onClick={() => router.push(isDemo ? `/vault/${categoryId}?demo=true` : `/vault/${categoryId}`)} className="btn-pink" style={{ minWidth: "100px" }}>
               Cancel
@@ -222,13 +228,15 @@ export default function CategoryView({ categoryId }: CategoryViewProps) {
           )}
         </div>
 
-        <button 
-          onClick={() => router.push(isDemo ? `/vault/${categoryId}?action=add&demo=true` : `/vault/${categoryId}?action=add`)} 
-          className="btn-blue"
-        >
-          <PlusCircle size={16} />
-          <span>Add New</span>
-        </button>
+        {!readOnly && (
+          <button 
+            onClick={() => router.push(isDemo ? `/vault/${categoryId}?action=add&demo=true` : `/vault/${categoryId}?action=add`)} 
+            className="btn-blue"
+          >
+            <PlusCircle size={16} />
+            <span>Add New</span>
+          </button>
+        )}
       </div>
 
       {searchedFiles.length === 0 ? (

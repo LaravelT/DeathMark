@@ -132,6 +132,15 @@ interface VaultContextType {
   setNeedsPasswordUpdate: React.Dispatch<React.SetStateAction<boolean>>;
   handleSaveOwnerDetails: (details: OwnerDetails) => Promise<void>;
   handleUpdateWeakPassphrase: (newPass: string, confirmNewPass: string) => Promise<boolean>;
+
+  // Plans & Read-Only State
+  plan: string | null;
+  setPlan: React.Dispatch<React.SetStateAction<string | null>>;
+  planActivatedAt: string | null;
+  planExpiresAt: string | null;
+  readOnly: boolean;
+  setReadOnly: React.Dispatch<React.SetStateAction<boolean>>;
+  activatePlan: (planType: string) => Promise<boolean>;
   
   // UI & Search State
   instrumentsOpen: boolean;
@@ -250,6 +259,12 @@ export function VaultProvider({ children }: { children: React.ReactNode }) {
   const [needsPasswordUpdate, setNeedsPasswordUpdate] = useState(false);
   const [tempDecryptedIndex, setTempDecryptedIndex] = useState<VaultIndex | null>(null);
   const [tempOldKey, setTempOldKey] = useState<CryptoKey | null>(null);
+
+  // Plan states
+  const [plan, setPlan] = useState<string | null>(null);
+  const [planActivatedAt, setPlanActivatedAt] = useState<string | null>(null);
+  const [planExpiresAt, setPlanExpiresAt] = useState<string | null>(null);
+  const [readOnly, setReadOnly] = useState(false);
 
   // UI state
   const [instrumentsOpen, setInstrumentsOpen] = useState(true);
@@ -433,6 +448,32 @@ export function VaultProvider({ children }: { children: React.ReactNode }) {
       if (local) {
         setOwnerDetails(JSON.parse(local));
       }
+      
+      let demoPlan = localStorage.getItem("deathmark_plan") || null;
+      let demoPlanActivatedAt = localStorage.getItem("deathmark_plan_activated_at") || null;
+      let demoPlanExpiresAt = localStorage.getItem("deathmark_plan_expires_at") || null;
+      
+      if (!demoPlan) {
+        demoPlan = "free_trial";
+        demoPlanActivatedAt = new Date().toISOString();
+        demoPlanExpiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString();
+        localStorage.setItem("deathmark_plan", demoPlan);
+        localStorage.setItem("deathmark_plan_activated_at", demoPlanActivatedAt);
+        localStorage.setItem("deathmark_plan_expires_at", demoPlanExpiresAt);
+      }
+      
+      let demoIsExpired = false;
+      if (demoPlan === "free_trial" && demoPlanExpiresAt) {
+        demoIsExpired = Date.now() > new Date(demoPlanExpiresAt).getTime();
+      }
+
+      setPlan(demoPlan);
+      setPlanActivatedAt(demoPlanActivatedAt);
+      setPlanExpiresAt(demoPlanExpiresAt);
+      setIsExpired(demoIsExpired);
+      if (demoIsExpired) {
+        setReadOnly(true);
+      }
       return;
     }
     try {
@@ -442,6 +483,12 @@ export function VaultProvider({ children }: { children: React.ReactNode }) {
         setOwnerDetails(data.ownerDetails);
         setIsExpired(!!data.isExpired);
         setCreatedAt(data.createdAt || null);
+        setPlan(data.plan || null);
+        setPlanActivatedAt(data.planActivatedAt || null);
+        setPlanExpiresAt(data.planExpiresAt || null);
+        if (data.isExpired) {
+          setReadOnly(true);
+        }
       }
     } catch (e) {
       console.error("Failed to fetch owner details:", e);
@@ -562,6 +609,10 @@ export function VaultProvider({ children }: { children: React.ReactNode }) {
   const handleSaveNominee = async (formData: any) => {
     const key = derivedKey;
     if (!key) throw new Error("Vault is locked.");
+    if (readOnly) {
+      alert("You cannot modify nominee details in read-only mode. Please upgrade your plan.");
+      return;
+    }
     setLoadingNominee(true);
     try {
       const stringified = JSON.stringify(formData);
@@ -614,6 +665,10 @@ export function VaultProvider({ children }: { children: React.ReactNode }) {
 
   // Delete Nominee Details
   const handleDeleteNominee = async () => {
+    if (readOnly) {
+      alert("You cannot delete nominee details in read-only mode. Please upgrade your plan.");
+      return;
+    }
     if (!confirm("Are you sure you want to permanently delete nominee details? This cannot be undone.")) return;
     const key = derivedKey;
     if (!key) throw new Error("Vault is locked.");
@@ -788,6 +843,10 @@ export function VaultProvider({ children }: { children: React.ReactNode }) {
   // Add Record (text-only, no file uploads)
   const handleAddRecord = async (category: string, formData: Record<string, string>) => {
     if (!derivedKey) return;
+    if (readOnly) {
+      alert("You cannot add records in read-only mode. Please upgrade your plan.");
+      return;
+    }
 
     setLoading(true);
     setLoadingMessage("Encrypting asset details...");
@@ -861,6 +920,10 @@ export function VaultProvider({ children }: { children: React.ReactNode }) {
 
   // Delete Record (text-only, no separate drive files to clean up)
   const handleDeleteRecord = async (entry: VaultFileEntry): Promise<boolean> => {
+    if (readOnly) {
+      alert("You cannot delete records in read-only mode. Please upgrade your plan.");
+      return false;
+    }
     if (!confirm(`Are you sure you want to permanently delete "${getRecordDisplayName(entry)}"?`)) return false;
 
     setLoading(true);
@@ -988,6 +1051,63 @@ export function VaultProvider({ children }: { children: React.ReactNode }) {
     return new Date(latestTime).toISOString();
   };
 
+  // Activate/Upgrade Plan
+  const activatePlan = async (planType: string): Promise<boolean> => {
+    setLoading(true);
+    setLoadingMessage("Updating subscription plan...");
+    try {
+      if (isDemo) {
+        localStorage.setItem("deathmark_plan", planType);
+        const nowStr = new Date().toISOString();
+        localStorage.setItem("deathmark_plan_activated_at", nowStr);
+        if (planType === "free_trial") {
+          const expiresStr = new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString();
+          localStorage.setItem("deathmark_plan_expires_at", expiresStr);
+          setPlanExpiresAt(expiresStr);
+        } else if (planType === "annual") {
+          const expiresStr = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString();
+          localStorage.setItem("deathmark_plan_expires_at", expiresStr);
+          setPlanExpiresAt(expiresStr);
+        } else {
+          localStorage.removeItem("deathmark_plan_expires_at");
+          setPlanExpiresAt(null);
+        }
+        setPlan(planType);
+        setPlanActivatedAt(nowStr);
+        setIsExpired(false);
+        setReadOnly(false);
+        setLoading(false);
+        return true;
+      }
+
+      const res = await fetch("/api/user/plan", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ plan: planType })
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setPlan(data.plan);
+        setPlanActivatedAt(data.planActivatedAt);
+        setPlanExpiresAt(data.planExpiresAt);
+        setIsExpired(false);
+        setReadOnly(false);
+        return true;
+      } else {
+        const errData = await res.json();
+        alert("Failed to activate plan: " + (errData.error || "Unknown error"));
+        return false;
+      }
+    } catch (e: any) {
+      console.error(e);
+      alert("Error activating plan: " + e.message);
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <VaultContext.Provider value={{
       isDemo, session, status, loading, setLoading, loadingMessage, setLoadingMessage,
@@ -1001,7 +1121,8 @@ export function VaultProvider({ children }: { children: React.ReactNode }) {
       handleSaveNominee, handleDeleteNominee, fetchNomineeDetails, getCategoryLastUpdated, lastLogin,
       ownerDetails, setOwnerDetails, fetchOwnerDetails,
       isExpired, setIsExpired, createdAt,
-      needsPasswordUpdate, setNeedsPasswordUpdate, handleSaveOwnerDetails, handleUpdateWeakPassphrase
+      needsPasswordUpdate, setNeedsPasswordUpdate, handleSaveOwnerDetails, handleUpdateWeakPassphrase,
+      plan, setPlan, planActivatedAt, planExpiresAt, readOnly, setReadOnly, activatePlan
     }}>
       {children}
     </VaultContext.Provider>

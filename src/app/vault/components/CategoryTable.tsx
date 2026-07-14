@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Eye, Trash2 } from "lucide-react";
-import { VaultFileEntry, INSTRUMENT_TYPES } from "./VaultContext";
+import { VaultFileEntry, INSTRUMENT_TYPES, useVault } from "./VaultContext";
 
 interface CategoryTableProps {
   categoryId: string;
@@ -12,6 +12,7 @@ interface CategoryTableProps {
 }
 
 export default function CategoryTable({ categoryId, entries, onView, onDelete }: CategoryTableProps) {
+  const { readOnly } = useVault();
   const currentInfo = INSTRUMENT_TYPES.find((i) => i.id === categoryId);
   if (!currentInfo) return null;
 
@@ -26,9 +27,11 @@ export default function CategoryTable({ categoryId, entries, onView, onDelete }:
             <Eye size={12} />
             <span>View</span>
           </button>
-          <button onClick={() => onDelete(entry)} className="btn-pink" style={{ padding: "4px 8px", fontSize: "12px" }}>
-            <Trash2 size={12} />
-          </button>
+          {!readOnly && (
+            <button onClick={() => onDelete(entry)} className="btn-pink" style={{ padding: "4px 8px", fontSize: "12px" }}>
+              <Trash2 size={12} />
+            </button>
+          )}
         </div>
       );
     }

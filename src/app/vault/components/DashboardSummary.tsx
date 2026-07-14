@@ -7,13 +7,143 @@ import { useVault, INSTRUMENT_TYPES, formatDateTime } from "./VaultContext";
 
 export default function DashboardSummary() {
   const router = useRouter();
-  const { vaultIndex, isDemo, getCategoryCount, nomineeDetails, lastLogin, getCategoryLastUpdated, searchTerm } = useVault();
+  const { vaultIndex, isDemo, getCategoryCount, nomineeDetails, lastLogin, getCategoryLastUpdated, searchTerm, isExpired, plan } = useVault();
+
+  const [showSuccessBanner, setShowSuccessBanner] = React.useState(false);
+  const [showRechargeModal, setShowRechargeModal] = React.useState(false);
+
+  React.useEffect(() => {
+    if (typeof window !== "undefined") {
+      const activated = sessionStorage.getItem("just_activated_trial");
+      if (activated === "true") {
+        setShowSuccessBanner(true);
+        sessionStorage.removeItem("just_activated_trial");
+      }
+      
+      const dismissed = sessionStorage.getItem("recharge_prompt_dismissed");
+      if (isExpired && dismissed !== "true") {
+        setShowRechargeModal(true);
+      }
+    }
+  }, [isExpired]);
+
+  const handleCancelRecharge = () => {
+    setShowRechargeModal(false);
+    sessionStorage.setItem("recharge_prompt_dismissed", "true");
+  };
+
+  const handleRecharge = () => {
+    router.push(isDemo ? "/vault/plans?demo=true" : "/vault/plans");
+  };
 
   const totalAssets = vaultIndex.files.length;
   const uniqueCategories = new Set(vaultIndex.files.map(f => f.category)).size;
 
   return (
     <div>
+      {/* Trial Activated Banner */}
+      {showSuccessBanner && (
+        <div 
+          style={{ 
+            backgroundColor: "#ecfdf5", 
+            border: "1px solid #10b981", 
+            borderRadius: "12px", 
+            padding: "16px 20px", 
+            marginBottom: "24px", 
+            color: "#065f46", 
+            fontWeight: "600",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center"
+          }}
+        >
+          <span>Your 48 hours free plan activated</span>
+          <button 
+            onClick={() => setShowSuccessBanner(false)}
+            style={{ 
+              background: "none", 
+              border: "none", 
+              color: "#065f46", 
+              fontSize: "18px", 
+              cursor: "pointer", 
+              fontWeight: "700" 
+            }}
+          >
+            ×
+          </button>
+        </div>
+      )}
+
+      {/* Expiration Recharge Modal Dialog */}
+      {showRechargeModal && (
+        <div 
+          style={{ 
+            position: "fixed", 
+            top: 0, 
+            left: 0, 
+            width: "100%", 
+            height: "100%", 
+            backgroundColor: "rgba(0,0,0,0.5)", 
+            display: "flex", 
+            justifyContent: "center", 
+            alignItems: "center", 
+            zIndex: 99999,
+            padding: "20px"
+          }}
+        >
+          <div 
+            style={{ 
+              backgroundColor: "#ffffff", 
+              borderRadius: "20px", 
+              padding: "32px", 
+              maxWidth: "480px", 
+              width: "100%",
+              boxShadow: "0 20px 50px rgba(0,0,0,0.2)",
+              textAlign: "center",
+              border: "1px solid rgba(217, 184, 133, 0.3)"
+            }}
+          >
+            <h2 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: "24px", fontWeight: "750", color: "#1a150e", marginBottom: "16px" }}>
+              Please recharge the plan
+            </h2>
+            <p style={{ color: "var(--muted)", fontSize: "15px", lineHeight: "1.6", marginBottom: "28px" }}>
+              Your 48-hour free trial has expired. To continue adding new wealth details or configuring nominees, please upgrade/recharge your plan.
+            </p>
+            <div style={{ display: "flex", gap: "12px", justifyContent: "center" }}>
+              <button 
+                onClick={handleRecharge} 
+                style={{ 
+                  flex: 1,
+                  padding: "12px 24px", 
+                  backgroundColor: "#b28e46", 
+                  color: "#ffffff", 
+                  border: "none", 
+                  borderRadius: "10px", 
+                  fontWeight: "700", 
+                  cursor: "pointer" 
+                }}
+              >
+                Recharge
+              </button>
+              <button 
+                onClick={handleCancelRecharge} 
+                style={{ 
+                  flex: 1,
+                  padding: "12px 24px", 
+                  backgroundColor: "#f3f4f6", 
+                  color: "#1a150e", 
+                  border: "1px solid #e5e7eb", 
+                  borderRadius: "10px", 
+                  fontWeight: "700", 
+                  cursor: "pointer" 
+                }}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "24px", gap: "20px", flexWrap: "wrap" }}>
         <div>
           <h1 className="page-title" style={{ marginBottom: "8px", fontFamily: "'Playfair Display', Georgia, serif", fontSize: "30px", fontWeight: "700" }}>Secure Inheritance Vault</h1>
@@ -21,14 +151,37 @@ export default function DashboardSummary() {
             Your zero-knowledge encrypted portfolio stored safely inside your Google Drive.
           </p>
         </div>
-        {lastLogin && (
-          <div style={{ padding: "8px 14px", backgroundColor: "#ffffff", border: "1px solid var(--card-border)", borderRadius: "12px", textAlign: "right", boxShadow: "0 4px 12px rgba(139, 92, 26, 0.02)" }}>
-            <span style={{ fontSize: "10px", color: "var(--muted)", fontWeight: "600", textTransform: "uppercase", display: "block", marginBottom: "2px" }}>
-              Last Login Session
-            </span>
-            <strong style={{ fontSize: "13px", color: "#b28e46" }}>{lastLogin}</strong>
-          </div>
-        )}
+        <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+          {plan && (
+            <div style={{ padding: "8px 14px", backgroundColor: "#ffffff", border: "1px solid var(--card-border)", borderRadius: "12px", textAlign: "right", boxShadow: "0 4px 12px rgba(139, 92, 26, 0.02)" }}>
+              <span style={{ fontSize: "10px", color: "var(--muted)", fontWeight: "600", textTransform: "uppercase", display: "block", marginBottom: "2px" }}>
+                Active Plan
+              </span>
+              <strong style={{ fontSize: "13px", color: isExpired ? "#ef4444" : "#10b981" }}>
+                {(() => {
+                  if (plan === "free_trial") {
+                    return isExpired ? "48-Hour Free Trial (Expired)" : "48-Hour Free Trial (Active)";
+                  }
+                  if (plan === "annual") {
+                    return isExpired ? "Annual Subscription (Expired)" : "Annual Subscription (Active)";
+                  }
+                  if (plan === "lifetime") {
+                    return "Lifetime Premium (Active)";
+                  }
+                  return "No Active Plan";
+                })()}
+              </strong>
+            </div>
+          )}
+          {lastLogin && (
+            <div style={{ padding: "8px 14px", backgroundColor: "#ffffff", border: "1px solid var(--card-border)", borderRadius: "12px", textAlign: "right", boxShadow: "0 4px 12px rgba(139, 92, 26, 0.02)" }}>
+              <span style={{ fontSize: "10px", color: "var(--muted)", fontWeight: "600", textTransform: "uppercase", display: "block", marginBottom: "2px" }}>
+                Last Login Session
+              </span>
+              <strong style={{ fontSize: "13px", color: "#b28e46" }}>{lastLogin}</strong>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Nominee Banner Card */}

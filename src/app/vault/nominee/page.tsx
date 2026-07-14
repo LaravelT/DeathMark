@@ -5,7 +5,7 @@ import { useVault } from "../components/VaultContext";
 import { UserCheck, Shield, Upload, FileText, X } from "lucide-react";
 
 export default function NomineePage() {
-  const { nomineeDetails, handleSaveNominee, handleDeleteNominee, loadingNominee } = useVault();
+  const { nomineeDetails, handleSaveNominee, handleDeleteNominee, loadingNominee, readOnly } = useVault();
   const [isEditing, setIsEditing] = useState(false);
 
   // Form states
@@ -216,25 +216,27 @@ export default function NomineePage() {
             </span>
           </div>
 
-          <div style={{ display: "flex", gap: "10px" }}>
-            <button onClick={() => setIsEditing(true)} className="btn-blue">
-              Edit Details
-            </button>
-            <button 
-              type="button" 
-              onClick={async () => {
-                try {
-                  await handleDeleteNominee();
-                } catch (err: any) {
-                  alert("Failed to delete nominee: " + err.message);
-                }
-              }} 
-              className="btn-pink"
-              disabled={loadingNominee}
-            >
-              Delete Nominee
-            </button>
-          </div>
+          {!readOnly && (
+            <div style={{ display: "flex", gap: "10px" }}>
+              <button onClick={() => setIsEditing(true)} className="btn-blue">
+                Edit Details
+              </button>
+              <button 
+                type="button" 
+                onClick={async () => {
+                  try {
+                    await handleDeleteNominee();
+                  } catch (err: any) {
+                    alert("Failed to delete nominee: " + err.message);
+                  }
+                }} 
+                className="btn-pink"
+                disabled={loadingNominee}
+              >
+                Delete Nominee
+              </button>
+            </div>
+          )}
         </div>
 
         <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
@@ -722,10 +724,10 @@ export default function NomineePage() {
           <button 
             type="submit" 
             className="btn-blue" 
-            style={{ minWidth: "120px" }}
-            disabled={isSubmitting || loadingNominee}
+            style={{ minWidth: "120px", opacity: readOnly ? 0.5 : 1, cursor: readOnly ? "not-allowed" : "pointer" }}
+            disabled={isSubmitting || loadingNominee || readOnly}
           >
-            {isSubmitting ? "Encrypting..." : "Save Nominee"}
+            {readOnly ? "Read Only" : (isSubmitting ? "Encrypting..." : "Save Nominee")}
           </button>
           
           {nomineeDetails && (

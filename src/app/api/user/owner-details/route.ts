@@ -16,18 +16,33 @@ export async function GET() {
 
     const user = await usersCollection.findOne({ email: session.user.email });
     
-    // Check if 48-hour setup access has expired
+    // Check plan expiration
+    const plan = user?.plan || null;
+    const planActivatedAt = user?.planActivatedAt || null;
+    const planExpiresAt = user?.planExpiresAt || null;
+    
     const createdAt = user?.createdAt || user?.lastLogin || new Date();
     if (user && !user.createdAt) {
       await usersCollection.updateOne({ _id: user._id }, { $set: { createdAt } });
     }
 
-    const timeDiff = Date.now() - new Date(createdAt).getTime();
-    const isExpired = timeDiff > 48 * 60 * 60 * 1000;
+    let isExpired = false;
+    if (plan === "free_trial" && planExpiresAt) {
+      isExpired = Date.now() > new Date(planExpiresAt).getTime();
+    } else if (plan === "annual" && planExpiresAt) {
+      isExpired = Date.now() > new Date(planExpiresAt).getTime();
+    }
 
     const ownerDetails = user?.ownerDetails || null;
 
-    return NextResponse.json({ ownerDetails, isExpired, createdAt });
+    return NextResponse.json({
+      ownerDetails,
+      isExpired,
+      createdAt,
+      plan,
+      planActivatedAt,
+      planExpiresAt
+    });
   } catch (error: any) {
     console.error("[Owner Details API] Error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });

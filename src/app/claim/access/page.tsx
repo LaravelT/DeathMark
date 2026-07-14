@@ -452,7 +452,7 @@ function ClaimAccessContent() {
                 <button 
                   onClick={handleExportPDF} 
                   className="btn-outline" 
-                  style={{ display: "none", alignItems: "center", gap: "6px" }}
+                  style={{ display: "flex", alignItems: "center", gap: "6px" }}
                 >
                   <Download size={14} />
                   <span>Export PDF</span>

@@ -124,7 +124,7 @@ export default function PrivacyPolicyPage() {
         <div className="shell footer-grid">
           <div>
             <Link href="/" className="brand footer-brand">
-              <img src="/assets/legacybridge-logo.png" alt="LegacyBridge" style={{ height: "100px", width: "auto", objectFit: "contain", opacity: 0.96 }} />
+              <img src="/assets/legacybridge-logo.png" alt="LegacyBridge" style={{ height: "100px", width: "auto", objectFit: "contain", opacity: 0.96, filter: "none" }} />
             </Link>
             <p>A product of Solution Planets.</p>
           </div>

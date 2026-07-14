@@ -47,55 +47,65 @@ export default function ReturnAndCancellationPolicyPage() {
         <section className="legal-hero">
           <div className="shell">
             <p className="eyebrow">LegacyBridge</p>
-            <h1>Return & Cancellation Policy</h1>
-            <p>Effective Date: 8 July 2026. LegacyBridge is a product of Solution Planets. This policy governs subscription cancellations and refund eligibility.</p>
+            <h1>Refund & Cancellation Policy</h1>
+            <p>Last Updated: 14 July 2026. LegacyBridge is a product of Solution Planets. This policy governs purchases, refunds, and cancellations.</p>
           </div>
         </section>
 
         <section className="legal-content">
           <div className="shell legal-card">
-            <h2>1. Free trial period</h2>
-            <p>LegacyBridge offers an automatic free trial period of 48 hours for users to test the platform's setup, asset logging, and encryption features. We strongly encourage all users to fully explore the features and compatibility with their Google Drive during this trial period before choosing to subscribe to a paid plan.</p>
+            <p>This Refund & Cancellation Policy applies to purchases made for LegacyBridge, a product of Solution Planets.</p>
 
-            <h2>2. Subscription plans & billing</h2>
-            <p>We offer subscription-based paid plans (Annual and Lifetime options). Payment is collected in advance via our secure payment partners (such as Razorpay). Once the subscription plan is activated, access to all premium features, nominee claims, and data snapshots is unlocked.</p>
+            <h2>1. Free Setup Access</h2>
+            <p>LegacyBridge may provide users with free setup access for a limited period, such as 48 hours, so that users can explore the platform, create their vault, understand the features, and decide whether they wish to continue with a paid plan.</p>
+            <p>Users are encouraged to review the platform, features, pricing, and suitability during this free setup access period before making any payment.</p>
 
-            <h2>3. Refund eligibility</h2>
-            <p>
-              Since LegacyBridge provides digital, client-side encrypted storage services that are fully active immediately upon purchase, we operate under a limited refund policy:
-            </p>
+            <h2>2. No Refund Policy</h2>
+            <p>All payments made for LegacyBridge are non-refundable.</p>
+            <p>Once a user completes payment for any paid plan, including annual access, lifetime access, assisted setup, or any other paid service offered by LegacyBridge, the payment will not be refunded under any circumstances, including but not limited to:</p>
             <ul>
-              <li><strong>Technical failure:</strong> If you experience a documented technical error or compatibility issue that prevents you from accessing your vault, and our technical support team is unable to resolve it within 7 business days, you may request a full refund within 7 days of the transaction.</li>
-              <li><strong>Accidental double charge:</strong> If your account is billed multiple times for the same transaction due to a payment gateway error, the duplicate payment will be refunded in full immediately.</li>
-              <li><strong>Change of mind:</strong> We generally do not offer refunds for "change of mind" or unused subscription periods once the 48-hour free trial has ended and a paid transaction has completed.</li>
+              <li>Change of mind after purchase</li>
+              <li>Non-usage of the platform after payment</li>
+              <li>User deciding not to continue with the service</li>
+              <li>Incorrect or incomplete data entered by the user</li>
+              <li>User’s inability to access their Google account, Google Drive, email, or device</li>
+              <li>User deleting, modifying, or losing data stored in their own Google Drive</li>
+              <li>Failure to renew after the subscription period ends</li>
+              <li>Dissatisfaction after using the service, where the service was made available as described</li>
             </ul>
 
-            <h2>4. Cancellation of subscriptions</h2>
-            <p>
-              You can cancel your subscription plan at any time. To cancel:
-            </p>
+            <h2>3. Annual Plan</h2>
+            <p>If a user purchases an annual plan, the user will get access to LegacyBridge for the applicable subscription period of one year from the date of successful payment.</p>
+            <p>After the completion of the one-year period, the user may choose to renew or not renew the plan.</p>
+            <p>If the user does not renew the plan, access to paid features may be restricted or discontinued as per the platform’s policy. However, no refund will be provided for the previous subscription period.</p>
+
+            <h2>4. Cancellation</h2>
+            <p>Users may choose not to renew their plan after the current subscription period ends.</p>
+            <p>Cancellation or non-renewal will stop future access or renewal, but it will not result in a refund for any amount already paid.</p>
+
+            <h2>5. Assisted Setup Services</h2>
+            <p>Any payment made for assisted setup, onboarding support, consultation, or manual assistance is non-refundable once the service has been booked, initiated, or delivered.</p>
+
+            <h2>6. Payment Failures or Duplicate Payments</h2>
+            <p>If a payment is deducted but the subscription is not activated due to a technical issue, users may contact us with payment details.</p>
+            <p>If a genuine duplicate payment is identified for the same user and the same plan, LegacyBridge may verify the transaction and process a correction or refund at its discretion.</p>
+
+            <h2>7. User Responsibility</h2>
+            <p>The user is responsible for:</p>
             <ul>
-              <li>Go to your dashboard or your active billing settings.</li>
-              <li>Click on the cancel subscription option.</li>
-              <li>You may also submit a request via email to <a href="mailto:info@solutionplanets.com" style={{ color: 'var(--gold-1)', textDecoration: 'none', fontWeight: '600' }}>info@solutionplanets.com</a>.</li>
+              <li>Reviewing the platform during the free setup access period</li>
+              <li>Ensuring that the correct plan is selected before payment</li>
+              <li>Maintaining access to their registered Google account</li>
+              <li>Keeping their secret passphrase and recovery information secure</li>
+              <li>Ensuring that the data entered in the platform is accurate and updated</li>
             </ul>
-            <p>
-              Upon cancellation, your subscription will remain active until the end of your current paid billing cycle. You will not be charged again at the next renewal date.
-            </p>
+            <p>LegacyBridge and Solution Planets will not be responsible for loss of access caused by the user’s Google account issues, forgotten passphrase, deleted Google Drive data, incorrect information, or user-side device/browser problems.</p>
 
-            <h2>5. Data retention after cancellation</h2>
-            <p>
-              Cancelling a plan halts future recurring charges, but it does not delete your existing logged details. Your encrypted vault files remain saved inside your Google Drive AppData folder. If you wish to delete your account metadata and clear all stored data from the server database, you must request account deletion through your account settings page or contact our team.
-            </p>
-
-            <h2>6. Contact Us for support</h2>
-            <p>
-              For all cancellation, billing disputes, or refund requests, please contact us at:
-            </p>
+            <h2>8. Contact Us</h2>
+            <p>For billing-related concerns, users may contact:</p>
             <div style={{ marginTop: '16px', fontSize: '14.5px', lineHeight: '1.8', color: 'rgba(13,27,42,0.85)' }}>
+              <div><strong>Solution Planets</strong></div>
               <div><strong>Email:</strong> <a href="mailto:info@solutionplanets.com" style={{ color: 'var(--gold-1)', textDecoration: 'none', fontWeight: '600' }}>info@solutionplanets.com</a></div>
-              <div><strong>Developed by:</strong> Solution Planets</div>
-              <div><strong>Location:</strong> Mumbai, India</div>
             </div>
           </div>
         </section>

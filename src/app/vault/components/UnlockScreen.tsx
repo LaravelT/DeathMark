@@ -29,6 +29,114 @@ export default function UnlockScreen() {
   const [ownerAadhaar, setOwnerAadhaar] = useState("");
   const [ownerPan, setOwnerPan] = useState("");
 
+  // Forgot Password Flow State
+  const [forgotStep, setForgotStep] = useState<"none" | "otp" | "reset">("none");
+  const [forgotOtp, setForgotOtp] = useState("");
+  const [forgotError, setForgotError] = useState("");
+  const [forgotLoading, setForgotLoading] = useState(false);
+  const [timer, setTimer] = useState(300); // 5 minutes in seconds
+  const [newPassphraseReset, setNewPassphraseReset] = useState("");
+  const [confirmNewPassphraseReset, setConfirmNewPassphraseReset] = useState("");
+  const [resetPassVisible, setResetPassVisible] = useState(false);
+
+  // Countdown Timer Effect
+  React.useEffect(() => {
+    let interval: any = null;
+    if (forgotStep === "otp" && timer > 0) {
+      interval = setInterval(() => {
+        setTimer(prev => prev - 1);
+      }, 1000);
+    } else if (timer === 0) {
+      clearInterval(interval);
+    }
+    return () => clearInterval(interval);
+  }, [forgotStep, timer]);
+
+  const handleRequestOtp = async () => {
+    setForgotLoading(true);
+    setForgotError("");
+    try {
+      const res = await fetch("/api/auth/forgot-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "send" })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setForgotStep("otp");
+        setTimer(300); // Reset to 5 minutes
+      } else {
+        setForgotError(data.error || "Failed to send OTP.");
+      }
+    } catch (err: any) {
+      setForgotError(err.message || "An error occurred.");
+    } finally {
+      setForgotLoading(false);
+    }
+  };
+
+  const handleVerifyOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setForgotLoading(true);
+    setForgotError("");
+    try {
+      const res = await fetch("/api/auth/forgot-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "verify", otp: forgotOtp })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setForgotStep("reset");
+      } else {
+        setForgotError(data.error || "Invalid OTP.");
+      }
+    } catch (err: any) {
+      setForgotError(err.message || "An error occurred.");
+    } finally {
+      setForgotLoading(false);
+    }
+  };
+
+  const handleResetPassphrase = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setForgotLoading(true);
+    setForgotError("");
+
+    // Validate strength
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    if (!passwordRegex.test(newPassphraseReset)) {
+      setForgotError("Passphrase must be at least 8 characters, and include 1 uppercase, 1 lowercase, 1 number, and 1 special character.");
+      setForgotLoading(false);
+      return;
+    }
+
+    if (newPassphraseReset !== confirmNewPassphraseReset) {
+      setForgotError("Passphrases do not match.");
+      setForgotLoading(false);
+      return;
+    }
+
+    try {
+      // Trigger database reset
+      const res = await fetch("/api/auth/forgot-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "reset", newPassphrase: newPassphraseReset })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        window.location.reload();
+      } else {
+        setForgotError(data.error || "Failed to reset passphrase.");
+      }
+    } catch (err: any) {
+      setForgotError(err.message || "An error occurred.");
+    } finally {
+      setForgotLoading(false);
+    }
+  };
+
   const onCreatePassphraseSubmit = (e: React.FormEvent) => {
     const success = handleCreatePassphrase(e);
     if (success) {
@@ -78,6 +186,182 @@ export default function UnlockScreen() {
     setCopySuccess(true);
     setTimeout(() => setCopySuccess(false), 2000);
   };
+
+  // Render Forgot Password - OTP Screen
+  if (forgotStep === "otp") {
+    const minutes = Math.floor(timer / 60);
+    const seconds = timer % 60;
+    const formattedTime = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+    return (
+      <div className="signin-wrapper">
+        <div className="signin-card" style={{ maxWidth: "460px" }}>
+          <div className="signin-header">
+            <div className="logo-shield-container">
+              <img 
+                src="/assets/legacybridge-logo.png" 
+                alt="LegacyBridge Logo" 
+                style={{ height: "80px", width: "auto", objectFit: "contain" }} 
+              />
+            </div>
+            <h1 className="signin-title">Enter Verification OTP</h1>
+            <p className="signin-subtitle">We sent a 6-digit code to your registered email.</p>
+            <div className="header-divider"></div>
+          </div>
+
+          <form onSubmit={handleVerifyOtp} className="signin-body" style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+              <label className="form-label">6-Digit OTP Code</label>
+              <input
+                type="text"
+                maxLength={6}
+                value={forgotOtp}
+                onChange={(e) => setForgotOtp(e.target.value.replace(/\D/g, ''))}
+                placeholder="Enter OTP"
+                required
+                className="signin-input"
+                style={{ textAlign: "center", letterSpacing: "8px", fontSize: "20px", fontWeight: "bold" }}
+              />
+            </div>
+
+            {forgotError && (
+              <div style={{ display: "flex", gap: "8px", alignItems: "center", color: "#f87171", fontSize: "13px" }}>
+                <ShieldAlert size={16} />
+                <span>{forgotError}</span>
+              </div>
+            )}
+
+            <div style={{ textAlign: "center", fontSize: "14px", color: "var(--muted)" }}>
+              {timer > 0 ? (
+                <span>OTP expires in <strong style={{ color: "#b28e46" }}>{formattedTime}</strong></span>
+              ) : (
+                <div style={{ display: "flex", flexDirection: "column", gap: "10px", alignItems: "center" }}>
+                  <span style={{ color: "#ef4444" }}>OTP has expired.</span>
+                  <button 
+                    type="button" 
+                    onClick={handleRequestOtp} 
+                    className="btn-cta-secondary" 
+                    style={{ padding: "8px 16px", fontSize: "13px" }}
+                  >
+                    Resend OTP
+                  </button>
+                </div>
+              )}
+            </div>
+
+            <button 
+              type="submit" 
+              className="btn-cta-primary" 
+              style={{ width: "100%", border: "none" }}
+              disabled={forgotLoading || timer === 0}
+            >
+              {forgotLoading ? "Verifying..." : "Verify OTP"}
+            </button>
+
+            <button 
+              type="button" 
+              onClick={() => { setForgotStep("none"); setForgotError(""); }} 
+              className="btn-cta-secondary" 
+              style={{ width: "100%" }}
+            >
+              Cancel
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
+
+  // Render Forgot Password - Reset Screen
+  if (forgotStep === "reset") {
+    return (
+      <div className="signin-wrapper">
+        <div className="signin-card" style={{ maxWidth: "480px" }}>
+          <div className="signin-header">
+            <div className="logo-shield-container">
+              <img 
+                src="/assets/legacybridge-logo.png" 
+                alt="LegacyBridge Logo" 
+                style={{ height: "80px", width: "auto", objectFit: "contain" }} 
+              />
+            </div>
+            <h1 className="signin-title">Set New Passphrase</h1>
+            <p className="signin-subtitle">Choose a new secure vault passphrase.</p>
+            <div className="header-divider"></div>
+          </div>
+
+          <form onSubmit={handleResetPassphrase} className="signin-body" style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+            
+            <div style={{ backgroundColor: "#fef2f2", border: "1px solid rgba(239, 68, 68, 0.25)", borderRadius: "10px", padding: "16px", display: "flex", gap: "12px" }}>
+              <ShieldAlert style={{ color: "#b91c1c", flexShrink: 0 }} size={22} />
+              <p style={{ fontSize: "13px", color: "#991b1b", lineHeight: "1.5", margin: 0 }}>
+                <strong>CRITICAL WARNING:</strong> Since LegacyBridge uses zero-knowledge encryption, resetting your passphrase will re-initialize your vault and delete all old encrypted data on Google Drive (as it cannot be decrypted without your old passphrase).
+              </p>
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+              <label className="form-label">New Master Passphrase</label>
+              <div style={{ position: "relative", display: "flex" }}>
+                <input
+                  type={resetPassVisible ? "text" : "password"}
+                  value={newPassphraseReset}
+                  onChange={(e) => setNewPassphraseReset(e.target.value)}
+                  placeholder="Min. 8 chars (e.g. Chirag@2102)"
+                  required
+                  className="signin-input"
+                  style={{ paddingRight: "48px" }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setResetPassVisible(!resetPassVisible)}
+                  style={{ position: "absolute", right: "12px", top: "50%", transform: "translateY(-50%)", background: "none", border: "none", color: "var(--muted)", cursor: "pointer" }}
+                >
+                  {resetPassVisible ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+              <label className="form-label">Confirm New Passphrase</label>
+              <input
+                type="password"
+                value={confirmNewPassphraseReset}
+                onChange={(e) => setConfirmNewPassphraseReset(e.target.value)}
+                placeholder="Repeat new passphrase"
+                required
+                className="signin-input"
+              />
+            </div>
+
+            {forgotError && (
+              <div style={{ display: "flex", gap: "8px", alignItems: "center", color: "#f87171", fontSize: "13px" }}>
+                <ShieldAlert size={16} />
+                <span>{forgotError}</span>
+              </div>
+            )}
+
+            <button 
+              type="submit" 
+              className="btn-cta-primary" 
+              style={{ width: "100%", border: "none", marginTop: "10px" }}
+              disabled={forgotLoading}
+            >
+              {forgotLoading ? "Resetting..." : "Reset Vault & Set Passphrase"}
+            </button>
+
+            <button 
+              type="button" 
+              onClick={() => { setForgotStep("none"); setForgotError(""); }} 
+              className="btn-cta-secondary" 
+              style={{ width: "100%" }}
+            >
+              Cancel
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
 
   // Render Update Master Passphrase screen (for existing users with weak passwords)
   if (needsPasswordUpdate) {
@@ -182,7 +466,25 @@ export default function UnlockScreen() {
           
           <form onSubmit={handleUnlock} className="signin-body" style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
             <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-              <label className="form-label">Master Passphrase</label>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <label className="form-label">Master Passphrase</label>
+                <button
+                  type="button"
+                  onClick={handleRequestOtp}
+                  disabled={forgotLoading}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    color: "#b28e46",
+                    fontSize: "13px",
+                    fontWeight: "600",
+                    cursor: "pointer",
+                    padding: 0
+                  }}
+                >
+                  {forgotLoading ? "Sending OTP..." : "Forgot Passphrase?"}
+                </button>
+              </div>
               <div style={{ position: "relative", display: "flex" }}>
                 <input
                   type={passVisible ? "text" : "password"}

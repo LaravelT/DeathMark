@@ -129,10 +129,6 @@ export default function TopNavbar() {
           <ShieldAlert size={14} style={{ color: "var(--secondary)" }} />
           <span>Sync Integrity</span>
         </button>
-        <button onClick={handleExportPDF} className="btn-outline" style={{ display: "none", alignItems: "center", gap: "6px", fontSize: "13px" }}>
-          <Download size={14} />
-          <span>Export PDF</span>
-        </button>
       </div>
     </header>
   );

@@ -1,17 +1,18 @@
 "use client";
 
 import React from "react";
-import { Eye, Trash2 } from "lucide-react";
+import { Eye, Trash2, Edit2 } from "lucide-react";
 import { VaultFileEntry, INSTRUMENT_TYPES, useVault } from "./VaultContext";
 
 interface CategoryTableProps {
   categoryId: string;
   entries: VaultFileEntry[];
   onView: (entry: VaultFileEntry) => void;
+  onEdit: (entry: VaultFileEntry) => void;
   onDelete: (entry: VaultFileEntry) => void;
 }
 
-export default function CategoryTable({ categoryId, entries, onView, onDelete }: CategoryTableProps) {
+export default function CategoryTable({ categoryId, entries, onView, onEdit, onDelete }: CategoryTableProps) {
   const { readOnly } = useVault();
   const currentInfo = INSTRUMENT_TYPES.find((i) => i.id === categoryId);
   if (!currentInfo) return null;
@@ -28,9 +29,15 @@ export default function CategoryTable({ categoryId, entries, onView, onDelete }:
             <span>View</span>
           </button>
           {!readOnly && (
-            <button onClick={() => onDelete(entry)} className="btn-pink" style={{ padding: "4px 8px", fontSize: "12px" }}>
-              <Trash2 size={12} />
-            </button>
+            <>
+              <button onClick={() => onEdit(entry)} className="btn-outline" style={{ padding: "4px 8px", fontSize: "12px", display: "flex", alignItems: "center", gap: "4px" }}>
+                <Edit2 size={12} />
+                <span>Edit</span>
+              </button>
+              <button onClick={() => onDelete(entry)} className="btn-pink" style={{ padding: "4px 8px", fontSize: "12px" }}>
+                <Trash2 size={12} />
+              </button>
+            </>
           )}
         </div>
       );

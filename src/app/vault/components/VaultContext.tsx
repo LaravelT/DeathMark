@@ -163,6 +163,7 @@ interface VaultContextType {
   handleCreatePassphrase: (e: React.FormEvent) => boolean;
   handleVerifyMnemonic: (e?: React.FormEvent, customOwnerDetails?: OwnerDetails) => Promise<void>;
   handleAddRecord: (category: string, formData: Record<string, string>) => Promise<void>;
+  handleUpdateRecord: (entryId: string, category: string, formData: Record<string, string>) => Promise<void>;
   handleDeleteRecord: (entry: VaultFileEntry) => Promise<boolean>;
   handleVerifyIntegrity: () => Promise<void>;
   handleExportVault: () => Promise<void>;
@@ -919,6 +920,77 @@ export function VaultProvider({ children }: { children: React.ReactNode }) {
       setLoading(false);
     }
   };
+  
+  // Update Record
+  const handleUpdateRecord = async (entryId: string, category: string, formData: Record<string, string>) => {
+    if (!derivedKey) return;
+    if (readOnly) {
+      alert("You cannot edit records in read-only mode. Please upgrade your plan.");
+      return;
+    }
+
+    setLoading(true);
+    setLoadingMessage("Updating asset details...");
+
+    try {
+      const displayName = 
+        formData.assetTitle || 
+        formData.propertyName || 
+        formData.dpName || 
+        formData.brokerName || 
+        formData.fundHouse || 
+        formData.bankName || 
+        formData.issuerName || 
+        formData.exchangeWallet || 
+        formData.walletName || 
+        formData.personName || 
+        formData.businessName || 
+        formData.incomeSource || 
+        formData.paymentName || 
+        "Untitled";
+
+      const updatedFiles = vaultIndex.files.map(f => {
+        if (f.id === entryId) {
+          return {
+            ...f,
+            name: displayName,
+            details: formData
+          };
+        }
+        return f;
+      });
+
+      const now = new Date().toISOString();
+      const updatedIndex: VaultIndex = {
+        ...vaultIndex,
+        files: updatedFiles,
+        lastUpdated: {
+          ...(vaultIndex.lastUpdated || {}),
+          [category]: now
+        }
+      };
+
+      const stringifiedIndex = JSON.stringify(updatedIndex);
+      const encryptedIndex = await encryptData(derivedKey, stringifiedIndex);
+      const saltB64 = arrayBufferToBase64(salt!.buffer as ArrayBuffer);
+      const containerText = `${saltB64}.${encryptedIndex.iv}.${encryptedIndex.ciphertext}`;
+
+      if (isDemo) {
+        localStorage.setItem("legacybridge_vault_container", containerText);
+      } else {
+        const accessToken = session?.accessToken!;
+        await uploadFileContent(accessToken, driveFileId!, containerText);
+      }
+
+      setVaultIndex(updatedIndex);
+      await syncVaultSnapshot(updatedIndex.files);
+    } catch (err: any) {
+      console.error(err);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
 
 
 
@@ -1120,7 +1192,7 @@ export function VaultProvider({ children }: { children: React.ReactNode }) {
       mnemonic, setMnemonic, confirmMnemonic, setConfirmMnemonic, driveFileId, vaultIndex, setVaultIndex,
       instrumentsOpen, setInstrumentsOpen, openCategories, setOpenCategories, searchTerm, setSearchTerm,
       passVisible, setPassVisible, passError, setPassError, copySuccess, setCopySuccess,
-      checkExistingVault, handleUnlock, handleCreatePassphrase, handleVerifyMnemonic, handleAddRecord,
+      checkExistingVault, handleUnlock, handleCreatePassphrase, handleVerifyMnemonic, handleAddRecord, handleUpdateRecord,
       handleDeleteRecord, handleVerifyIntegrity, handleExportVault, handleLogout, getCategoryCount,
       nomineeDetails, setNomineeDetails, nomineeFileId, setNomineeFileId, loadingNominee, setLoadingNominee,
       handleSaveNominee, handleDeleteNominee, fetchNomineeDetails, getCategoryLastUpdated, lastLogin,

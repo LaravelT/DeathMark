@@ -20,7 +20,7 @@ export default function CategoryView({ categoryId }: CategoryViewProps) {
 
   const {
     isDemo, vaultIndex, searchTerm,
-    handleAddRecord, handleDeleteRecord, getCategoryLastUpdated, readOnly
+    handleAddRecord, handleUpdateRecord, handleDeleteRecord, getCategoryLastUpdated, readOnly
   } = useVault();
 
   // Local Component States
@@ -29,11 +29,16 @@ export default function CategoryView({ categoryId }: CategoryViewProps) {
   const currentInfo = INSTRUMENT_TYPES.find(i => i.id === categoryId);
   const rawLastUpdated = getCategoryLastUpdated(categoryId);
   const lastUpdatedStr = rawLastUpdated ? formatDateTime(rawLastUpdated) : "";
+  const selectedEntry = vaultIndex.files.find(f => f.id === selectedId);
 
-  // Clear local form states when switching categories
+  // Clear local form states when switching categories or prefill on edit
   useEffect(() => {
-    setFormData({});
-  }, [categoryId]);
+    if (action === "edit" && selectedEntry) {
+      setFormData(selectedEntry.details || {});
+    } else {
+      setFormData({});
+    }
+  }, [categoryId, action, selectedEntry]);
 
   if (!currentInfo) {
     return (
@@ -52,8 +57,6 @@ export default function CategoryView({ categoryId }: CategoryViewProps) {
     const matchesDetails = Object.values(f.details || {}).some(v => v.toLowerCase().includes(term));
     return matchesName || matchesDetails;
   });
-
-  const selectedEntry = vaultIndex.files.find(f => f.id === selectedId);
 
   // Form Field Update Helper
   const updateFormField = (key: string, value: string) => {
@@ -106,7 +109,11 @@ export default function CategoryView({ categoryId }: CategoryViewProps) {
     }
 
     try {
-      await handleAddRecord(categoryId, formData);
+      if (action === "edit" && selectedEntry) {
+        await handleUpdateRecord(selectedEntry.id, categoryId, formData);
+      } else {
+        await handleAddRecord(categoryId, formData);
+      }
       router.push(isDemo ? `/vault/${categoryId}?demo=true` : `/vault/${categoryId}`);
     } catch (err: any) {
       alert("Failed to save entry: " + err.message);
@@ -122,7 +129,7 @@ export default function CategoryView({ categoryId }: CategoryViewProps) {
   };
 
   // 1. VIEW MODE: SHOW RECORD DETAILS
-  if (selectedEntry) {
+  if (selectedEntry && action !== "edit") {
     return (
       <div className="panel-card">
         <div className="flex-between" style={{ borderBottom: "1px solid var(--card-border)", paddingBottom: "16px", marginBottom: "24px" }}>
@@ -169,15 +176,15 @@ export default function CategoryView({ categoryId }: CategoryViewProps) {
     );
   }
 
-  // 2. FORM MODE: ADD NEW RECORD
-  if (action === "add") {
+  // 2. FORM MODE: ADD OR EDIT RECORD
+  if (action === "add" || (action === "edit" && selectedEntry)) {
     return (
       <div className="panel-card">
         <div className="flex-between" style={{ borderBottom: "1px solid var(--card-border)", paddingBottom: "16px", marginBottom: "24px" }}>
           <div>
-            <h2 className="page-title">Add {currentInfo.label}</h2>
+            <h2 className="page-title">{action === "edit" ? "Edit" : "Add"} {currentInfo.label}</h2>
             <span style={{ fontSize: "13px", color: "var(--muted)", display: "block" }}>
-              Home / {currentInfo.label} / Add record
+              Home / {currentInfo.label} / {action === "edit" ? "Edit" : "Add"} record
             </span>
             {lastUpdatedStr && (
               <span style={{ fontSize: "12px", color: "var(--primary)", display: "block", marginTop: "6px", fontWeight: "600" }}>
@@ -250,6 +257,7 @@ export default function CategoryView({ categoryId }: CategoryViewProps) {
             categoryId={categoryId} 
             entries={searchedFiles} 
             onView={(entry) => router.push(isDemo ? `/vault/${categoryId}?id=${entry.id}&demo=true` : `/vault/${categoryId}?id=${entry.id}`)} 
+            onEdit={(entry) => router.push(isDemo ? `/vault/${categoryId}?action=edit&id=${entry.id}&demo=true` : `/vault/${categoryId}?action=edit&id=${entry.id}`)} 
             onDelete={onDelete} 
           />
           <div style={{ marginTop: "16px", fontSize: "13px", color: "var(--muted)" }}>

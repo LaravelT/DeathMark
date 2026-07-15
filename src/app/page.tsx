@@ -403,7 +403,7 @@ export default function Home() {
                 </p>
                 <div style={{ fontSize: "14.5px", lineHeight: "1.8", color: "var(--muted)" }}>
                   <div style={{ marginBottom: "8px" }}>
-                    <strong>Email:</strong> <a href="mailto:info@solutionplanets.com" style={{ color: "#b28e46", textDecoration: "none", fontWeight: "600" }}>info@solutionplanets.com</a>
+                    <strong>Email:</strong> <a href="mailto:admin@legacybridge.in" style={{ color: "#b28e46", textDecoration: "none", fontWeight: "600" }}>admin@legacybridge.in</a>
                   </div>
                   <div style={{ display: "flex", flexDirection: "column", marginTop: "12px" }}>
                     <strong>Solution Planets</strong>
@@ -458,7 +458,7 @@ export default function Home() {
             <Link href="#top" className="brand footer-brand">
               <img src="/assets/legacybridge-logo.png" alt="LegacyBridge" style={{ height: "100px", width: "auto", objectFit: "contain", opacity: 0.96, filter: "none" }} />
             </Link>
-            <p>A product of Solution Planets.</p>
+            <p>A product of <a href="https://www.solutionplanets.com/" target="_blank" rel="noopener noreferrer" style={{ color: "inherit", textDecoration: "underline" }}>Solution Planets</a></p>
           </div>
           <div className="footer-links">
             <Link href="#drive">Google Drive Storage</Link>

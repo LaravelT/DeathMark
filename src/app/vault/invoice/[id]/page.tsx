@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Printer, ArrowLeft } from "lucide-react";
+import { Printer, ArrowLeft, Download } from "lucide-react";
 
 function numberToWordsINR(num: number): string {
   const a = [
@@ -102,6 +102,42 @@ export default function InvoicePage() {
     window.print();
   };
 
+  const handleDownloadPDF = () => {
+    const runHtml2Pdf = () => {
+      const element = document.querySelector(".invoice-card");
+      if (!element) return;
+      
+      const clone = element.cloneNode(true) as HTMLElement;
+      clone.style.boxShadow = "none";
+      clone.style.padding = "20px";
+      clone.style.maxWidth = "100%";
+
+      // @ts-ignore
+      window.html2pdf()
+        .set({
+          margin: 15,
+          filename: `Invoice_${payment.invoiceNumber.replace(/\//g, "-")}.pdf`,
+          image: { type: "jpeg", quality: 0.98 },
+          html2canvas: { scale: 2, logging: false, useCORS: true },
+          jsPDF: { unit: "mm", format: "a4", orientation: "portrait" }
+        })
+        .from(clone)
+        .save();
+    };
+
+    // @ts-ignore
+    if (window.html2pdf) {
+      runHtml2Pdf();
+    } else {
+      const script = document.createElement("script");
+      script.src = "https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js";
+      script.onload = () => {
+        runHtml2Pdf();
+      };
+      document.head.appendChild(script);
+    }
+  };
+
   const formattedDate = new Date(payment.createdAt).toLocaleDateString("en-GB", {
     day: "numeric",
     month: "short",
@@ -133,12 +169,20 @@ export default function InvoicePage() {
         >
           <ArrowLeft size={16} /> Back to Dashboard
         </button>
-        <button 
-          onClick={handlePrint}
-          style={{ display: "flex", alignItems: "center", gap: "8px", padding: "10px 20px", backgroundColor: "#b28e46", color: "#fff", border: "none", borderRadius: "8px", cursor: "pointer", fontWeight: "700", fontSize: "14px", boxShadow: "0 4px 12px rgba(178, 142, 70, 0.2)" }}
-        >
-          <Printer size={16} /> Print / Download PDF
-        </button>
+        <div style={{ display: "flex", gap: "10px" }}>
+          <button 
+            onClick={handlePrint}
+            style={{ display: "flex", alignItems: "center", gap: "8px", padding: "10px 20px", backgroundColor: "#ffffff", color: "#b28e46", border: "1px solid #b28e46", borderRadius: "8px", cursor: "pointer", fontWeight: "700", fontSize: "14px" }}
+          >
+            <Printer size={16} /> Print Invoice
+          </button>
+          <button 
+            onClick={handleDownloadPDF}
+            style={{ display: "flex", alignItems: "center", gap: "8px", padding: "10px 20px", backgroundColor: "#b28e46", color: "#fff", border: "none", borderRadius: "8px", cursor: "pointer", fontWeight: "700", fontSize: "14px", boxShadow: "0 4px 12px rgba(178, 142, 70, 0.2)" }}
+          >
+            <Download size={16} /> Download PDF
+          </button>
+        </div>
       </div>
 
       {/* Invoice Card */}

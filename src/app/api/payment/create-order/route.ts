@@ -47,6 +47,9 @@ export async function POST(req: Request) {
       amount: total * 100, // in paisa
       currency: "INR",
       receipt: `rcpt_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+      notes: {
+        Source: "legacybridge"
+      }
     };
 
     const order = await razorpay.orders.create(orderOptions);

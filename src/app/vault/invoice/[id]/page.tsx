@@ -236,7 +236,7 @@ export default function InvoicePage() {
               Mumbai - 400080, Maharashtra, India.<br />
               <strong>GSTIN:</strong> 27ABOFS3036K1ZR<br />
               <strong>Email:</strong> info@solutionplanets.com<br />
-              <strong>Mobile:</strong> +91-9082151500
+              <strong>Mobile:</strong> +91-8104664284
             </div>
           </div>
           <div style={{ textAlign: "right" }}>
@@ -350,6 +350,7 @@ export default function InvoicePage() {
 
         {/* Footer Notes */}
         <div style={{ marginTop: "30px", textAlign: "center", fontSize: "10.5px" }}>
+          <div style={{ fontWeight: "750", marginBottom: "4px", textTransform: "uppercase" }}>SUBJECT TO MUMBAI JURISDICTION</div>
           <div style={{ color: "#555" }}>This is a system generated invoice.</div>
         </div>
       </div>

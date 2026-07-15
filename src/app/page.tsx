@@ -356,7 +356,7 @@ export default function Home() {
               <article className="price-card featured reveal delay-1">
                 <div className="price-badge">Recommended</div>
                 <h3 style={{ color: "#fff" }}>Annual Access</h3>
-                <p className="price" style={{ color: "#fff" }}>₹999 <span>/ year</span></p>
+                <p className="price" style={{ color: "#fff" }}>₹1,000 <span style={{ fontSize: "14px", opacity: 0.8 }}>+ 18% GST / year</span></p>
                 <ul>
                   <li>Full vault access</li>
                   <li>Unlimited entries</li>
@@ -369,7 +369,7 @@ export default function Home() {
               <article className="price-card reveal delay-2">
                 <div className="price-badge">One-Time</div>
                 <h3>Lifetime Access</h3>
-                <p className="price">₹4,999 <span>/ one-time</span></p>
+                <p className="price">₹5,000 <span style={{ fontSize: "14px", opacity: 0.8 }}>+ 18% GST / one-time</span></p>
                 <ul>
                   <li>Lifetime vault access</li>
                   <li>No annual renewal worry</li>

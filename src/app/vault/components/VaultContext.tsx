@@ -141,6 +141,7 @@ interface VaultContextType {
   readOnly: boolean;
   setReadOnly: React.Dispatch<React.SetStateAction<boolean>>;
   activatePlan: (planType: string) => Promise<boolean>;
+  hasUsedTrial: boolean;
   
   // UI & Search State
   instrumentsOpen: boolean;
@@ -265,6 +266,7 @@ export function VaultProvider({ children }: { children: React.ReactNode }) {
   const [planActivatedAt, setPlanActivatedAt] = useState<string | null>(null);
   const [planExpiresAt, setPlanExpiresAt] = useState<string | null>(null);
   const [readOnly, setReadOnly] = useState(false);
+  const [hasUsedTrial, setHasUsedTrial] = useState(false);
 
   // UI state
   const [instrumentsOpen, setInstrumentsOpen] = useState(true);
@@ -486,6 +488,7 @@ export function VaultProvider({ children }: { children: React.ReactNode }) {
         setPlan(data.plan || null);
         setPlanActivatedAt(data.planActivatedAt || null);
         setPlanExpiresAt(data.planExpiresAt || null);
+        setHasUsedTrial(!!data.hasUsedTrial);
         if (data.isExpired) {
           setReadOnly(true);
         }
@@ -1091,6 +1094,7 @@ export function VaultProvider({ children }: { children: React.ReactNode }) {
         setPlan(data.plan);
         setPlanActivatedAt(data.planActivatedAt);
         setPlanExpiresAt(data.planExpiresAt);
+        setHasUsedTrial(!!data.hasUsedTrial);
         setIsExpired(false);
         setReadOnly(false);
         return true;
@@ -1122,7 +1126,7 @@ export function VaultProvider({ children }: { children: React.ReactNode }) {
       ownerDetails, setOwnerDetails, fetchOwnerDetails,
       isExpired, setIsExpired, createdAt,
       needsPasswordUpdate, setNeedsPasswordUpdate, handleSaveOwnerDetails, handleUpdateWeakPassphrase,
-      plan, setPlan, planActivatedAt, planExpiresAt, readOnly, setReadOnly, activatePlan
+      plan, setPlan, planActivatedAt, planExpiresAt, readOnly, setReadOnly, activatePlan, hasUsedTrial
     }}>
       {children}
     </VaultContext.Provider>

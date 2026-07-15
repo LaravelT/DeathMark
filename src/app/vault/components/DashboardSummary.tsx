@@ -2,7 +2,7 @@
 
 import React from "react";
 import { useRouter } from "next/navigation";
-import { Coins, ShieldAlert, Building2, UserCheck } from "lucide-react";
+import { Coins, ShieldAlert, Building2, UserCheck, Download } from "lucide-react";
 import { useVault, INSTRUMENT_TYPES, formatDateTime } from "./VaultContext";
 
 export default function DashboardSummary() {
@@ -11,6 +11,36 @@ export default function DashboardSummary() {
 
   const [showSuccessBanner, setShowSuccessBanner] = React.useState(false);
   const [showRechargeModal, setShowRechargeModal] = React.useState(false);
+  const [paymentHistory, setPaymentHistory] = React.useState<any[]>([]);
+
+  React.useEffect(() => {
+    if (isDemo) {
+      setPaymentHistory([
+        {
+          orderId: "order_demo_1",
+          invoiceNumber: "SP/LB/26-27/0001",
+          createdAt: new Date().toISOString(),
+          plan: "annual",
+          totalAmount: 1180,
+          status: "completed",
+        }
+      ]);
+      return;
+    }
+
+    const fetchHistory = async () => {
+      try {
+        const res = await fetch("/api/payment/history");
+        if (res.ok) {
+          const data = await res.json();
+          setPaymentHistory(data);
+        }
+      } catch (err) {
+        console.error("Failed to load payment history:", err);
+      }
+    };
+    fetchHistory();
+  }, [isDemo]);
 
   React.useEffect(() => {
     if (typeof window !== "undefined") {
@@ -305,6 +335,73 @@ export default function DashboardSummary() {
           );
         })}
       </div>
+
+      {/* Billing & Invoices History */}
+      {paymentHistory.length > 0 && (
+        <div style={{ marginTop: "40px" }}>
+          <h2 style={{ fontSize: "19px", fontWeight: "750", color: "#1a150e", margin: "24px 0 16px 0" }}>Billing & Invoices</h2>
+          <div 
+            className="panel-card" 
+            style={{ 
+              padding: "24px", 
+              background: "#ffffff", 
+              border: "1px solid rgba(217, 184, 133, 0.25)", 
+              borderRadius: "16px",
+              boxShadow: "0 10px 30px rgba(139, 92, 26, 0.03)",
+              overflowX: "auto"
+            }}
+          >
+            <table style={{ width: "100%", borderCollapse: "collapse", minWidth: "600px", textAlign: "left" }}>
+              <thead>
+                <tr style={{ borderBottom: "1px solid #e5e7eb" }}>
+                  <th style={{ padding: "12px 16px", fontSize: "12px", fontWeight: "700", textTransform: "uppercase", color: "var(--muted)" }}>Date</th>
+                  <th style={{ padding: "12px 16px", fontSize: "12px", fontWeight: "700", textTransform: "uppercase", color: "var(--muted)" }}>Plan</th>
+                  <th style={{ padding: "12px 16px", fontSize: "12px", fontWeight: "700", textTransform: "uppercase", color: "var(--muted)" }}>Invoice Number</th>
+                  <th style={{ padding: "12px 16px", fontSize: "12px", fontWeight: "700", textTransform: "uppercase", color: "var(--muted)" }}>Amount</th>
+                  <th style={{ padding: "12px 16px", fontSize: "12px", fontWeight: "700", textTransform: "uppercase", color: "var(--muted)", textAlign: "right" }}>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {paymentHistory.map((p) => {
+                  const pDate = new Date(p.createdAt).toLocaleDateString("en-IN", {
+                    day: "numeric",
+                    month: "short",
+                    year: "numeric"
+                  });
+                  return (
+                    <tr key={p.orderId} style={{ borderBottom: "1px solid #f3f4f6" }}>
+                      <td style={{ padding: "16px", fontSize: "14px", color: "#6b5a45" }}>{pDate}</td>
+                      <td style={{ padding: "16px", fontSize: "14px", color: "#1a150e", fontWeight: "600", textTransform: "capitalize" }}>{p.plan} Access</td>
+                      <td style={{ padding: "16px", fontSize: "14px", color: "#1a150e" }}>{p.invoiceNumber}</td>
+                      <td style={{ padding: "16px", fontSize: "14px", color: "#1a150e", fontWeight: "600" }}>₹{p.totalAmount}</td>
+                      <td style={{ padding: "16px", textAlign: "right" }}>
+                        <button
+                          onClick={() => router.push(isDemo ? `/vault/invoice/${p.orderId}?demo=true` : `/vault/invoice/${p.orderId}`)}
+                          style={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: "6px",
+                            padding: "8px 12px",
+                            backgroundColor: "#fbf5e6",
+                            color: "#b28e46",
+                            border: "none",
+                            borderRadius: "6px",
+                            cursor: "pointer",
+                            fontSize: "12px",
+                            fontWeight: "700"
+                          }}
+                        >
+                          <Download size={14} /> Download Invoice
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

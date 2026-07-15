@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { KeyRound, ShieldAlert, FileText, CheckCircle, XCircle, ArrowLeft, RefreshCw, Eye, UserCheck, Settings, LogOut, Trash2 } from "lucide-react";
+import { KeyRound, ShieldAlert, FileText, CheckCircle, XCircle, ArrowLeft, RefreshCw, Eye, UserCheck, Settings, LogOut, Trash2, Coins, Download } from "lucide-react";
 import Link from "next/link";
 
 const formatAdminDate = (isoString?: string): string => {
@@ -34,6 +34,11 @@ export default function AdminPage() {
   const [emailLoading, setEmailLoading] = useState<string | null>(null);
   const [emailSentId, setEmailSentId] = useState<string | null>(null);
   const [deleteLoading, setDeleteLoading] = useState<string | null>(null);
+
+  // Tab State & Payments history
+  const [activeTab, setActiveTab] = useState<"claims" | "payments">("claims");
+  const [payments, setPayments] = useState<any[]>([]);
+  const [paymentsLoading, setPaymentsLoading] = useState(false);
 
   // Authentication State
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -80,9 +85,29 @@ export default function AdminPage() {
     }
   };
 
+  const fetchPayments = async () => {
+    setPaymentsLoading(true);
+    try {
+      const res = await fetch("/api/admin/payments");
+      if (!res.ok) throw new Error("Failed to load payments.");
+      const data = await res.json();
+      setPayments(data.payments || []);
+    } catch (err: any) {
+      console.error(err);
+    } finally {
+      setPaymentsLoading(false);
+    }
+  };
+
+  const refreshAll = () => {
+    fetchClaims();
+    fetchPayments();
+  };
+
   useEffect(() => {
     if (isAuthenticated) {
       fetchClaims();
+      fetchPayments();
     }
   }, [isAuthenticated]);
 
@@ -243,22 +268,52 @@ export default function AdminPage() {
 
           {/* Navigation Menu */}
           <nav style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-            <div style={{ 
-              display: "flex", 
-              alignItems: "center", 
-              gap: "10px", 
-              padding: "10px 14px", 
-              borderRadius: "8px", 
-              backgroundColor: "rgba(178, 142, 70, 0.08)", 
-              color: "var(--primary)",
-              fontWeight: "700",
-              fontSize: "14px"
-            }}>
+            <button 
+              onClick={() => setActiveTab("claims")}
+              style={{ 
+                display: "flex", 
+                alignItems: "center", 
+                gap: "10px", 
+                padding: "10px 14px", 
+                borderRadius: "8px", 
+                backgroundColor: activeTab === "claims" ? "rgba(178, 142, 70, 0.08)" : "transparent", 
+                color: activeTab === "claims" ? "var(--primary)" : "#6b5a45",
+                fontWeight: activeTab === "claims" ? "700" : "600",
+                fontSize: "14px",
+                border: "none",
+                cursor: "pointer",
+                textAlign: "left",
+                width: "100%"
+              }}
+            >
               <UserCheck size={18} />
               <span>Claims Manager</span>
-            </div>
+            </button>
+
             <button 
-              onClick={fetchClaims}
+              onClick={() => setActiveTab("payments")}
+              style={{ 
+                display: "flex", 
+                alignItems: "center", 
+                gap: "10px", 
+                padding: "10px 14px", 
+                borderRadius: "8px", 
+                backgroundColor: activeTab === "payments" ? "rgba(178, 142, 70, 0.08)" : "transparent", 
+                color: activeTab === "payments" ? "var(--primary)" : "#6b5a45",
+                fontWeight: activeTab === "payments" ? "700" : "600",
+                fontSize: "14px",
+                border: "none",
+                cursor: "pointer",
+                textAlign: "left",
+                width: "100%"
+              }}
+            >
+              <Coins size={18} />
+              <span>Payments & Invoices</span>
+            </button>
+
+            <button 
+              onClick={refreshAll}
               style={{ 
                 display: "flex", 
                 alignItems: "center", 
@@ -276,7 +331,7 @@ export default function AdminPage() {
               }}
               className="sidebar-btn-hover"
             >
-              <RefreshCw size={18} className={loading ? "spin" : ""} />
+              <RefreshCw size={18} className={loading || paymentsLoading ? "spin" : ""} />
               <span>Refresh Records</span>
             </button>
           </nav>
@@ -325,207 +380,304 @@ export default function AdminPage() {
       <main style={{ flex: 1, padding: "40px", display: "flex", flexDirection: "column", gap: "24px", overflowY: "auto" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <div>
-            <h1 className="page-title" style={{ fontSize: "28px", margin: 0, fontFamily: "'Playfair Display', Georgia, serif" }}>Beneficiary Claims Manager</h1>
-            <span style={{ fontSize: "14px", color: "#6b5a45" }}>Verify relative claims and documents from the claims database.</span>
+            <h1 className="page-title" style={{ fontSize: "28px", margin: 0, fontFamily: "'Playfair Display', Georgia, serif" }}>
+              {activeTab === "claims" ? "Beneficiary Claims Manager" : "Payments & Invoices History"}
+            </h1>
+            <span style={{ fontSize: "14px", color: "#6b5a45" }}>
+              {activeTab === "claims" 
+                ? "Verify relative claims and documents from the claims database." 
+                : "View payments history, user billing details, and download invoices."
+              }
+            </span>
           </div>
         </div>
 
-        <div className="panel-card" style={{ padding: "30px", backgroundColor: "#ffffff" }}>
-          {error && (
-            <div style={{ display: "flex", gap: "10px", alignItems: "center", padding: "14px", backgroundColor: "#fef2f2", border: "1px solid rgba(239,68,68,0.2)", borderRadius: "8px", color: "#b91c1c", fontSize: "14px", marginBottom: "24px" }}>
-              <ShieldAlert size={18} />
-              <span>Error loading claims: {error}</span>
-            </div>
-          )}
+        {activeTab === "claims" ? (
+          <div className="panel-card" style={{ padding: "30px", backgroundColor: "#ffffff" }}>
+            {error && (
+              <div style={{ display: "flex", gap: "10px", alignItems: "center", padding: "14px", backgroundColor: "#fef2f2", border: "1px solid rgba(239,68,68,0.2)", borderRadius: "8px", color: "#b91c1c", fontSize: "14px", marginBottom: "24px" }}>
+                <ShieldAlert size={18} />
+                <span>Error loading claims: {error}</span>
+              </div>
+            )}
 
-          {loading ? (
-            <div style={{ textAlign: "center", padding: "80px", color: "var(--muted)" }}>
-              Loading submitted claims...
-            </div>
-          ) : claims.length === 0 ? (
-            <div style={{ textAlign: "center", padding: "80px 40px", border: "1px dashed rgba(217, 184, 133, 0.3)", borderRadius: "10px", backgroundColor: "#faf7f0" }}>
-              <FileText size={40} style={{ color: "var(--muted)", marginBottom: "12px" }} />
-              <p style={{ color: "var(--muted)", margin: 0 }}>No claims submitted yet.</p>
-            </div>
-          ) : (
-            <div style={{ overflowX: "auto" }}>
-              <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left", fontSize: "14px" }}>
-                <thead>
-                  <tr style={{ borderBottom: "2px solid var(--card-border)", color: "#6b5a45", fontWeight: "600", backgroundColor: "#faf7f0" }}>
-                    <th style={{ padding: "12px" }}>Submitted Date</th>
-                    <th style={{ padding: "12px" }}>Relative (Claimant)</th>
-                    <th style={{ padding: "12px" }}>Owner Email</th>
-                    <th style={{ padding: "12px" }}>Reason</th>
-                    <th style={{ padding: "12px" }}>Document</th>
-                    <th style={{ padding: "12px" }}>Status</th>
-                    <th style={{ padding: "12px" }}>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {claims.map((claim) => (
-                    <tr key={claim._id} style={{ borderBottom: "1px solid var(--card-border)", transition: "background 0.2s" }} className="table-row-hover">
-                      <td style={{ padding: "16px 12px", color: "#1a150e", fontWeight: "600" }}>
-                        {formatAdminDate(claim.submittedAt)}
-                      </td>
-                      <td style={{ padding: "16px 12px" }}>
-                        <div style={{ color: "#1a150e", fontWeight: "700" }}>{claim.claimantName}</div>
-                        <div style={{ fontSize: "12px", color: "#8c7a6b" }}>{claim.claimantGmail}</div>
-                      </td>
-                      <td style={{ padding: "16px 12px", color: "#5c4d3c", fontWeight: "600" }}>
-                        {claim.ownerEmail}
-                      </td>
-                      <td style={{ padding: "16px 12px", color: "#6b5a45", maxWidth: "250px", wordBreak: "break-word" }}>
-                        {claim.reason}
-                      </td>
-                      <td style={{ padding: "16px 12px" }}>
-                        {claim.document ? (
-                          <button 
-                            onClick={() => setSelectedDoc(claim.document)} 
-                            className="btn-outline" 
-                            style={{ 
-                              display: "flex", 
-                              alignItems: "center", 
-                              gap: "4px", 
-                              fontSize: "12px", 
-                              padding: "4px 8px", 
-                              color: "var(--primary)", 
-                              borderColor: "rgba(217, 184, 133, 0.4)" 
-                            }}
-                          >
-                            <Eye size={12} />
-                            <span>View</span>
-                          </button>
-                        ) : (
-                          <span style={{ color: "var(--muted)" }}>No Doc</span>
-                        )}
-                      </td>
-                      <td style={{ padding: "16px 12px" }}>
-                        <span style={{
-                          fontSize: "12px",
-                          fontWeight: "600",
-                          padding: "3px 8px",
-                          borderRadius: "10px",
-                          backgroundColor: claim.status === "Approved" ? "rgba(16,185,129,0.15)" : claim.status === "Rejected" ? "rgba(239,68,68,0.15)" : "rgba(245,158,11,0.15)",
-                          color: claim.status === "Approved" ? "#10b981" : claim.status === "Rejected" ? "#b91c1c" : "#b28e46",
-                          whiteSpace: "nowrap"
-                        }}>
-                          {claim.status}
-                        </span>
-                      </td>
-                      <td style={{ padding: "16px 12px" }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: "12px", justifyContent: "space-between" }}>
-                          <div>
-                            {claim.status === "Pending Review" ? (
-                              <div style={{ display: "flex", gap: "8px" }}>
-                                <button 
-                                  onClick={() => handleAction(claim._id, "Approved")} 
-                                  disabled={actionLoading === claim._id}
-                                  style={{ 
-                                    display: "flex", 
-                                    alignItems: "center", 
-                                    gap: "4px", 
-                                    backgroundColor: "#10b981", 
-                                    color: "#fff", 
-                                    border: "none", 
-                                    padding: "6px 10px", 
-                                    borderRadius: "6px", 
-                                    cursor: "pointer", 
-                                    fontSize: "12px",
-                                    fontWeight: "600"
-                                  }}
-                                >
-                                  <CheckCircle size={14} />
-                                  <span>Approve</span>
-                                </button>
-                                <button 
-                                  onClick={() => handleAction(claim._id, "Rejected")} 
-                                  disabled={actionLoading === claim._id}
-                                  style={{ 
-                                    display: "flex", 
-                                    alignItems: "center", 
-                                    gap: "4px", 
-                                    backgroundColor: "#b91c1c", 
-                                    color: "#fff", 
-                                    border: "none", 
-                                    padding: "6px 10px", 
-                                    borderRadius: "6px", 
-                                    cursor: "pointer", 
-                                    fontSize: "12px",
-                                    fontWeight: "600"
-                                  }}
-                                >
-                                  <XCircle size={14} />
-                                  <span>Reject</span>
-                                </button>
-                              </div>
-                            ) : claim.status === "Approved" ? (
-                              (claim.copyCount || 0) >= 1 ? (
-                                <span style={{ color: "#10b981", fontWeight: "600", fontSize: "12px", whiteSpace: "nowrap" }}>
-                                  Email Sent Successfully
-                                </span>
-                              ) : (
-                                <button
-                                  onClick={() => handleSendEmail(claim)}
-                                  disabled={emailLoading === claim._id}
-                                  className="btn-outline"
-                                  style={{
-                                    display: "inline-flex",
-                                    alignItems: "center",
-                                    gap: "6px",
-                                    fontSize: "12px",
-                                    padding: "6px 12px",
-                                    color: emailSentId === claim._id ? "#10b981" : "var(--primary)",
-                                    borderColor: emailSentId === claim._id ? "#10b981" : "rgba(217,184,133,0.4)",
-                                    backgroundColor: emailSentId === claim._id ? "rgba(16,185,129,0.05)" : "rgba(178,142,70,0.05)",
-                                    borderRadius: "6px",
-                                    cursor: "pointer"
-                                  }}
-                                >
-                                  <span>
-                                    {emailLoading === claim._id 
-                                      ? "Sending..." 
-                                      : emailSentId === claim._id 
-                                        ? "Email Sent!" 
-                                        : "Send Email"
-                                    }
-                                  </span>
-                                </button>
-                              )
-                            ) : (
-                              <span style={{ color: "var(--muted)", fontSize: "12px" }}>Rejected</span>
-                            )}
-                          </div>
-                          
-                          <button
-                            onClick={() => handleDeleteClaim(claim._id)}
-                            disabled={deleteLoading === claim._id}
-                            style={{
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              backgroundColor: "transparent",
-                              border: "1px solid rgba(239, 68, 68, 0.25)",
-                              color: "#b91c1c",
-                              padding: "6px",
-                              borderRadius: "6px",
-                              cursor: "pointer",
-                              transition: "all 0.2s"
-                            }}
-                            onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(239, 68, 68, 0.08)"; }}
-                            onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "transparent"; }}
-                            title="Delete claim record"
-                          >
-                            <Trash2 size={14} />
-                          </button>
-                        </div>
-                      </td>
+            {loading ? (
+              <div style={{ textAlign: "center", padding: "80px", color: "var(--muted)" }}>
+                Loading submitted claims...
+              </div>
+            ) : claims.length === 0 ? (
+              <div style={{ textAlign: "center", padding: "80px 40px", border: "1px dashed rgba(217, 184, 133, 0.3)", borderRadius: "10px", backgroundColor: "#faf7f0" }}>
+                <FileText size={40} style={{ color: "var(--muted)", marginBottom: "12px" }} />
+                <p style={{ color: "var(--muted)", margin: 0 }}>No claims submitted yet.</p>
+              </div>
+            ) : (
+              <div style={{ overflowX: "auto" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left", fontSize: "14px" }}>
+                  <thead>
+                    <tr style={{ borderBottom: "2px solid var(--card-border)", color: "#6b5a45", fontWeight: "600", backgroundColor: "#faf7f0" }}>
+                      <th style={{ padding: "12px" }}>Submitted Date</th>
+                      <th style={{ padding: "12px" }}>Relative (Claimant)</th>
+                      <th style={{ padding: "12px" }}>Owner Email</th>
+                      <th style={{ padding: "12px" }}>Reason</th>
+                      <th style={{ padding: "12px" }}>Document</th>
+                      <th style={{ padding: "12px" }}>Status</th>
+                      <th style={{ padding: "12px" }}>Actions</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
+                  </thead>
+                  <tbody>
+                    {claims.map((claim) => (
+                      <tr key={claim._id} style={{ borderBottom: "1px solid var(--card-border)", transition: "background 0.2s" }} className="table-row-hover">
+                        <td style={{ padding: "16px 12px", color: "#1a150e", fontWeight: "600" }}>
+                          {formatAdminDate(claim.submittedAt)}
+                        </td>
+                        <td style={{ padding: "16px 12px" }}>
+                          <div style={{ color: "#1a150e", fontWeight: "700" }}>{claim.claimantName}</div>
+                          <div style={{ fontSize: "12px", color: "#8c7a6b" }}>{claim.claimantGmail}</div>
+                        </td>
+                        <td style={{ padding: "16px 12px", color: "#5c4d3c", fontWeight: "600" }}>
+                          {claim.ownerEmail}
+                        </td>
+                        <td style={{ padding: "16px 12px", color: "#6b5a45", maxWidth: "250px", wordBreak: "break-word" }}>
+                          {claim.reason}
+                        </td>
+                        <td style={{ padding: "16px 12px" }}>
+                          {claim.document ? (
+                            <button 
+                              onClick={() => setSelectedDoc(claim.document)} 
+                              className="btn-outline" 
+                              style={{ 
+                                display: "flex", 
+                                alignItems: "center", 
+                                gap: "4px", 
+                                fontSize: "12px", 
+                                padding: "4px 8px", 
+                                color: "var(--primary)", 
+                                borderColor: "rgba(217, 184, 133, 0.4)" 
+                              }}
+                            >
+                              <Eye size={12} />
+                              <span>View</span>
+                            </button>
+                          ) : (
+                            <span style={{ color: "var(--muted)" }}>No Doc</span>
+                          )}
+                        </td>
+                        <td style={{ padding: "16px 12px" }}>
+                          <span style={{
+                            fontSize: "12px",
+                            fontWeight: "600",
+                            padding: "3px 8px",
+                            borderRadius: "10px",
+                            backgroundColor: claim.status === "Approved" ? "rgba(16,185,129,0.15)" : claim.status === "Rejected" ? "rgba(239,68,68,0.15)" : "rgba(245,158,11,0.15)",
+                            color: claim.status === "Approved" ? "#10b981" : claim.status === "Rejected" ? "#b91c1c" : "#b28e46",
+                            whiteSpace: "nowrap"
+                          }}>
+                            {claim.status}
+                          </span>
+                        </td>
+                        <td style={{ padding: "16px 12px" }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: "12px", justifyContent: "space-between" }}>
+                            <div>
+                              {claim.status === "Pending Review" ? (
+                                <div style={{ display: "flex", gap: "8px" }}>
+                                  <button 
+                                    onClick={() => handleAction(claim._id, "Approved")} 
+                                    disabled={actionLoading === claim._id}
+                                    style={{ 
+                                      display: "flex", 
+                                      alignItems: "center", 
+                                      gap: "4px", 
+                                      backgroundColor: "#10b981", 
+                                      color: "#fff", 
+                                      border: "none", 
+                                      padding: "6px 10px", 
+                                      borderRadius: "6px", 
+                                      cursor: "pointer", 
+                                      fontSize: "12px",
+                                      fontWeight: "600"
+                                    }}
+                                  >
+                                    <CheckCircle size={14} />
+                                    <span>Approve</span>
+                                  </button>
+                                  <button 
+                                    onClick={() => handleAction(claim._id, "Rejected")} 
+                                    disabled={actionLoading === claim._id}
+                                    style={{ 
+                                      display: "flex", 
+                                      alignItems: "center", 
+                                      gap: "4px", 
+                                      backgroundColor: "#b91c1c", 
+                                      color: "#fff", 
+                                      border: "none", 
+                                      padding: "6px 10px", 
+                                      borderRadius: "6px", 
+                                      cursor: "pointer", 
+                                      fontSize: "12px",
+                                      fontWeight: "600"
+                                    }}
+                                  >
+                                    <XCircle size={14} />
+                                    <span>Reject</span>
+                                  </button>
+                                </div>
+                              ) : claim.status === "Approved" ? (
+                                (claim.copyCount || 0) >= 1 ? (
+                                  <span style={{ color: "#10b981", fontWeight: "600", fontSize: "12px", whiteSpace: "nowrap" }}>
+                                    Email Sent Successfully
+                                  </span>
+                                ) : (
+                                  <button
+                                    onClick={() => handleSendEmail(claim)}
+                                    disabled={emailLoading === claim._id}
+                                    className="btn-outline"
+                                    style={{
+                                      display: "inline-flex",
+                                      alignItems: "center",
+                                      gap: "6px",
+                                      fontSize: "12px",
+                                      padding: "6px 12px",
+                                      color: emailSentId === claim._id ? "#10b981" : "var(--primary)",
+                                      borderColor: emailSentId === claim._id ? "#10b981" : "rgba(217,184,133,0.4)",
+                                      backgroundColor: emailSentId === claim._id ? "rgba(16,185,129,0.05)" : "rgba(178,142,70,0.05)",
+                                      borderRadius: "6px",
+                                      cursor: "pointer"
+                                    }}
+                                  >
+                                    <span>
+                                      {emailLoading === claim._id 
+                                        ? "Sending..." 
+                                        : emailSentId === claim._id 
+                                          ? "Email Sent!" 
+                                          : "Send Email"
+                                      }
+                                    </span>
+                                  </button>
+                                )
+                              ) : (
+                                <span style={{ color: "var(--muted)", fontSize: "12px" }}>Rejected</span>
+                              )}
+                            </div>
+                            
+                            <button
+                              onClick={() => handleDeleteClaim(claim._id)}
+                              disabled={deleteLoading === claim._id}
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                backgroundColor: "transparent",
+                                border: "1px solid rgba(239, 68, 68, 0.25)",
+                                color: "#b91c1c",
+                                padding: "6px",
+                                borderRadius: "6px",
+                                cursor: "pointer",
+                                transition: "all 0.2s"
+                              }}
+                              onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(239, 68, 68, 0.08)"; }}
+                              onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "transparent"; }}
+                              title="Delete claim record"
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="panel-card" style={{ padding: "30px", backgroundColor: "#ffffff" }}>
+            {paymentsLoading ? (
+              <div style={{ textAlign: "center", padding: "80px", color: "var(--muted)" }}>
+                Loading payment history...
+              </div>
+            ) : payments.length === 0 ? (
+              <div style={{ textAlign: "center", padding: "80px 40px", border: "1px dashed rgba(217, 184, 133, 0.3)", borderRadius: "10px", backgroundColor: "#faf7f0" }}>
+                <Coins size={40} style={{ color: "var(--muted)", marginBottom: "12px" }} />
+                <p style={{ color: "var(--muted)", margin: 0 }}>No payments recorded yet.</p>
+              </div>
+            ) : (
+              <div style={{ overflowX: "auto" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left", fontSize: "14px" }}>
+                  <thead>
+                    <tr style={{ borderBottom: "2px solid var(--card-border)", color: "#6b5a45", fontWeight: "600", backgroundColor: "#faf7f0" }}>
+                      <th style={{ padding: "12px" }}>Date</th>
+                      <th style={{ padding: "12px" }}>User Email</th>
+                      <th style={{ padding: "12px" }}>Billing Details</th>
+                      <th style={{ padding: "12px" }}>Plan</th>
+                      <th style={{ padding: "12px" }}>Invoice No</th>
+                      <th style={{ padding: "12px" }}>Amount</th>
+                      <th style={{ padding: "12px" }}>Status</th>
+                      <th style={{ padding: "12px" }}>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {payments.map((p) => {
+                      const pDate = new Date(p.createdAt).toLocaleDateString("en-IN", {
+                        day: "numeric",
+                        month: "short",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit"
+                      });
+                      return (
+                        <tr key={p.orderId} style={{ borderBottom: "1px solid var(--card-border)", transition: "background 0.2s" }} className="table-row-hover">
+                          <td style={{ padding: "16px 12px", color: "#1a150e", fontWeight: "600" }}>{pDate}</td>
+                          <td style={{ padding: "16px 12px", color: "#5c4d3c", fontWeight: "600" }}>{p.userId}</td>
+                          <td style={{ padding: "16px 12px" }}>
+                            <div style={{ fontWeight: "700", color: "#1a150e" }}>{p.billingName}</div>
+                            <div style={{ fontSize: "12px", color: "#6b5a45" }}>{p.billingAddress} ({p.state})</div>
+                          </td>
+                          <td style={{ padding: "16px 12px", textTransform: "capitalize", fontWeight: "600" }}>{p.plan} Access</td>
+                          <td style={{ padding: "16px 12px" }}>{p.invoiceNumber || "-"}</td>
+                          <td style={{ padding: "16px 12px", fontWeight: "700" }}>₹{p.totalAmount}</td>
+                          <td style={{ padding: "16px 12px" }}>
+                            <span style={{
+                              fontSize: "12px",
+                              fontWeight: "600",
+                              padding: "3px 8px",
+                              borderRadius: "10px",
+                              backgroundColor: p.status === "completed" ? "rgba(16,185,129,0.15)" : "rgba(245,158,11,0.15)",
+                              color: p.status === "completed" ? "#10b981" : "#b28e46"
+                            }}>
+                              {p.status}
+                            </span>
+                          </td>
+                          <td style={{ padding: "16px 12px" }}>
+                            {p.status === "completed" && (
+                              <button
+                                onClick={() => window.open(`/vault/invoice/${p.orderId}`)}
+                                className="btn-outline"
+                                style={{
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  gap: "4px",
+                                  fontSize: "12px",
+                                  padding: "4px 8px",
+                                  color: "var(--primary)",
+                                  borderColor: "rgba(217, 184, 133, 0.4)",
+                                  backgroundColor: "transparent",
+                                  cursor: "pointer",
+                                  borderRadius: "4px"
+                                }}
+                              >
+                                <Download size={12} /> View Invoice
+                              </button>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        )}
       </main>
 
       {/* Modal for viewing document */}

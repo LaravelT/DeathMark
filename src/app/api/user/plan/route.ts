@@ -19,6 +19,7 @@ export async function GET() {
     const plan = user?.plan || null;
     const planActivatedAt = user?.planActivatedAt || null;
     const planExpiresAt = user?.planExpiresAt || null;
+    const hasUsedTrial = user?.hasUsedTrial || false;
 
     let isExpired = false;
     if (plan === "free_trial" && planExpiresAt) {
@@ -31,7 +32,8 @@ export async function GET() {
       plan,
       planActivatedAt,
       planExpiresAt,
-      isExpired
+      isExpired,
+      hasUsedTrial
     });
   } catch (error: any) {
     console.error("[Plan GET API] Error:", error);
@@ -57,6 +59,12 @@ export async function POST(req: Request) {
     const db = client.db("legacybridge");
     const usersCollection = db.collection("users");
 
+    const user = await usersCollection.findOne({ email: session.user.email });
+
+    if (plan === "free_trial" && user?.hasUsedTrial) {
+      return NextResponse.json({ error: "You have already used the 48-hour free trial" }, { status: 400 });
+    }
+
     const planActivatedAt = new Date();
     let planExpiresAt = null;
 
@@ -66,22 +74,27 @@ export async function POST(req: Request) {
       planExpiresAt = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000); // 1 year
     }
 
+    const updateDoc: any = {
+      plan,
+      planActivatedAt,
+      planExpiresAt
+    };
+
+    if (plan === "free_trial") {
+      updateDoc.hasUsedTrial = true;
+    }
+
     await usersCollection.updateOne(
       { email: session.user.email },
-      {
-        $set: {
-          plan,
-          planActivatedAt,
-          planExpiresAt
-        }
-      }
+      { $set: updateDoc }
     );
 
     return NextResponse.json({
       success: true,
       plan,
       planActivatedAt,
-      planExpiresAt
+      planExpiresAt,
+      hasUsedTrial: plan === "free_trial" ? true : (user?.hasUsedTrial || false)
     });
   } catch (error: any) {
     console.error("[Plan POST API] Error:", error);

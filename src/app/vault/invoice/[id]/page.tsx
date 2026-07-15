@@ -350,7 +350,6 @@ export default function InvoicePage() {
 
         {/* Footer Notes */}
         <div style={{ marginTop: "30px", textAlign: "center", fontSize: "10.5px" }}>
-          <div style={{ fontWeight: "700", marginBottom: "4px" }}>SUBJECT TO MUMBAI JURISDICTION</div>
           <div style={{ color: "#555" }}>This is a system generated invoice.</div>
         </div>
       </div>

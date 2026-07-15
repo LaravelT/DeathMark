@@ -1,11 +1,44 @@
 "use client";
 
-import React from "react";
-import { Search, ShieldAlert, Download } from "lucide-react";
+import React, { useState } from "react";
+import { Search, ShieldAlert, Download, Receipt, X } from "lucide-react";
 import { useVault, INSTRUMENT_TYPES } from "./VaultContext";
 
 export default function TopNavbar() {
-  const { searchTerm, setSearchTerm, handleVerifyIntegrity, vaultIndex } = useVault();
+  const { searchTerm, setSearchTerm, handleVerifyIntegrity, vaultIndex, isDemo } = useVault();
+
+  // Payment History modal state
+  const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
+  const [payments, setPayments] = useState<any[]>([]);
+  const [loadingPayments, setLoadingPayments] = useState(false);
+
+  const fetchPayments = async () => {
+    setLoadingPayments(true);
+    try {
+      if (isDemo) {
+        setPayments([
+          {
+            orderId: "order_demo_1",
+            invoiceNumber: "SP/LB/26-27/0001",
+            createdAt: new Date().toISOString(),
+            plan: "annual",
+            totalAmount: 1180,
+            status: "completed",
+          }
+        ]);
+      } else {
+        const res = await fetch("/api/payment/history");
+        if (res.ok) {
+          const data = await res.json();
+          setPayments(data);
+        }
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoadingPayments(false);
+    }
+  };
 
   const handleExportPDF = () => {
     // Group files by category
@@ -38,9 +71,9 @@ export default function TopNavbar() {
           });
 
           filesHtml += `
-            <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; margin-bottom: 10px; page-break-inside: avoid;">
-              <div style="font-size: 13px; font-weight: 600; color: #4338ca; margin-bottom: 8px; border-bottom: 1px dashed #e2e8f0; padding-bottom: 4px;">${file.name}</div>
-              <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px 12px;">
+            <div style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; margin-bottom: 12px; background-color: #fafaf9;">
+              <h4 style="margin: 0 0 8px 0; font-size: 13px; color: #1e293b; font-weight: 700;">${file.name}</h4>
+              <div style="display: flex; flexDirection: column; gap: 4px;">
                 ${detailsHtml}
               </div>
             </div>
@@ -49,44 +82,46 @@ export default function TopNavbar() {
 
         categoriesHtml += `
           <div style="margin-bottom: 24px; page-break-inside: avoid;">
-            <div style="font-size: 14px; font-weight: 700; color: #0f172a; margin-bottom: 10px; text-transform: uppercase; border-bottom: 1px solid #cbd5e1; padding-bottom: 4px; letter-spacing: 0.5px;">${cat.label}</div>
+            <h3 style="border-bottom: 2px solid #b28e46; padding-bottom: 4px; color: #1a150e; font-size: 15px; font-weight: 800; margin-bottom: 12px; text-transform: uppercase;">
+              ${cat.label}
+            </h3>
             ${filesHtml}
           </div>
         `;
       }
     });
 
-    const element = document.createElement("div");
-    element.innerHTML = `
-      <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 30px; color: #1e293b; background-color: #fff;">
-        <h1 style="color: #6366f1; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; margin-bottom: 5px; font-size: 22px; font-weight: 700;">LegacyBridge Secure Vault Report</h1>
-        <div style="font-size: 11px; color: #64748b; margin-bottom: 20px;">
-          Generated on: ${new Date().toLocaleString()} | Contains zero-knowledge client-side decrypted assets.
-        </div>
-        
-        ${categoriesHtml || '<p style="color: #64748b; text-align: center; padding: 30px;">No asset records found in this vault.</p>'}
-
-        <div style="margin-top: 40px; font-size: 10px; color: #94a3b8; text-align: center; border-top: 1px solid #e2e8f0; padding-top: 12px;">
-          LegacyBridge Secure Vault Report — End of Document
-        </div>
-      </div>
-    `;
-
-    document.body.appendChild(element);
-
     const runHtml2Pdf = () => {
-      const opt = {
-        margin: 10,
-        filename: 'legacybridge_vault_report.pdf',
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-      };
-      
+      const element = document.createElement("div");
+      element.innerHTML = `
+        <div style="padding: 40px; font-family: system-ui, -apple-system, sans-serif; color: #1c1917;">
+          <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #b28e46; padding-bottom: 16px; margin-bottom: 30px;">
+            <div>
+              <h1 style="margin: 0; font-size: 24px; font-weight: 800; color: #1a150e; font-family: Georgia, serif;">LegacyBridge Vault Portfolio</h1>
+              <p style="margin: 4px 0 0 0; font-size: 12px; color: #6b5a45;">Decrypted secure backup summary</p>
+            </div>
+            <div style="text-align: right;">
+              <p style="margin: 0; font-size: 11px; color: #6b7280;">Date Exported</p>
+              <strong style="font-size: 13px; color: #1a150e;">${new Date().toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</strong>
+            </div>
+          </div>
+          <div>
+            ${categoriesHtml || '<p style="text-align: center; color: #6b7280; margin-top: 40px;">No asset records found in this vault.</p>'}
+          </div>
+        </div>
+      `;
+
       // @ts-ignore
-      window.html2pdf().from(element).set(opt).save().then(() => {
-        document.body.removeChild(element);
-      });
+      window.html2pdf()
+        .set({
+          margin: 10,
+          filename: `LegacyBridge_Vault_${new Date().toISOString().split("T")[0]}.pdf`,
+          image: { type: "jpeg", quality: 0.98 },
+          html2canvas: { scale: 2, useCORS: true },
+          jsPDF: { unit: "mm", format: "a4", orientation: "portrait" }
+        })
+        .from(element)
+        .save();
     };
 
     // @ts-ignore
@@ -125,11 +160,137 @@ export default function TopNavbar() {
       </div>
 
       <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+        <button 
+          onClick={() => {
+            setIsHistoryModalOpen(true);
+            fetchPayments();
+          }} 
+          className="btn-outline" 
+          style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "13px" }}
+        >
+          <Receipt size={14} style={{ color: "var(--secondary)" }} />
+          <span>Payment History & Invoices</span>
+        </button>
+
         <button onClick={handleVerifyIntegrity} className="btn-outline" style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "13px" }}>
           <ShieldAlert size={14} style={{ color: "var(--secondary)" }} />
           <span>Sync Integrity</span>
         </button>
       </div>
+
+      {/* Payment History Modal */}
+      {isHistoryModalOpen && (
+        <div 
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            backgroundColor: "rgba(0,0,0,0.6)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 99999,
+            padding: "20px"
+          }}
+        >
+          <div 
+            style={{
+              backgroundColor: "#ffffff",
+              borderRadius: "20px",
+              padding: "28px",
+              maxWidth: "760px",
+              width: "100%",
+              boxShadow: "0 20px 50px rgba(0,0,0,0.25)",
+              border: "1px solid rgba(217, 184, 133, 0.3)",
+              display: "flex",
+              flexDirection: "column",
+              maxHeight: "85vh",
+              overflowY: "auto"
+            }}
+          >
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid #f0e9df", paddingBottom: "16px", marginBottom: "16px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <Receipt size={20} style={{ color: "#b28e46" }} />
+                <h2 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: "20px", fontWeight: "750", color: "#1a150e", margin: 0 }}>
+                  Payment History & Invoices
+                </h2>
+              </div>
+              <button 
+                onClick={() => setIsHistoryModalOpen(false)}
+                style={{ background: "none", border: "none", color: "#6b5a45", cursor: "pointer", display: "flex", alignItems: "center" }}
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {loadingPayments ? (
+              <div style={{ textAlign: "center", padding: "40px", color: "var(--muted)", fontSize: "14px" }}>
+                Loading records...
+              </div>
+            ) : payments.length === 0 ? (
+              <div style={{ textAlign: "center", padding: "40px", color: "var(--muted)", fontSize: "14px" }}>
+                No successful payments found.
+              </div>
+            ) : (
+              <div style={{ overflowX: "auto" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left", fontSize: "13.5px" }}>
+                  <thead>
+                    <tr style={{ borderBottom: "1px solid #e5e7eb", color: "#6b5a45", fontWeight: "700" }}>
+                      <th style={{ padding: "10px 12px" }}>Date</th>
+                      <th style={{ padding: "10px 12px" }}>Plan</th>
+                      <th style={{ padding: "10px 12px" }}>Invoice Number</th>
+                      <th style={{ padding: "10px 12px" }}>Amount</th>
+                      <th style={{ padding: "10px 12px", textAlign: "right" }}>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {payments.map((p) => {
+                      const pDate = new Date(p.createdAt).toLocaleDateString("en-IN", {
+                        day: "numeric",
+                        month: "short",
+                        year: "numeric"
+                      });
+                      return (
+                        <tr key={p.orderId} style={{ borderBottom: "1px solid #f3f4f6" }}>
+                          <td style={{ padding: "12px", color: "#6b5a45" }}>{pDate}</td>
+                          <td style={{ padding: "12px", color: "#1a150e", fontWeight: "600", textTransform: "capitalize" }}>{p.plan} Access</td>
+                          <td style={{ padding: "12px", color: "#1a150e" }}>{p.invoiceNumber}</td>
+                          <td style={{ padding: "12px", color: "#1a150e", fontWeight: "600" }}>₹{p.totalAmount}</td>
+                          <td style={{ padding: "12px", textAlign: "right" }}>
+                            <button
+                              onClick={() => {
+                                setIsHistoryModalOpen(false);
+                                window.open(isDemo ? `/vault/invoice/${p.orderId}?demo=true` : `/vault/invoice/${p.orderId}`);
+                              }}
+                              style={{
+                                display: "inline-flex",
+                                alignItems: "center",
+                                gap: "6px",
+                                padding: "6px 10px",
+                                backgroundColor: "#fbf5e6",
+                                color: "#b28e46",
+                                border: "none",
+                                borderRadius: "6px",
+                                cursor: "pointer",
+                                fontSize: "12px",
+                                fontWeight: "700"
+                              }}
+                            >
+                              <Download size={12} /> View Invoice
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </header>
   );
 }

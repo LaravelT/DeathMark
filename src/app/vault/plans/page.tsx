@@ -158,7 +158,7 @@ export default function PlansPage() {
         amount: orderData.amount,
         currency: orderData.currency,
         name: "LegacyBridge",
-        description: `${selectedPlan === "annual" ? "Annual" : "Lifetime"} Premium Vault Access`,
+        description: `LegacyBridge - ${selectedPlan === "annual" ? "Annual" : "Lifetime"} Premium Vault Access`,
         order_id: orderData.orderId,
         handler: async function (response: any) {
           setIsProcessing(true);

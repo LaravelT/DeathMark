@@ -285,6 +285,7 @@ export function VaultProvider({ children }: { children: React.ReactNode }) {
     } else if ((status === "authenticated" || isDemo) && !hasInitialized) {
       setHasInitialized(true);
       checkExistingVault();
+      fetchOwnerDetails();
     }
   }, [status, isDemo, hasInitialized]);
 

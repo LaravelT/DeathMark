@@ -58,6 +58,30 @@ export default function InvoicePage() {
     if (!orderId) return;
 
     const fetchInvoice = async () => {
+      if (orderId.startsWith("order_demo") || window.location.search.includes("demo=true")) {
+        setPayment({
+          orderId: "order_demo_1",
+          invoiceNumber: "SP/LB/26-27/0001",
+          createdAt: new Date().toISOString(),
+          plan: "annual",
+          baseAmount: 1000,
+          gstAmount: 180,
+          cgst: 90,
+          sgst: 90,
+          igst: 0,
+          totalAmount: 1180,
+          billingName: "Chirag Patel (Demo)",
+          billingAddress: "6, Naresh Smruti, Mulund West, Mumbai - 400080",
+          state: "Maharashtra",
+          billingEmail: "demo@solutionplanets.com",
+          billingMobile: "9082151500",
+          gstNo: "27ABOFS3036K1ZR",
+          status: "completed"
+        });
+        setLoading(false);
+        return;
+      }
+
       try {
         const res = await fetch(`/api/payment/invoice-details?orderId=${orderId}`);
         if (!res.ok) {

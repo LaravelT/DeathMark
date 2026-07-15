@@ -1,10 +1,12 @@
 "use client";
 
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Search, ShieldAlert, Download, Receipt, X } from "lucide-react";
 import { useVault, INSTRUMENT_TYPES } from "./VaultContext";
 
 export default function TopNavbar() {
+  const router = useRouter();
   const { searchTerm, setSearchTerm, handleVerifyIntegrity, vaultIndex, isDemo } = useVault();
 
   // Payment History modal state
@@ -262,7 +264,7 @@ export default function TopNavbar() {
                             <button
                               onClick={() => {
                                 setIsHistoryModalOpen(false);
-                                window.open(isDemo ? `/vault/invoice/${p.orderId}?demo=true` : `/vault/invoice/${p.orderId}`);
+                                router.push(isDemo ? `/vault/invoice/${p.orderId}?demo=true` : `/vault/invoice/${p.orderId}`);
                               }}
                               style={{
                                 display: "inline-flex",

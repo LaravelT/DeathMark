@@ -58,21 +58,38 @@ export async function completePayment(
   const fy = `${String(startYear).slice(-2)}-${String(endYear).slice(-2)}`;
   const prefix = `SP/LB/${fy}/`;
 
-  // Find latest completed invoice in this FY
-  const lastPayment = await paymentsCollection.findOne(
-    { invoiceNumber: { $regex: `^SP/LB/${fy}/` }, status: "completed" },
-    { sort: { invoiceNumber: -1 } }
-  );
-
-  let seq = 1;
-  if (lastPayment?.invoiceNumber) {
-    const parts = lastPayment.invoiceNumber.split("/");
-    const lastSeqStr = parts[parts.length - 1];
-    const lastSeq = parseInt(lastSeqStr, 10);
-    if (!isNaN(lastSeq)) {
-      seq = lastSeq + 1;
+  // Try to find the counter
+  let counterDoc = await db.collection("counters").findOne({ _id: `invoice_seq_${fy}` });
+  
+  if (!counterDoc) {
+    const lastPayment = await paymentsCollection.findOne(
+      { invoiceNumber: { $regex: `^SP/LB/${fy}/` }, status: "completed" },
+      { sort: { invoiceNumber: -1 } }
+    );
+    let startSeq = 0;
+    if (lastPayment?.invoiceNumber) {
+      const parts = lastPayment.invoiceNumber.split("/");
+      const lastSeq = parseInt(parts[parts.length - 1], 10);
+      if (!isNaN(lastSeq)) {
+        startSeq = lastSeq;
+      }
     }
+    
+    await db.collection("counters").updateOne(
+      { _id: `invoice_seq_${fy}` },
+      { $setOnInsert: { seq: startSeq } },
+      { upsert: true }
+    );
   }
+
+  const counterResult = await db.collection("counters").findOneAndUpdate(
+    { _id: `invoice_seq_${fy}` },
+    { $inc: { seq: 1 } },
+    { returnDocument: "after" }
+  );
+  
+  const finalDoc = counterResult.value || counterResult;
+  const seq = finalDoc.seq;
 
   const invoiceNumber = `${prefix}${String(seq).padStart(4, "0")}`;
 

@@ -252,9 +252,9 @@ export default function AdminPage() {
   }
 
   return (
-    <div style={{ display: "flex", minHeight: "100vh", backgroundColor: "#faf7f0" }}>
+    <div className="admin-layout">
       {/* Sidebar Layout */}
-      <aside style={{ width: "260px", backgroundColor: "#ffffff", borderRight: "1px solid rgba(217, 184, 133, 0.25)", padding: "24px 20px", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+      <aside className="admin-sidebar">
         <div style={{ display: "flex", flexDirection: "column", gap: "32px" }}>
           {/* Logo */}
           <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
@@ -377,7 +377,7 @@ export default function AdminPage() {
       </aside>
 
       {/* Main Panel Content Area */}
-      <main style={{ flex: 1, padding: "40px", display: "flex", flexDirection: "column", gap: "24px", overflowY: "auto" }}>
+      <main className="admin-main">
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <div>
             <h1 className="page-title" style={{ fontSize: "28px", margin: 0, fontFamily: "'Playfair Display', Georgia, serif" }}>

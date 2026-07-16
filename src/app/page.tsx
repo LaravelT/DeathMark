@@ -380,9 +380,9 @@ export default function Home() {
                 <Link className="btn secondary full" href="/auth/signin">Choose Lifetime</Link>
               </article>
             </div>
-            <div className="assisted-box reveal" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "24px", marginTop: "22px", padding: "24px 28px", borderRadius: "26px", backgroundColor: "rgba(255,255,255,0.78)", border: "1px solid rgba(13,27,42,0.08)" }}>
+            <div className="assisted-box reveal">
               <div><h3>Assisted Setup</h3><p>Need help organizing your details? Our team can guide you through the setup process.</p></div>
-              <strong style={{ color: "#0d1b2a", fontSize: "22px" }}>₹3,000 + 18% GST one-time extra</strong>
+              <strong>₹3,000 + 18% GST one-time extra</strong>
             </div>
           </div>
         </section>

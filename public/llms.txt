@@ -1,0 +1,17 @@
+# LegacyBridge
+
+> LegacyBridge is a private family wealth information vault that helps users record financial information for their nominees. The data is encrypted and stored in the user's Google Drive AppData folder, ensuring privacy and security.
+
+## Key Information
+
+- [Why Google Drive](https://legacybridge.in/#drive): Explains the security and privacy benefits of storing data in Google Drive.
+- [How it works](https://legacybridge.in/#how): Details the step-by-step process of using LegacyBridge.
+- [Pricing](https://legacybridge.in/#pricing): Information on subscription plans and costs.
+- [FAQ](https://legacybridge.in/#faq): Answers to frequently asked questions about the service.
+- [Claim Assets](https://legacybridge.in/claim): Describes the process for nominees to claim assets.
+
+## Legal and Policy Documents
+
+- [Privacy Policy](https://legacybridge.in/privacy-policy)
+- [Terms & Conditions](https://legacybridge.in/terms-and-conditions)
+- [Return & Cancellation Policy](https://legacybridge.in/return-and-cancellation-policy)

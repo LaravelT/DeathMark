@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="/download/3d5e983a7-37a2e8585/sitemap.xsl"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+
+  <url>
+       <loc>https://legacybridge.in/</loc>
+       <lastmod>2026-07-15T13:17:12+00:00</lastmod>
+       <changefreq>daily</changefreq>
+       <priority>1.0000</priority>
+  </url>
+  <url>
+       <loc>https://legacybridge.in/claim</loc>
+       <lastmod>2026-07-15T13:17:12+00:00</lastmod>
+       <changefreq>daily</changefreq>
+       <priority>0.8000</priority>
+  </url>
+  <url>
+       <loc>https://legacybridge.in/auth/signin</loc>
+       <lastmod>2026-07-15T13:17:12+00:00</lastmod>
+       <changefreq>daily</changefreq>
+       <priority>0.8000</priority>
+  </url>
+  <url>
+       <loc>https://legacybridge.in/privacy</loc>
+       <lastmod>2026-07-15T13:17:12+00:00</lastmod>
+       <changefreq>daily</changefreq>
+       <priority>0.8000</priority>
+  </url>
+  <url>
+       <loc>https://legacybridge.in/terms</loc>
+       <lastmod>2026-07-15T13:17:12+00:00</lastmod>
+       <changefreq>daily</changefreq>
+       <priority>0.8000</priority>
+  </url>
+  <url>
+       <loc>https://legacybridge.in/return-cancellation</loc>
+       <lastmod>2026-07-15T13:17:12+00:00</lastmod>
+       <changefreq>daily</changefreq>
+       <priority>0.8000</priority>
+  </url>
+</urlset>

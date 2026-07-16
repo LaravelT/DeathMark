@@ -36,13 +36,18 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
 })(window,document,'script','dataLayer','GTM-T42CMB5P');`}
         </Script>
+        <noscript dangerouslySetInnerHTML={{
+          __html: `<!-- Google Tag Manager (noscript) -->
+<iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T42CMB5P"
+height="0" width="0" style="display:none;visibility:hidden"></iframe>
+<!-- End Google Tag Manager (noscript) -->` }} />
         <Providers>
           {children}
           {/* Floating WhatsApp Button */}
-          <a 
-            href="https://wa.me/918104664284" 
-            target="_blank" 
-            rel="noopener noreferrer" 
+          <a
+            href="https://wa.me/918104664284"
+            target="_blank"
+            rel="noopener noreferrer"
             title="Chat on WhatsApp"
             className="whatsapp-float-btn"
           >

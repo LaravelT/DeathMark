@@ -34,11 +34,11 @@ export default function RootLayout({
 new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
 j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','');`}
+})(window,document,'script','dataLayer','GTM-T42CMB5P');`}
         </Script>
         <noscript dangerouslySetInnerHTML={{
           __html: `<!-- Google Tag Manager (noscript) -->
-<iframe src="https://www.googletagmanager.com/ns.html?id=&#71;&#84;&#77;&#45;&#84;&#52;&#50;&#67;&#77;&#66;&#53;&#80;"
+<iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T42CMB5P"
 height="0" width="0" style="display:none;visibility:hidden"></iframe>
 <!-- End Google Tag Manager (noscript) -->` }} />
         <Providers>

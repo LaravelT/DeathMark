@@ -30,6 +30,11 @@ function VaultLayoutInner({ children }: { children: React.ReactNode }) {
     }
   }, [derivedKey, plan, pathname, isDemo, router]);
 
+  // Bypass vault protection for standalone invoice view (needed for Admin view and direct access)
+  if (pathname.includes("/vault/invoice/")) {
+    return <>{children}</>;
+  }
+
   // If loading session/Google appData configuration
   if (loading) {
     return (

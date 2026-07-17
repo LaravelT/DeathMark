@@ -25,6 +25,23 @@ function VaultLayoutInner({ children }: { children: React.ReactNode }) {
   const [formError, setFormError] = React.useState("");
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
 
+  // Security and anti-screenshot state
+  const [isWindowBlurred, setIsWindowBlurred] = React.useState(false);
+  const [securityMessage, setSecurityMessage] = React.useState<string | null>(null);
+
+  const showSecurityAlert = (msg: string) => {
+    setSecurityMessage(msg);
+  };
+
+  useEffect(() => {
+    if (securityMessage) {
+      const timer = setTimeout(() => {
+        setSecurityMessage(null);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [securityMessage]);
+
   useEffect(() => {
     setSidebarOpen(false);
   }, [pathname]);
@@ -34,6 +51,76 @@ function VaultLayoutInner({ children }: { children: React.ReactNode }) {
       router.push(isDemo ? "/vault/plans?demo=true" : "/vault/plans");
     }
   }, [derivedKey, plan, pathname, isDemo, router]);
+
+  // Security features enabled when logged in / unlocked
+  useEffect(() => {
+    if (!derivedKey) return;
+
+    const handleContextMenu = (e: MouseEvent) => {
+      e.preventDefault();
+      showSecurityAlert("Right-click is disabled for security reasons.");
+    };
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Print Screen key
+      if (e.key === "PrintScreen") {
+        e.preventDefault();
+        try {
+          navigator.clipboard.writeText("");
+        } catch (_) {}
+        showSecurityAlert("Screenshots are not allowed on this secure platform.");
+      }
+      // Ctrl+P / Cmd+P
+      if ((e.ctrlKey || e.metaKey) && e.key === "p") {
+        e.preventDefault();
+        showSecurityAlert("Printing pages is disabled for security.");
+      }
+      // Ctrl+S / Cmd+S
+      if ((e.ctrlKey || e.metaKey) && e.key === "s") {
+        e.preventDefault();
+        showSecurityAlert("Saving pages locally is disabled.");
+      }
+      // Ctrl+Shift+S / Cmd+Shift+S / Win+Shift+S
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === "s" || e.key === "S")) {
+        showSecurityAlert("Screenshots are not allowed on this secure platform.");
+      }
+      // Developer tools (F12)
+      if (e.key === "F12") {
+        e.preventDefault();
+        showSecurityAlert("Developer Tools are disabled for security.");
+      }
+      // Developer tools (Ctrl+Shift+I / J / C)
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === "i" || e.key === "I" || e.key === "j" || e.key === "J" || e.key === "c" || e.key === "C")) {
+        e.preventDefault();
+        showSecurityAlert("Developer Tools are disabled for security.");
+      }
+      // View Source (Ctrl+U)
+      if ((e.ctrlKey || e.metaKey) && (e.key === "u" || e.key === "U")) {
+        e.preventDefault();
+        showSecurityAlert("View Source is disabled.");
+      }
+    };
+
+    const handleBlur = () => {
+      setIsWindowBlurred(true);
+    };
+
+    const handleFocus = () => {
+      setIsWindowBlurred(false);
+    };
+
+    document.addEventListener("contextmenu", handleContextMenu);
+    document.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("blur", handleBlur);
+    window.addEventListener("focus", handleFocus);
+
+    return () => {
+      document.removeEventListener("contextmenu", handleContextMenu);
+      document.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("blur", handleBlur);
+      window.removeEventListener("focus", handleFocus);
+    };
+  }, [derivedKey]);
 
   // Bypass vault protection for standalone invoice view (needed for Admin view and direct access)
   if (pathname.includes("/vault/invoice/")) {
@@ -196,7 +283,17 @@ function VaultLayoutInner({ children }: { children: React.ReactNode }) {
 
   // If unlocked, render sidebar + navbar page layout wrapper
   return (
-    <div className={`vault-layout-container ${sidebarOpen ? "sidebar-open" : ""}`} style={{ minHeight: "100vh", backgroundColor: "var(--bg-color)", display: "flex", position: "relative" }}>
+    <div 
+      className={`vault-layout-container ${sidebarOpen ? "sidebar-open" : ""}`} 
+      style={{ 
+        minHeight: "100vh", 
+        backgroundColor: "var(--bg-color)", 
+        display: "flex", 
+        position: "relative",
+        filter: isWindowBlurred ? "blur(15px)" : "none",
+        transition: "filter 0.15s ease"
+      }}
+    >
       <Sidebar />
       {sidebarOpen && (
         <div 
@@ -237,6 +334,31 @@ function VaultLayoutInner({ children }: { children: React.ReactNode }) {
           {children}
         </main>
       </div>
+
+      {/* Floating Security Alert Toast */}
+      {securityMessage && (
+        <div style={{
+          position: "fixed",
+          bottom: "30px",
+          left: "50%",
+          transform: "translateX(-50%)",
+          backgroundColor: "rgba(26, 21, 14, 0.95)",
+          border: "1px solid #b28e46",
+          color: "#ffffff",
+          padding: "12px 24px",
+          borderRadius: "8px",
+          fontSize: "14px",
+          fontWeight: "600",
+          boxShadow: "0 10px 25px rgba(0,0,0,0.3)",
+          zIndex: 99999,
+          display: "flex",
+          alignItems: "center",
+          gap: "10px",
+        }}>
+          <ShieldAlert size={18} style={{ color: "#b28e46" }} />
+          <span>{securityMessage}</span>
+        </div>
+      )}
     </div>
   );
 }

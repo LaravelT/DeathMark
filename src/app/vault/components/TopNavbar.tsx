@@ -2,10 +2,10 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Search, ShieldAlert, Download, Receipt, X } from "lucide-react";
+import { Search, ShieldAlert, Download, Receipt, X, Menu } from "lucide-react";
 import { useVault, INSTRUMENT_TYPES } from "./VaultContext";
 
-export default function TopNavbar() {
+export default function TopNavbar({ onToggleSidebar }: { onToggleSidebar?: () => void }) {
   const router = useRouter();
   const { searchTerm, setSearchTerm, handleVerifyIntegrity, vaultIndex, isDemo } = useVault();
 
@@ -141,6 +141,25 @@ export default function TopNavbar() {
 
   return (
     <header className="top-navbar">
+      {onToggleSidebar && (
+        <button 
+          onClick={onToggleSidebar} 
+          className="sidebar-toggle"
+          style={{
+            background: "none",
+            border: "none",
+            color: "var(--fg-color)",
+            cursor: "pointer",
+            display: "none",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "8px",
+            marginRight: "8px"
+          }}
+        >
+          <Menu size={20} />
+        </button>
+      )}
       <div style={{ 
         display: "flex", 
         alignItems: "center", 

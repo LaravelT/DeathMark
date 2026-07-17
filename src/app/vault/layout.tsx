@@ -23,6 +23,11 @@ function VaultLayoutInner({ children }: { children: React.ReactNode }) {
   const [ownerAadhaar, setOwnerAadhaar] = React.useState("");
   const [ownerPan, setOwnerPan] = React.useState("");
   const [formError, setFormError] = React.useState("");
+  const [sidebarOpen, setSidebarOpen] = React.useState(false);
+
+  useEffect(() => {
+    setSidebarOpen(false);
+  }, [pathname]);
 
   useEffect(() => {
     if (derivedKey && plan === null && pathname !== "/vault/plans") {
@@ -191,10 +196,25 @@ function VaultLayoutInner({ children }: { children: React.ReactNode }) {
 
   // If unlocked, render sidebar + navbar page layout wrapper
   return (
-    <div style={{ minHeight: "100vh", backgroundColor: "var(--bg-color)", display: "flex" }}>
+    <div className={`vault-layout-container ${sidebarOpen ? "sidebar-open" : ""}`} style={{ minHeight: "100vh", backgroundColor: "var(--bg-color)", display: "flex", position: "relative" }}>
       <Sidebar />
-      <div className="main-wrapper">
-        <TopNavbar />
+      {sidebarOpen && (
+        <div 
+          className="sidebar-backdrop" 
+          onClick={() => setSidebarOpen(false)}
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "rgba(0, 0, 0, 0.4)",
+            zIndex: 99,
+          }}
+        />
+      )}
+      <div className="main-wrapper" style={{ minWidth: 0, flex: 1 }}>
+        <TopNavbar onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
         {readOnly && (
           <div 
             style={{ 

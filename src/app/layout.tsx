@@ -36,6 +36,20 @@ new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
 j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
 })(window,document,'script','dataLayer','GTM-T42CMB5P');` }} />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebSite",
+              "@id": "https://legacybridge.in/#website",
+              "url": "https://legacybridge.in/",
+              "name": "LegacyBridge",
+              "description": "Secure your family's future with LegacyBridge. Safely record and organize your assets in a secure, encrypted digital vault, with your data stored in your own Google Drive for trusted access and seamless discovery by your nominee when it matters most.",
+              "inLanguage": "en-IN"
+            })
+          }}
+        />
       </head>
       <body className="antialiased">
         <noscript dangerouslySetInnerHTML={{

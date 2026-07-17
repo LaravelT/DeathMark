@@ -111,7 +111,6 @@ export default function Home() {
             aria-controls="nav-menu" 
             aria-label="Toggle navigation"
             onClick={toggleMenu}
-            style={{ display: "none" }} /* Styled via css, next-js handles click */
           >
             <span></span><span></span><span></span>
           </button>

@@ -24,7 +24,6 @@ export default function PrivacyPolicyPage() {
             aria-controls="nav-menu" 
             aria-label="Toggle navigation"
             onClick={toggleMenu}
-            style={{ display: "none" }}
           >
             <span></span><span></span><span></span>
           </button>

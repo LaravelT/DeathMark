@@ -228,7 +228,7 @@ export default function InvoicePage() {
         <h1 style={{ fontSize: "22px", fontWeight: "800", color: "#000000", textAlign: "center", margin: "0 0 20px 0", textTransform: "uppercase", letterSpacing: "0.05em" }}>Tax Invoice</h1>
 
         {/* Company Header */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "20px" }}>
+        <div className="invoice-header-row" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "20px" }}>
           <div>
             <div style={{ fontSize: "14px", fontWeight: "700", color: "#000000", marginBottom: "4px" }}>Solution Planets</div>
             <div style={{ fontSize: "12px", color: "#000000" }}>
@@ -269,84 +269,86 @@ export default function InvoicePage() {
         </div>
 
         {/* Invoice Item Table */}
-        <table style={{ width: "100%", borderCollapse: "collapse", border: "1px solid #000000", marginBottom: "0px", textAlign: "left", fontSize: "12.5px" }}>
-          <thead>
-            <tr style={{ borderBottom: "1px solid #000000", backgroundColor: "#f9f9f9" }}>
-              <th style={{ padding: "8px", borderRight: "1px solid #000000", width: "40px" }}>Sr</th>
-              <th style={{ padding: "8px", borderRight: "1px solid #000000" }}>Description</th>
-              <th style={{ padding: "8px", borderRight: "1px solid #000000", width: "80px" }}>HSN</th>
-              <th style={{ padding: "8px", borderRight: "1px solid #000000", width: "90px", textAlign: "right" }}>Price</th>
-              <th style={{ padding: "8px", borderRight: "1px solid #000000", width: "50px", textAlign: "right" }}>Qty</th>
-              <th style={{ padding: "8px", textAlign: "right", width: "110px" }}>Total</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr style={{ borderBottom: "1px solid #000000", minHeight: "60px" }}>
-              <td style={{ padding: "8px", borderRight: "1px solid #000000", verticalAlign: "top" }}>1</td>
-              <td style={{ padding: "8px", borderRight: "1px solid #000000", verticalAlign: "top" }}>
-                <strong>LegacyBridge Premium Plan - {payment.plan === "annual" ? "Annual Access" : "Lifetime Access"}</strong><br />
-                {payment.plan === "annual" ? (
-                  <span style={{ fontSize: "11px", color: "#555" }}>({startDateStr} - {expiryDateStr})</span>
-                ) : (
-                  <span style={{ fontSize: "11px", color: "#555" }}>(One-Time / Unlimited Duration)</span>
-                )}
-              </td>
-              <td style={{ padding: "8px", borderRight: "1px solid #000000", verticalAlign: "top" }}>997331</td>
-              <td style={{ padding: "8px", borderRight: "1px solid #000000", verticalAlign: "top", textAlign: "right" }}>
-                {payment.baseAmount.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-              </td>
-              <td style={{ padding: "8px", borderRight: "1px solid #000000", verticalAlign: "top", textAlign: "right" }}>1</td>
-              <td style={{ padding: "8px", verticalAlign: "top", textAlign: "right" }}>
-                {payment.baseAmount.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-              </td>
-            </tr>
-
-            {/* Calculations */}
-            <tr style={{ borderBottom: "1px solid #000000" }}>
-              <td colSpan={5} style={{ padding: "8px", textAlign: "right", borderRight: "1px solid #000000" }}>Subtotal ( INR )</td>
-              <td style={{ padding: "8px", textAlign: "right" }}>
-                {payment.baseAmount.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-              </td>
-            </tr>
-
-            {payment.cgst > 0 && (
-              <>
-                <tr style={{ borderBottom: "1px solid #000000" }}>
-                  <td colSpan={5} style={{ padding: "8px", textAlign: "right", borderRight: "1px solid #000000" }}>CGST (9%)</td>
-                  <td style={{ padding: "8px", textAlign: "right" }}>
-                    {payment.cgst.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                  </td>
-                </tr>
-                <tr style={{ borderBottom: "1px solid #000000" }}>
-                  <td colSpan={5} style={{ padding: "8px", textAlign: "right", borderRight: "1px solid #000000" }}>SGST (9%)</td>
-                  <td style={{ padding: "8px", textAlign: "right" }}>
-                    {payment.sgst.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                  </td>
-                </tr>
-              </>
-            )}
-
-            {payment.igst > 0 && (
-              <tr style={{ borderBottom: "1px solid #000000" }}>
-                <td colSpan={5} style={{ padding: "8px", textAlign: "right", borderRight: "1px solid #000000" }}>IGST (18%)</td>
-                <td style={{ padding: "8px", textAlign: "right" }}>
-                  {payment.igst.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+        <div className="invoice-table-wrapper" style={{ overflowX: "auto", width: "100%" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", border: "1px solid #000000", marginBottom: "0px", textAlign: "left", fontSize: "12.5px" }}>
+            <thead>
+              <tr style={{ borderBottom: "1px solid #000000", backgroundColor: "#f9f9f9" }}>
+                <th style={{ padding: "8px", borderRight: "1px solid #000000", width: "40px" }}>Sr</th>
+                <th style={{ padding: "8px", borderRight: "1px solid #000000" }}>Description</th>
+                <th style={{ padding: "8px", borderRight: "1px solid #000000", width: "80px" }}>HSN</th>
+                <th style={{ padding: "8px", borderRight: "1px solid #000000", width: "90px", textAlign: "right" }}>Price</th>
+                <th style={{ padding: "8px", borderRight: "1px solid #000000", width: "50px", textAlign: "right" }}>Qty</th>
+                <th style={{ padding: "8px", textAlign: "right", width: "110px" }}>Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style={{ borderBottom: "1px solid #000000", minHeight: "60px" }}>
+                <td style={{ padding: "8px", borderRight: "1px solid #000000", verticalAlign: "top" }}>1</td>
+                <td style={{ padding: "8px", borderRight: "1px solid #000000", verticalAlign: "top" }}>
+                  <strong>LegacyBridge Premium Plan - {payment.plan === "annual" ? "Annual Access" : "Lifetime Access"}</strong><br />
+                  {payment.plan === "annual" ? (
+                    <span style={{ fontSize: "11px", color: "#555" }}>({startDateStr} - {expiryDateStr})</span>
+                  ) : (
+                    <span style={{ fontSize: "11px", color: "#555" }}>(One-Time / Unlimited Duration)</span>
+                  )}
+                </td>
+                <td style={{ padding: "8px", borderRight: "1px solid #000000", verticalAlign: "top" }}>997331</td>
+                <td style={{ padding: "8px", borderRight: "1px solid #000000", verticalAlign: "top", textAlign: "right" }}>
+                  {payment.baseAmount.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </td>
+                <td style={{ padding: "8px", borderRight: "1px solid #000000", verticalAlign: "top", textAlign: "right" }}>1</td>
+                <td style={{ padding: "8px", verticalAlign: "top", textAlign: "right" }}>
+                  {payment.baseAmount.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </td>
               </tr>
-            )}
 
-            {/* Final Total and Rupees in Words */}
-            <tr>
-              <td colSpan={5} style={{ padding: "10px 8px", borderRight: "1px solid #000000", verticalAlign: "middle" }}>
-                <div style={{ fontSize: "11px", textTransform: "uppercase", color: "#555", marginBottom: "4px" }}>Amount Chargeable (in words):</div>
-                <strong style={{ fontSize: "12px" }}>{numberToWordsINR(payment.totalAmount)}</strong>
-              </td>
-              <td style={{ padding: "10px 8px", textAlign: "right", fontSize: "14px", fontWeight: "800", verticalAlign: "middle" }}>
-                INR {payment.totalAmount.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-              </td>
-            </tr>
-          </tbody>
-        </table>
+              {/* Calculations */}
+              <tr style={{ borderBottom: "1px solid #000000" }}>
+                <td colSpan={5} style={{ padding: "8px", textAlign: "right", borderRight: "1px solid #000000" }}>Subtotal ( INR )</td>
+                <td style={{ padding: "8px", textAlign: "right" }}>
+                  {payment.baseAmount.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </td>
+              </tr>
+
+              {payment.cgst > 0 && (
+                <>
+                  <tr style={{ borderBottom: "1px solid #000000" }}>
+                    <td colSpan={5} style={{ padding: "8px", textAlign: "right", borderRight: "1px solid #000000" }}>CGST (9%)</td>
+                    <td style={{ padding: "8px", textAlign: "right" }}>
+                      {payment.cgst.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </td>
+                  </tr>
+                  <tr style={{ borderBottom: "1px solid #000000" }}>
+                    <td colSpan={5} style={{ padding: "8px", textAlign: "right", borderRight: "1px solid #000000" }}>SGST (9%)</td>
+                    <td style={{ padding: "8px", textAlign: "right" }}>
+                      {payment.sgst.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </td>
+                  </tr>
+                </>
+              )}
+
+              {payment.igst > 0 && (
+                <tr style={{ borderBottom: "1px solid #000000" }}>
+                  <td colSpan={5} style={{ padding: "8px", textAlign: "right", borderRight: "1px solid #000000" }}>IGST (18%)</td>
+                  <td style={{ padding: "8px", textAlign: "right" }}>
+                    {payment.igst.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </td>
+                </tr>
+              )}
+
+              {/* Final Total and Rupees in Words */}
+              <tr>
+                <td colSpan={5} style={{ padding: "10px 8px", borderRight: "1px solid #000000", verticalAlign: "middle" }}>
+                  <div style={{ fontSize: "11px", textTransform: "uppercase", color: "#555", marginBottom: "4px" }}>Amount Chargeable (in words):</div>
+                  <strong style={{ fontSize: "12px" }}>{numberToWordsINR(payment.totalAmount)}</strong>
+                </td>
+                <td style={{ padding: "10px 8px", textAlign: "right", fontSize: "14px", fontWeight: "800", verticalAlign: "middle" }}>
+                  INR {payment.totalAmount.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
 
         {/* Footer Notes */}
         <div style={{ marginTop: "30px", textAlign: "center", fontSize: "10.5px" }}>
@@ -355,7 +357,51 @@ export default function InvoicePage() {
         </div>
       </div>
 
-      <style jsx global>{`
+       <style jsx global>{`
+        @media (max-width: 600px) {
+          .invoice-container {
+            padding: 12px 10px !important;
+          }
+          .no-print {
+            flex-direction: column !important;
+            gap: 12px !important;
+            align-items: stretch !important;
+          }
+          .no-print > button {
+            align-self: flex-start !important;
+          }
+          .no-print div {
+            width: 100% !important;
+            justify-content: space-between !important;
+            gap: 8px !important;
+          }
+          .no-print button {
+            padding: 8px 12px !important;
+            font-size: 12.5px !important;
+            flex: 1 !important;
+            justify-content: center !important;
+          }
+          .invoice-card {
+            padding: 16px !important;
+          }
+          .invoice-header-row {
+            flex-direction: column !important;
+            gap: 16px !important;
+          }
+          .invoice-header-row > div {
+            text-align: left !important;
+            width: 100% !important;
+          }
+          .invoice-table-wrapper {
+            margin-top: 10px !important;
+            border: 1px solid #000000 !important;
+          }
+          .invoice-table-wrapper table {
+            min-width: 520px !important;
+            border: none !important;
+          }
+        }
+
         @media print {
           body {
             background-color: #ffffff !important;

@@ -185,12 +185,18 @@
   .cta-card h2 { max-width: 760px; margin-left: auto; margin-right: auto; color: var(--white); }
   .cta-card p { max-width: 600px; margin-left: auto; margin-right: auto; color: rgba(255,255,255,.74); }
 
-  .site-footer { padding: 42px 0; background: var(--navy); color: var(--white); }
-  .footer-grid { display: grid; grid-template-columns: 1fr auto auto; gap: 30px; align-items: center; }
+  .site-footer { padding: 50px 0; background: var(--navy); color: var(--white); }
+  .footer-grid { display: grid; grid-template-columns: 1fr; gap: 30px; }
+  @media (min-width: 768px) {
+    .footer-grid { grid-template-columns: 1fr auto; align-items: center; }
+  }
   .footer-grid p { margin: 10px 0 0; color: rgba(255,255,255,.62); }
-  .footer-links { display: flex; gap: 18px; flex-wrap: wrap; font-size: 14px; font-weight: 750; color: rgba(255,255,255,.72); }
+  .footer-links { display: flex; gap: 24px; flex-wrap: wrap; font-size: 14px; font-weight: 750; color: rgba(255,255,255,.72); }
   .footer-links a:hover { color: var(--white); }
-  .copyright { margin: 0 !important; font-size: 14px; }
+  .copyright { margin: 10px 0 0 !important; font-size: 14px; color: rgba(255,255,255,.5) !important; border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 20px; }
+  @media (min-width: 768px) {
+    .copyright { grid-column: 1 / -1; }
+  }
 
   .legal-page { background: var(--cream); }
   .legal-hero { padding: 76px 0 34px; background: radial-gradient(circle at top left, rgba(199,154,46,.22), transparent 32%), linear-gradient(180deg,#fbf6ea 0%, var(--cream) 100%); }

@@ -40,15 +40,12 @@ export default function Sidebar() {
     <aside className="sidebar-container">
       {/* Logo */}
       <div className="profile-section" style={{ borderBottom: "1px solid var(--card-border)", padding: "16px" }}>
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", width: "100%", gap: "6px" }}>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", width: "100%" }}>
           <img 
             src="/assets/legacybridge-logo.png" 
             alt="LegacyBridge Logo" 
-            style={{ height: "75px", width: "auto", objectFit: "contain" }} 
+            style={{ height: "100px", width: "auto", objectFit: "contain" }} 
           />
-          <span className="brand-title" style={{ fontSize: "17px", fontWeight: "700", color: "#1a150e", WebkitTextFillColor: "#1a150e", letterSpacing: "0.01em", textAlign: "center" }}>
-            LegacyBridge
-          </span>
         </div>
       </div>
 

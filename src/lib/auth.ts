@@ -116,9 +116,12 @@ export const authOptions: NextAuthOptions = {
                 `
               };
 
-              transporter.sendMail(mailOptions).catch(err => {
+              try {
+                await transporter.sendMail(mailOptions);
+                console.log("[Auth Welcome Email] Welcome email sent successfully to:", user.email);
+              } catch (err) {
                 console.error("[Auth Welcome Email] Error sending welcome email:", err);
-              });
+              }
             } else {
               console.warn("[Auth Welcome Email] SMTP credentials not fully configured. Skipped sending welcome email.");
             }

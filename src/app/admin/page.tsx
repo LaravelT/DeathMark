@@ -36,9 +36,11 @@ export default function AdminPage() {
   const [deleteLoading, setDeleteLoading] = useState<string | null>(null);
 
   // Tab State & Payments history
-  const [activeTab, setActiveTab] = useState<"claims" | "payments">("claims");
+  const [activeTab, setActiveTab] = useState<"claims" | "payments" | "users">("claims");
   const [payments, setPayments] = useState<any[]>([]);
   const [paymentsLoading, setPaymentsLoading] = useState(false);
+  const [users, setUsers] = useState<any[]>([]);
+  const [usersLoading, setUsersLoading] = useState(false);
 
   // Authentication State
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -99,15 +101,31 @@ export default function AdminPage() {
     }
   };
 
+  const fetchUsers = async () => {
+    setUsersLoading(true);
+    try {
+      const res = await fetch("/api/admin/users");
+      if (!res.ok) throw new Error("Failed to load users.");
+      const data = await res.json();
+      setUsers(data.users || []);
+    } catch (err: any) {
+      console.error(err);
+    } finally {
+      setUsersLoading(false);
+    }
+  };
+
   const refreshAll = () => {
     fetchClaims();
     fetchPayments();
+    fetchUsers();
   };
 
   useEffect(() => {
     if (isAuthenticated) {
       fetchClaims();
       fetchPayments();
+      fetchUsers();
     }
   }, [isAuthenticated]);
 
@@ -313,6 +331,28 @@ export default function AdminPage() {
             </button>
 
             <button 
+              onClick={() => setActiveTab("users")}
+              style={{ 
+                display: "flex", 
+                alignItems: "center", 
+                gap: "10px", 
+                padding: "10px 14px", 
+                borderRadius: "8px", 
+                backgroundColor: activeTab === "users" ? "rgba(178, 142, 70, 0.08)" : "transparent", 
+                color: activeTab === "users" ? "var(--primary)" : "#6b5a45",
+                fontWeight: activeTab === "users" ? "700" : "600",
+                fontSize: "14px",
+                border: "none",
+                cursor: "pointer",
+                textAlign: "left",
+                width: "100%"
+              }}
+            >
+              <FileText size={18} />
+              <span>Users List</span>
+            </button>
+
+            <button 
               onClick={refreshAll}
               style={{ 
                 display: "flex", 
@@ -381,12 +421,14 @@ export default function AdminPage() {
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <div>
             <h1 className="page-title" style={{ fontSize: "28px", margin: 0, fontFamily: "'Playfair Display', Georgia, serif" }}>
-              {activeTab === "claims" ? "Beneficiary Claims Manager" : "Payments & Invoices History"}
+              {activeTab === "claims" ? "Beneficiary Claims Manager" : activeTab === "payments" ? "Payments & Invoices History" : "Registered Users List"}
             </h1>
             <span style={{ fontSize: "14px", color: "#6b5a45" }}>
               {activeTab === "claims" 
                 ? "Verify relative claims and documents from the claims database." 
-                : "View payments history, user billing details, and download invoices."
+                : activeTab === "payments"
+                  ? "View payments history, user billing details, and download invoices."
+                  : "View registered users, their current subscription plans, and invoice numbers."
               }
             </span>
           </div>
@@ -589,7 +631,7 @@ export default function AdminPage() {
               </div>
             )}
           </div>
-        ) : (
+        ) : activeTab === "payments" ? (
           <div className="panel-card" style={{ padding: "30px", backgroundColor: "#ffffff" }}>
             {paymentsLoading ? (
               <div style={{ textAlign: "center", padding: "80px", color: "var(--muted)" }}>
@@ -612,7 +654,6 @@ export default function AdminPage() {
                       <th style={{ padding: "12px" }}>Invoice No</th>
                       <th style={{ padding: "12px" }}>Amount</th>
                       <th style={{ padding: "12px" }}>Status</th>
-                      <th style={{ padding: "12px" }}>Action</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -647,28 +688,64 @@ export default function AdminPage() {
                               {p.status}
                             </span>
                           </td>
-                          <td style={{ padding: "16px 12px" }}>
-                            {p.status === "completed" && (
-                              <button
-                                onClick={() => window.open(`/vault/invoice/${p.orderId}`)}
-                                className="btn-outline"
-                                style={{
-                                  display: "inline-flex",
-                                  alignItems: "center",
-                                  gap: "4px",
-                                  fontSize: "12px",
-                                  padding: "4px 8px",
-                                  color: "var(--primary)",
-                                  borderColor: "rgba(217, 184, 133, 0.4)",
-                                  backgroundColor: "transparent",
-                                  cursor: "pointer",
-                                  borderRadius: "4px"
-                                }}
-                              >
-                                <Download size={12} /> View Invoice
-                              </button>
-                            )}
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="panel-card" style={{ padding: "30px", backgroundColor: "#ffffff" }}>
+            {usersLoading ? (
+              <div style={{ textAlign: "center", padding: "80px", color: "var(--muted)" }}>
+                Loading registered users...
+              </div>
+            ) : users.length === 0 ? (
+              <div style={{ textAlign: "center", padding: "80px 40px", border: "1px dashed rgba(217, 184, 133, 0.3)", borderRadius: "10px", backgroundColor: "#faf7f0" }}>
+                <UserCheck size={40} style={{ color: "var(--muted)", marginBottom: "12px" }} />
+                <p style={{ color: "var(--muted)", margin: 0 }}>No registered users found.</p>
+              </div>
+            ) : (
+              <div style={{ overflowX: "auto" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left", fontSize: "14px" }}>
+                  <thead>
+                    <tr style={{ borderBottom: "2px solid var(--card-border)", color: "#6b5a45", fontWeight: "600", backgroundColor: "#faf7f0" }}>
+                      <th style={{ padding: "12px" }}>Name</th>
+                      <th style={{ padding: "12px" }}>Email</th>
+                      <th style={{ padding: "12px" }}>Registration Date</th>
+                      <th style={{ padding: "12px" }}>Active Plan</th>
+                      <th style={{ padding: "12px" }}>Invoice No</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {users.map((u) => {
+                      const regDate = u.createdAt ? new Date(u.createdAt).toLocaleDateString("en-IN", {
+                        day: "numeric",
+                        month: "short",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit"
+                      }) : "N/A";
+                      return (
+                        <tr key={u._id} style={{ borderBottom: "1px solid var(--card-border)", transition: "background 0.2s" }} className="table-row-hover">
+                          <td style={{ padding: "16px 12px", color: "#1a150e", fontWeight: "700" }}>{u.name}</td>
+                          <td style={{ padding: "16px 12px", color: "#5c4d3c", fontWeight: "600" }}>{u.email}</td>
+                          <td style={{ padding: "16px 12px", color: "#6b5a45" }}>{regDate}</td>
+                          <td style={{ padding: "16px 12px", textTransform: "capitalize", fontWeight: "600" }}>
+                            <span style={{
+                              fontSize: "12px",
+                              fontWeight: "600",
+                              padding: "3px 8px",
+                              borderRadius: "10px",
+                              backgroundColor: u.plan === "lifetime" ? "rgba(16,185,129,0.15)" : u.plan === "annual" ? "rgba(56,189,248,0.15)" : "rgba(245,158,11,0.15)",
+                              color: u.plan === "lifetime" ? "#10b981" : u.plan === "annual" ? "#38bdf8" : "#b28e46"
+                            }}>
+                              {u.plan === "free_trial" ? "Free Trial" : `${u.plan} Access`}
+                            </span>
                           </td>
+                          <td style={{ padding: "16px 12px", color: "#1a150e" }}>{u.invoiceNumber}</td>
                         </tr>
                       );
                     })}

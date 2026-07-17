@@ -124,7 +124,7 @@ export default function Home() {
             <Link href="#faq" onClick={() => setMenuOpen(false)}>FAQ</Link>
             <Link href="/claim" onClick={() => setMenuOpen(false)}>Claim Assets</Link>
             <Link href="/auth/signin" className="nav-cta" onClick={() => setMenuOpen(false)}>
-              Start 48-Hour Access
+              Sign In
             </Link>
           </div>
         </nav>
@@ -199,12 +199,18 @@ export default function Home() {
               <p>
                 LegacyBridge is built around that pain. Your asset information is not kept as readable data on our server. It is encrypted and saved in the Google Drive of the user account with which you log in.
               </p>
+              <div style={{ marginTop: "24px" }}>
+                <Link className="btn primary" href="/auth/signin">Start 48-Hour Access</Link>
+              </div>
             </div>
             <div className="pain-card reveal delay-1">
               <div className="pain-item"><span>Concern</span><strong>“Will someone misuse my wealth data?”</strong></div>
               <div className="pain-item"><span>Concern</span><strong>“Will I start getting calls and marketing mails?”</strong></div>
               <div className="pain-item"><span>Concern</span><strong>“Why should my financial trail sit on another company’s server?”</strong></div>
               <div className="pain-solution"><small>LegacyBridge answer</small><p>Your data remains with you, encrypted in your Google Drive.</p></div>
+              <div style={{ marginTop: "20px", display: "flex" }}>
+                <Link className="btn primary" href="/auth/signin" style={{ width: "100%", textAlign: "center" }}>Sign In</Link>
+              </div>
             </div>
           </div>
         </section>
@@ -252,7 +258,7 @@ export default function Home() {
               <h2>A simple roadmap for the people who matter most.</h2>
             </div>
             <div className="timeline">
-              <div className="timeline-step reveal"><span>1</span><div><h3>Start with Google login</h3><p>User signs in with the same Google account where the encrypted vault will be stored.</p></div></div>
+              <div className="timeline-step reveal"><span>1</span><div><h3><Link href="/auth/signin" className="hover-underline" style={{ color: "inherit", textDecoration: "none" }}>Start with Google login</Link></h3><p>User signs in with the same Google account where the encrypted vault will be stored.</p></div></div>
               <div className="timeline-step reveal"><span>2</span><div><h3>Set secret passphrase</h3><p>This passphrase protects the encrypted vault. It is not stored as a normal app password.</p></div></div>
               <div className="timeline-step reveal"><span>3</span><div><h3>Add owner and nominee details</h3><p>These details help verify the correct nominee if a claim is ever initiated.</p></div></div>
               <div className="timeline-step reveal"><span>4</span><div><h3>Fill short wealth-information forms</h3><p>Record where assets exist, whom to contact, document location and what your nominee should know.</p></div></div>
@@ -289,6 +295,10 @@ export default function Home() {
                   <p>{category[1]} Every section includes “What should my nominee know?”</p>
                 </article>
               ))}
+              <article className="category-card reveal try-now-card" style={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", minHeight: "180px", border: "2px dashed var(--primary)", background: "rgba(178,142,70,0.04)", textAlign: "center", padding: "24px" }}>
+                <h3 style={{ marginBottom: "16px", color: "var(--text-color)", fontSize: "18px" }}>Want to secure your details?</h3>
+                <Link className="btn primary" href="/auth/signin" style={{ padding: "10px 24px" }}>Try Now</Link>
+              </article>
             </div>
           </div>
         </section>

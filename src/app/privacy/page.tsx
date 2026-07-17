@@ -37,7 +37,7 @@ export default function PrivacyPolicyPage() {
             <Link href="/#faq" onClick={() => setMenuOpen(false)}>FAQ</Link>
             <Link href="/claim" onClick={() => setMenuOpen(false)}>Claim Assets</Link>
             <Link href="/auth/signin" className="nav-cta" onClick={() => setMenuOpen(false)}>
-              Start 48-Hour Access
+              Sign In
             </Link>
           </div>
         </nav>

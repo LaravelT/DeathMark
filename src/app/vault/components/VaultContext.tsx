@@ -82,6 +82,60 @@ export const INSTRUMENT_TYPES: InstrumentTypeInfo[] = [
   { id: "recurring_payments", label: "Recurring Payments / Auto Debit", columns: ["Sr No", "Payment Name", "Payment Type", "Debit Bank Account", "Frequency", "Auto Debit Enabled", "Actions"] }
 ];
 
+export interface ParentCategory {
+  id: string;
+  label: string;
+  subCategories: string[];
+}
+
+export const PARENT_CATEGORIES: ParentCategory[] = [
+  {
+    id: "docs_planning",
+    label: "1. Important Documents & Legal Planning",
+    subCategories: ["emergency_contact", "important_documents", "will_document", "trust_document"]
+  },
+  {
+    id: "bank_deposits",
+    label: "2. Bank, Cash & Deposits",
+    subCategories: ["bank_account", "fixed_deposits", "pf_ppf_epf", "mobile_wallet"]
+  },
+  {
+    id: "market_investments",
+    label: "3. Market Investments",
+    subCategories: ["demat_account", "trading_account", "mutual_fund", "pms", "aif", "bonds_certificates", "physical_shares"]
+  },
+  {
+    id: "private_alternative",
+    label: "4. Private & Alternative Investments",
+    subCategories: ["private_equity", "startup_investments", "crypto_currency", "nft"]
+  },
+  {
+    id: "property_physical",
+    label: "5. Property & Physical Assets",
+    subCategories: ["real_estate", "movable_assets", "vehicle_details", "bank_locker"]
+  },
+  {
+    id: "insurance",
+    label: "6. Insurance",
+    subCategories: ["life_insurance", "health_insurance", "general_insurance"]
+  },
+  {
+    id: "loans_liabilities",
+    label: "7. Loans, Liabilities & Money Matters",
+    subCategories: ["loan_given", "liabilities_details", "recurring_payments", "recurring_income"]
+  },
+  {
+    id: "business_memberships",
+    label: "8. Business, Memberships & Other Interests",
+    subCategories: ["business_interests", "membership_details"]
+  },
+  {
+    id: "digital_access",
+    label: "9. Digital Access Information",
+    subCategories: ["website_credentials"]
+  }
+];
+
 interface VaultContextType {
   isDemo: boolean;
   session: any;

@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { FolderKey, LogOut, Notebook, ChevronDown, ChevronRight, Coins, UserCheck, User, ShieldCheck } from "lucide-react";
-import { useVault, INSTRUMENT_TYPES, getRecordDisplayName } from "./VaultContext";
+import { useVault, INSTRUMENT_TYPES, getRecordDisplayName, PARENT_CATEGORIES } from "./VaultContext";
 
 export default function Sidebar() {
   const pathname = usePathname();
@@ -14,6 +14,12 @@ export default function Sidebar() {
     instrumentsOpen, setInstrumentsOpen, openCategories, setOpenCategories,
     nomineeDetails, searchTerm, ownerDetails
   } = useVault();
+
+  const [expandedParents, setExpandedParents] = useState<Record<string, boolean>>({});
+
+  const toggleParentExpand = (parentId: string) => {
+    setExpandedParents(prev => ({ ...prev, [parentId]: !prev[parentId] }));
+  };
 
   // If a category has files, we can automatically expand it if we are currently visiting its route
   useEffect(() => {
@@ -127,58 +133,103 @@ export default function Sidebar() {
 
         {/* Submenu Dropdown Items */}
         {instrumentsOpen && (
-          <div className="submenu-container">
-            {INSTRUMENT_TYPES.filter((type) => {
-              if (!searchTerm) return true;
-              return type.label.toLowerCase().includes(searchTerm.toLowerCase());
-            }).map((type) => {
-              const count = getCategoryCount(type.id);
-              const isCatActive = pathname === `/vault/${type.id}`;
-              const isExpanded = !!openCategories[type.id];
-              const categoryFiles = vaultIndex.files.filter(f => f.category === type.id);
+          <div className="submenu-container" style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+            {PARENT_CATEGORIES.map((parent) => {
+              const isParentExpanded = !!expandedParents[parent.id];
+              // Calculate total count under this parent
+              const totalCount = parent.subCategories.reduce((acc, subId) => acc + getCategoryCount(subId), 0);
 
               return (
-                <div key={type.id} style={{ display: "flex", flexDirection: "column" }}>
-                  <div 
-                    className={`submenu-item ${isCatActive ? "active" : ""}`}
-                    style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingRight: "4px" }}
+                <div key={parent.id} style={{ display: "flex", flexDirection: "column", borderBottom: "1px solid rgba(217, 184, 133, 0.08)", paddingBottom: "6px" }}>
+                  <button
+                    onClick={() => toggleParentExpand(parent.id)}
+                    className="submenu-item"
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      padding: "8px 12px",
+                      background: "none",
+                      border: "none",
+                      width: "100%",
+                      textAlign: "left",
+                      cursor: "pointer",
+                      color: isParentExpanded ? "var(--primary)" : "inherit",
+                      fontWeight: isParentExpanded ? "600" : "normal"
+                    }}
                   >
-                    <Link
-                      href={isDemo ? `/vault/${type.id}?demo=true` : `/vault/${type.id}`}
-                      style={{ textDecoration: "none", color: "inherit", flex: 1, display: "flex", alignItems: "center", gap: "8px" }}
-                    >
-                      <span className="submenu-dot">→</span>
-                      <span style={{ textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap", maxWidth: "160px" }}>{type.label}</span>
-                      {count > 0 && (
-                        <span style={{ fontSize: "11px", backgroundColor: "rgba(99,102,241,0.15)", color: "#818cf8", padding: "1px 6px", borderRadius: "10px", fontWeight: "bold" }}>
-                          {count}
+                    <span style={{ fontSize: "13px", lineHeight: "1.4", overflow: "hidden", textOverflow: "ellipsis" }}>
+                      {parent.label}
+                    </span>
+                    <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                      {totalCount > 0 && (
+                        <span style={{ fontSize: "10px", backgroundColor: "rgba(178,142,70,0.15)", color: "#b28e46", padding: "1px 6px", borderRadius: "10px", fontWeight: "bold" }}>
+                          {totalCount}
                         </span>
                       )}
-                    </Link>
+                      {isParentExpanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+                    </div>
+                  </button>
 
-                    {categoryFiles.length > 0 && (
-                      <button
-                        onClick={(e) => toggleCategoryExpand(type.id, e)}
-                        style={{ background: "none", border: "none", color: "var(--muted)", cursor: "pointer", padding: "4px 8px", display: "flex", alignItems: "center" }}
-                      >
-                        {isExpanded ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
-                      </button>
-                    )}
-                  </div>
+                  {/* Subcategories (dropdown list) */}
+                  {isParentExpanded && (
+                    <div style={{ display: "flex", flexDirection: "column", gap: "2px", paddingLeft: "16px", marginTop: "4px", borderLeft: "2px solid rgba(178,142,70,0.15)" }}>
+                      {parent.subCategories.map((subId) => {
+                        const type = INSTRUMENT_TYPES.find(t => t.id === subId);
+                        if (!type) return null;
 
-                  {/* Sidebar Drilldown Child Files */}
-                  {isExpanded && categoryFiles.length > 0 && (
-                    <div className="nested-records-container">
-                      {categoryFiles.map((file) => (
-                        <Link
-                          key={file.id}
-                          href={isDemo ? `/vault/${type.id}?id=${file.id}&demo=true` : `/vault/${type.id}?id=${file.id}`}
-                          className="nested-record-item"
-                          style={{ textDecoration: "none" }}
-                        >
-                          • {getRecordDisplayName(file)}
-                        </Link>
-                      ))}
+                        const count = getCategoryCount(subId);
+                        const isCatActive = pathname === `/vault/${subId}`;
+                        const isExpanded = !!openCategories[subId];
+                        const categoryFiles = vaultIndex.files.filter(f => f.category === subId);
+
+                        return (
+                          <div key={subId} style={{ display: "flex", flexDirection: "column" }}>
+                            <div 
+                              className={`submenu-item ${isCatActive ? "active" : ""}`}
+                              style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "6px 8px 6px 4px" }}
+                            >
+                              <Link
+                                href={isDemo ? `/vault/${subId}?demo=true` : `/vault/${subId}`}
+                                style={{ textDecoration: "none", color: "inherit", flex: 1, display: "flex", alignItems: "center", gap: "6px", fontSize: "12.5px" }}
+                              >
+                                <span>•</span>
+                                <span style={{ textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap", maxWidth: "140px" }}>{type.label}</span>
+                                {count > 0 && (
+                                  <span style={{ fontSize: "10px", backgroundColor: "rgba(99,102,241,0.15)", color: "#818cf8", padding: "1px 5px", borderRadius: "8px", fontWeight: "bold" }}>
+                                    {count}
+                                  </span>
+                                )}
+                              </Link>
+
+                              {categoryFiles.length > 0 && (
+                                <button
+                                  onClick={(e) => toggleCategoryExpand(subId, e)}
+                                  style={{ background: "none", border: "none", color: "var(--muted)", cursor: "pointer", padding: "2px 4px", display: "flex", alignItems: "center" }}
+                                >
+                                  {isExpanded ? <ChevronDown size={11} /> : <ChevronRight size={11} />}
+                                </button>
+                              )}
+                            </div>
+
+                            {/* Sidebar Drilldown Child Files */}
+                            {isExpanded && categoryFiles.length > 0 && (
+                              <div className="nested-records-container" style={{ paddingLeft: "12px" }}>
+                                {categoryFiles.map((file) => (
+                                  <Link
+                                    key={file.id}
+                                    href={isDemo ? `/vault/${subId}?id=${file.id}&demo=true` : `/vault/${subId}?id=${file.id}`}
+                                    className="nested-record-item"
+                                    style={{ textDecoration: "none", fontSize: "12px" }}
+                                  >
+                                    - {getRecordDisplayName(file)}
+                                  </Link>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
                     </div>
                   )}
                 </div>

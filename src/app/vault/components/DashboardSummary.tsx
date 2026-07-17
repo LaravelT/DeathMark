@@ -2,8 +2,8 @@
 
 import React from "react";
 import { useRouter } from "next/navigation";
-import { Coins, ShieldAlert, Building2, UserCheck, Download } from "lucide-react";
-import { useVault, INSTRUMENT_TYPES, formatDateTime } from "./VaultContext";
+import { Coins, ShieldAlert, Building2, UserCheck, Download, ChevronRight, ChevronDown } from "lucide-react";
+import { useVault, INSTRUMENT_TYPES, formatDateTime, PARENT_CATEGORIES } from "./VaultContext";
 
 export default function DashboardSummary() {
   const router = useRouter();
@@ -12,6 +12,7 @@ export default function DashboardSummary() {
   const [showSuccessBanner, setShowSuccessBanner] = React.useState(false);
   const [showRechargeModal, setShowRechargeModal] = React.useState(false);
   const [paymentHistory, setPaymentHistory] = React.useState<any[]>([]);
+  const [expandedParents, setExpandedParents] = React.useState<Record<string, boolean>>({});
 
   React.useEffect(() => {
     if (isDemo) {
@@ -291,44 +292,103 @@ export default function DashboardSummary() {
       {/* Categories Grid List */}
       <h2 style={{ fontSize: "19px", fontWeight: "750", color: "#1a150e", margin: "32px 0 16px 0" }}>Instruments Distribution</h2>
       <div className="form-grid form-grid-3">
-        {INSTRUMENT_TYPES.filter((type) => {
-          if (!searchTerm) return true;
-          return type.label.toLowerCase().includes(searchTerm.toLowerCase());
-        }).map((type) => {
-          const count = getCategoryCount(type.id);
-          const rawLastUpdated = getCategoryLastUpdated(type.id);
-          const lastUpdatedStr = rawLastUpdated ? formatDateTime(rawLastUpdated) : "";
-          
+        {PARENT_CATEGORIES.map((parent) => {
+          const isExpanded = !!expandedParents[parent.id];
+          const totalCount = parent.subCategories.reduce((acc, subId) => acc + getCategoryCount(subId), 0);
+
+          // Find latest update date among all sub-categories
+          let latestUpdate: Date | null = null;
+          parent.subCategories.forEach((subId) => {
+            const up = getCategoryLastUpdated(subId);
+            if (up) {
+              const d = new Date(up);
+              if (!latestUpdate || d > latestUpdate) {
+                latestUpdate = d;
+              }
+            }
+          });
+          const lastUpdatedStr = latestUpdate ? formatDateTime(latestUpdate) : "";
+
           return (
             <div 
-              key={type.id} 
-              onClick={() => router.push(isDemo ? `/vault/${type.id}?demo=true` : `/vault/${type.id}`)}
+              key={parent.id} 
               className="panel-card" 
               style={{ 
-                padding: "18px 20px", 
-                cursor: "pointer", 
-                transition: "all 0.2s ease", 
-                borderLeft: count > 0 ? "4px solid var(--primary)" : "1px solid var(--card-border)",
+                padding: "20px", 
+                borderLeft: totalCount > 0 ? "4px solid var(--primary)" : "1px solid var(--card-border)",
                 borderTopRightRadius: "16px",
                 borderBottomRightRadius: "16px",
-                borderTopLeftRadius: count > 0 ? "0px" : "16px",
-                borderBottomLeftRadius: count > 0 ? "0px" : "16px",
+                borderTopLeftRadius: totalCount > 0 ? "0px" : "16px",
+                borderBottomLeftRadius: totalCount > 0 ? "0px" : "16px",
                 marginBottom: 0,
                 display: "flex",
                 flexDirection: "column",
-                justifyContent: "space-between",
-                minHeight: "84px"
+                gap: "12px",
+                minHeight: "100px"
               }}
             >
-              <div className="flex-between" style={{ width: "100%", alignItems: "center" }}>
-                <span style={{ fontSize: "14px", fontWeight: "700", color: "#1a150e" }}>{type.label}</span>
-                <span style={{ fontSize: "11px", padding: "3px 8px", borderRadius: "10px", backgroundColor: count > 0 ? "#fbf5e6" : "#faf7f0", color: count > 0 ? "#b28e46" : "var(--muted)", fontWeight: "bold", whiteSpace: "nowrap" }}>
-                  {count} Record(s)
-                </span>
+              <div 
+                className="flex-between" 
+                style={{ width: "100%", alignItems: "center", cursor: "pointer" }}
+                onClick={() => setExpandedParents(prev => ({ ...prev, [parent.id]: !prev[parent.id] }))}
+              >
+                <span style={{ fontSize: "14px", fontWeight: "700", color: "#1a150e" }}>{parent.label}</span>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  <span style={{ fontSize: "11px", padding: "3px 8px", borderRadius: "10px", backgroundColor: totalCount > 0 ? "#fbf5e6" : "#faf7f0", color: totalCount > 0 ? "#b28e46" : "var(--muted)", fontWeight: "bold", whiteSpace: "nowrap" }}>
+                    {totalCount} Record(s)
+                  </span>
+                  <div style={{ color: "var(--muted)", display: "flex", alignItems: "center" }}>
+                    {isExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+                  </div>
+                </div>
               </div>
+
               {lastUpdatedStr && (
-                <div style={{ marginTop: "8px", borderTop: "1px solid rgba(217,184,133,0.12)", paddingTop: "6px", fontSize: "10.5px", color: "var(--muted)" }}>
+                <div style={{ fontSize: "10.5px", color: "var(--muted)" }}>
                   Last Update: <span style={{ color: "#b28e46", fontWeight: "600" }}>{lastUpdatedStr}</span>
+                </div>
+              )}
+
+              {/* Sub-categories dropdown list inside the card */}
+              {isExpanded && (
+                <div style={{ 
+                  display: "flex", 
+                  flexDirection: "column", 
+                  gap: "6px", 
+                  marginTop: "8px", 
+                  paddingTop: "12px", 
+                  borderTop: "1px solid rgba(217, 184, 133, 0.15)" 
+                }}>
+                  {parent.subCategories.map((subId) => {
+                    const type = INSTRUMENT_TYPES.find(t => t.id === subId);
+                    if (!type) return null;
+                    const count = getCategoryCount(subId);
+
+                    return (
+                      <div 
+                        key={subId} 
+                        onClick={() => router.push(isDemo ? `/vault/${subId}?demo=true` : `/vault/${subId}`)}
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          padding: "8px 12px",
+                          borderRadius: "8px",
+                          backgroundColor: "#faf7f0",
+                          border: "1px solid rgba(217, 184, 133, 0.15)",
+                          cursor: "pointer",
+                          transition: "all 0.2s"
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#f5ebd5"}
+                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#faf7f0"}
+                      >
+                        <span style={{ fontSize: "13px", fontWeight: "600", color: "#1a150e" }}>{type.label}</span>
+                        <span style={{ fontSize: "11px", color: count > 0 ? "#b28e46" : "var(--muted)", fontWeight: "bold" }}>
+                          {count} Record(s)
+                        </span>
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </div>

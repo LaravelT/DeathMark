@@ -44,7 +44,7 @@ export default function Sidebar() {
           <img 
             src="/assets/legacybridge-logo.png" 
             alt="LegacyBridge Logo" 
-            style={{ height: "64px", width: "64px", objectFit: "contain", marginLeft: "-8px", marginRight: "-4px" }} 
+            style={{ height: "75px", width: "auto", objectFit: "contain", marginLeft: "-8px" }} 
           />
           <span className="brand-title" style={{ fontSize: "17px", fontWeight: "700", color: "#1a150e", WebkitTextFillColor: "#1a150e", letterSpacing: "0.01em" }}>
             LegacyBridge

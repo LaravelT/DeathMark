@@ -18,6 +18,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "LegacyBridge | Private Family Wealth Info Vault & Asset Roadmap",
   description: "Secure your family's future with LegacyBridge. Record assets in an encrypted vault stored in your Google Drive for your nominee's discovery.",
+  verification: {
+    google: "w87Fr7-CRoUH1jyH9_yZEp8Nbj0seSN1knTfMfBfAdA",
+  },
 };
 
 export default function RootLayout({

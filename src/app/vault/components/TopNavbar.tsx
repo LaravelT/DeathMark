@@ -168,7 +168,8 @@ export default function TopNavbar({ onToggleSidebar }: { onToggleSidebar?: () =>
         backgroundColor: "#faf7f0", 
         border: "1px solid rgba(217, 184, 133, 0.25)", 
         borderRadius: "10px", 
-        padding: "8px 14px"
+        padding: "8px 14px",
+        position: "relative"
       }}>
         <Search size={16} style={{ color: "var(--muted)" }} />
         <input 
@@ -178,6 +179,108 @@ export default function TopNavbar({ onToggleSidebar }: { onToggleSidebar?: () =>
           placeholder="Search records here..." 
           style={{ border: "none", outline: "none", fontSize: "14px", width: "100%", backgroundColor: "transparent", color: "var(--fg-color)" }} 
         />
+        {searchTerm.trim() !== "" && (() => {
+          const cleanSearch = searchTerm.trim().toLowerCase();
+          const matchingInstruments = INSTRUMENT_TYPES.filter(inst => 
+            inst.label.toLowerCase().includes(cleanSearch) || 
+            inst.id.toLowerCase().includes(cleanSearch)
+          );
+          const matchingFiles = vaultIndex.files.filter(file => 
+            file.name.toLowerCase().includes(cleanSearch) || 
+            Object.values(file.details || {}).some(v => v.toLowerCase().includes(cleanSearch))
+          );
+
+          return (
+            <div style={{
+              position: "absolute",
+              top: "100%",
+              left: 0,
+              right: 0,
+              backgroundColor: "#ffffff",
+              border: "1px solid rgba(217, 184, 133, 0.3)",
+              borderRadius: "10px",
+              marginTop: "6px",
+              boxShadow: "0 10px 25px rgba(0,0,0,0.15)",
+              zIndex: 1000,
+              maxHeight: "300px",
+              overflowY: "auto",
+              padding: "8px 0"
+            }}>
+              {matchingInstruments.length > 0 && (
+                <div>
+                  <div style={{ fontSize: "11px", fontWeight: "700", color: "#b28e46", padding: "6px 14px", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                    Instruments ({matchingInstruments.length})
+                  </div>
+                  {matchingInstruments.map(inst => (
+                    <div
+                      key={inst.id}
+                      onClick={() => {
+                        setSearchTerm("");
+                        router.push(isDemo ? `/vault/${inst.id}?demo=true` : `/vault/${inst.id}`);
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#faf7f0"}
+                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "transparent"}
+                      style={{
+                        padding: "8px 14px",
+                        fontSize: "13px",
+                        cursor: "pointer",
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        color: "#1a150e",
+                        transition: "background-color 0.2s"
+                      }}
+                    >
+                      <span>{inst.label}</span>
+                      <span style={{ fontSize: "11px", backgroundColor: "#fbf5e6", color: "#b28e46", padding: "2px 6px", borderRadius: "10px", fontWeight: "bold" }}>
+                        Open
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+              
+              {matchingFiles.length > 0 && (
+                <div style={{ borderTop: matchingInstruments.length > 0 ? "1px solid #f3f4f6" : "none", marginTop: matchingInstruments.length > 0 ? "6px" : 0, paddingTop: matchingInstruments.length > 0 ? "6px" : 0 }}>
+                  <div style={{ fontSize: "11px", fontWeight: "700", color: "#b28e46", padding: "6px 14px", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                    Vault Records ({matchingFiles.length})
+                  </div>
+                  {matchingFiles.map(file => (
+                    <div
+                      key={file.id}
+                      onClick={() => {
+                        setSearchTerm("");
+                        router.push(isDemo ? `/vault/${file.category}?id=${file.id}&demo=true` : `/vault/${file.category}?id=${file.id}`);
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#faf7f0"}
+                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "transparent"}
+                      style={{
+                        padding: "8px 14px",
+                        fontSize: "13px",
+                        cursor: "pointer",
+                        display: "flex",
+                        flexDirection: "column",
+                        color: "#1a150e",
+                        transition: "background-color 0.2s"
+                      }}
+                    >
+                      <strong style={{ fontSize: "13px" }}>{file.name}</strong>
+                      <span style={{ fontSize: "11px", color: "var(--muted)" }}>
+                        Category: {INSTRUMENT_TYPES.find(t => t.id === file.category)?.label || file.category}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+              
+              {matchingInstruments.length === 0 && matchingFiles.length === 0 && (
+                <div style={{ padding: "16px", textAlign: "center", color: "var(--muted)", fontSize: "13px" }}>
+                  No matching instruments or records found.
+                </div>
+              )}
+            </div>
+          );
+        })()}
       </div>
 
       <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>

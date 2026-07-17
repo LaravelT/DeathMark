@@ -109,14 +109,31 @@ function VaultLayoutInner({ children }: { children: React.ReactNode }) {
       setIsWindowBlurred(false);
     };
 
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        setIsWindowBlurred(true);
+      } else {
+        setIsWindowBlurred(false);
+      }
+    };
+
+    const handleCopy = (e: ClipboardEvent) => {
+      e.preventDefault();
+      showSecurityAlert("Copying is disabled for security reasons.");
+    };
+
     document.addEventListener("contextmenu", handleContextMenu);
     document.addEventListener("keydown", handleKeyDown);
+    document.addEventListener("copy", handleCopy);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
     window.addEventListener("blur", handleBlur);
     window.addEventListener("focus", handleFocus);
 
     return () => {
       document.removeEventListener("contextmenu", handleContextMenu);
       document.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener("copy", handleCopy);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
       window.removeEventListener("blur", handleBlur);
       window.removeEventListener("focus", handleFocus);
     };
@@ -290,10 +307,45 @@ function VaultLayoutInner({ children }: { children: React.ReactNode }) {
         backgroundColor: "var(--bg-color)", 
         display: "flex", 
         position: "relative",
-        filter: isWindowBlurred ? "blur(15px)" : "none",
-        transition: "filter 0.15s ease"
+        filter: isWindowBlurred ? "blur(80px)" : "none",
+        opacity: isWindowBlurred ? 0 : 1,
+        transition: "none"
       }}
     >
+      {/* Strict Print Block Styles */}
+      <style jsx global>{`
+        @media print {
+          body, html, .vault-layout-container, .main-wrapper, .page-container {
+            display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+          }
+        }
+      `}</style>
+
+      {/* Screen Shot Block Black Overlay */}
+      {isWindowBlurred && (
+        <div style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: "#000000",
+          zIndex: 9999999,
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+          color: "#ffffff",
+          fontFamily: "system-ui, -apple-system, sans-serif"
+        }}>
+          <ShieldAlert size={60} style={{ color: "#b28e46", marginBottom: "16px" }} />
+          <h2 style={{ fontSize: "20px", fontWeight: "bold", margin: 0 }}>Security Mode Active</h2>
+          <p style={{ fontSize: "14px", color: "#8c7a6b", marginTop: "8px", margin: "8px 0 0 0" }}>Screenshots and printing are strictly prohibited.</p>
+        </div>
+      )}
+
       <Sidebar />
       {sidebarOpen && (
         <div 

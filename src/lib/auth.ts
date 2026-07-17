@@ -122,6 +122,51 @@ export const authOptions: NextAuthOptions = {
               } catch (err) {
                 console.error("[Auth Welcome Email] Error sending welcome email:", err);
               }
+
+              // Send Admin Notification Alert
+              try {
+                const totalUsers = await usersCollection.countDocuments({});
+                const registrationId = String(totalUsers).padStart(4, "0");
+
+                const adminMailOptions = {
+                  from: smtpFrom,
+                  to: "info@solutionplanets.com",
+                  subject: `New User Registration: #${registrationId} - ${user.name || 'New User'}`,
+                  html: `
+                    <div style="font-family: sans-serif; padding: 25px; color: #1a150e; background-color: #faf7f0; border-radius: 12px; max-width: 600px; margin: 0 auto; border: 1px solid rgba(217, 184, 133, 0.25);">
+                      <h3 style="color: #b28e46; font-size: 18px; border-bottom: 2px solid rgba(217, 184, 133, 0.12); padding-bottom: 10px; margin-top: 0;">New User Registration Alert</h3>
+                      <p style="font-size: 14px; color: #6b5a45;">A new user has registered on the LegacyBridge platform.</p>
+                      
+                      <div style="background-color: #ffffff; padding: 15px; border-radius: 8px; border: 1px solid rgba(217, 184, 133, 0.15); margin: 20px 0;">
+                        <table style="width: 100%; border-collapse: collapse; font-size: 14px; text-align: left;">
+                          <tr>
+                            <td style="padding: 6px 0; font-weight: bold; color: #1a150e; width: 140px;">Registration ID:</td>
+                            <td style="padding: 6px 0; color: #b28e46; font-weight: bold;">#${registrationId}</td>
+                          </tr>
+                          <tr>
+                            <td style="padding: 6px 0; font-weight: bold; color: #1a150e;">User Name:</td>
+                            <td style="padding: 6px 0; color: #5c4d3c;">${user.name || "N/A"}</td>
+                          </tr>
+                          <tr>
+                            <td style="padding: 6px 0; font-weight: bold; color: #1a150e;">User Email:</td>
+                            <td style="padding: 6px 0; color: #5c4d3c;">${user.email}</td>
+                          </tr>
+                          <tr>
+                            <td style="padding: 6px 0; font-weight: bold; color: #1a150e;">Date & Time:</td>
+                            <td style="padding: 6px 0; color: #5c4d3c;">${new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })} (IST)</td>
+                          </tr>
+                        </table>
+                      </div>
+                      
+                      <p style="font-size: 12px; color: #8c7a6b; margin: 0; text-align: center;">This is an automated system alert from LegacyBridge.</p>
+                    </div>
+                  `
+                };
+                await transporter.sendMail(adminMailOptions);
+                console.log(`[Auth Welcome Email] Admin notification sent successfully for user #${registrationId}`);
+              } catch (adminErr) {
+                console.error("[Auth Welcome Email] Error sending admin notification email:", adminErr);
+              }
             } else {
               console.warn("[Auth Welcome Email] SMTP credentials not fully configured. Skipped sending welcome email.");
             }

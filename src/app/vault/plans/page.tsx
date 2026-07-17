@@ -500,8 +500,8 @@ export default function PlansPage() {
                 </select>
               </div>
 
-              <div style={{ display: "flex", gap: "10px" }}>
-                <div style={{ display: "flex", flexDirection: "column", gap: "3px", flex: 1 }}>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "12px" }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: "3px", flex: "1 1 200px" }}>
                   <label style={{ fontSize: "11px", fontWeight: "700", color: "#1a150e" }}>Email *</label>
                   <input 
                     type="email" 
@@ -511,7 +511,7 @@ export default function PlansPage() {
                     style={{ padding: "8px 12px", borderRadius: "8px", border: "1px solid #dcd1c4", fontSize: "13px" }}
                   />
                 </div>
-                <div style={{ display: "flex", flexDirection: "column", gap: "3px", flex: 1 }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: "3px", flex: "1 1 200px" }}>
                   <label style={{ fontSize: "11px", fontWeight: "700", color: "#1a150e" }}>Mobile *</label>
                   <input 
                     type="text" 

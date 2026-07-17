@@ -598,8 +598,8 @@ export default function UnlockScreen() {
                 }}>
                   <ShieldAlert size={28} style={{ color: "#ef4444" }} />
                 </div>
-                <h2 style={{ color: "#fff", fontSize: "20px", fontWeight: "600", marginBottom: "8px" }}>Data Missing</h2>
-                <p style={{ color: "#cbd5e1", fontSize: "14px", lineHeight: "1.6", marginBottom: "24px" }}>
+                <h2 style={{ color: "#b91c1c", fontSize: "20px", fontWeight: "750", marginBottom: "8px" }}>Data Missing</h2>
+                <p style={{ color: "#6b5a45", fontSize: "14px", lineHeight: "1.6", marginBottom: "24px" }}>
                   Your data has been deleted from your Google Drive. Please fill in all your details again.
                 </p>
                 <button 

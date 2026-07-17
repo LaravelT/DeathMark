@@ -56,33 +56,53 @@ function VaultLayoutInner({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!derivedKey) return;
 
+    const overlay = document.getElementById("security-overlay");
+    const container = document.getElementById("vault-layout-root");
+
+    const enableSecurityMode = () => {
+      if (overlay) overlay.style.setProperty("display", "flex", "important");
+      if (container) {
+        container.style.setProperty("filter", "blur(80px)", "important");
+        container.style.setProperty("opacity", "0", "important");
+      }
+    };
+
+    const disableSecurityMode = () => {
+      if (overlay) overlay.style.setProperty("display", "none", "important");
+      if (container) {
+        container.style.setProperty("filter", "none", "important");
+        container.style.setProperty("opacity", "1", "important");
+      }
+    };
+
     const handleContextMenu = (e: MouseEvent) => {
       e.preventDefault();
       showSecurityAlert("Right-click is disabled for security reasons.");
     };
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Print Screen key
-      if (e.key === "PrintScreen") {
-        e.preventDefault();
+      // Print Screen key, Meta (Windows key), Alt key
+      if (e.key === "PrintScreen" || e.key === "Meta" || e.key === "Alt") {
+        enableSecurityMode();
         try {
           navigator.clipboard.writeText("");
         } catch (_) {}
-        showSecurityAlert("Screenshots are not allowed on this secure platform.");
       }
       // Ctrl+P / Cmd+P
       if ((e.ctrlKey || e.metaKey) && e.key === "p") {
         e.preventDefault();
+        enableSecurityMode();
         showSecurityAlert("Printing pages is disabled for security.");
       }
       // Ctrl+S / Cmd+S
       if ((e.ctrlKey || e.metaKey) && e.key === "s") {
         e.preventDefault();
+        enableSecurityMode();
         showSecurityAlert("Saving pages locally is disabled.");
       }
-      // Ctrl+Shift+S / Cmd+Shift+S / Win+Shift+S
+      // Ctrl+Shift+S / Win+Shift+S / Cmd+Shift+S
       if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === "s" || e.key === "S")) {
-        showSecurityAlert("Screenshots are not allowed on this secure platform.");
+        enableSecurityMode();
       }
       // Developer tools (F12)
       if (e.key === "F12") {
@@ -101,25 +121,25 @@ function VaultLayoutInner({ children }: { children: React.ReactNode }) {
       }
     };
 
+    const handleCopy = (e: ClipboardEvent) => {
+      e.preventDefault();
+      showSecurityAlert("Copying is disabled for security reasons.");
+    };
+
     const handleBlur = () => {
-      setIsWindowBlurred(true);
+      enableSecurityMode();
     };
 
     const handleFocus = () => {
-      setIsWindowBlurred(false);
+      disableSecurityMode();
     };
 
     const handleVisibilityChange = () => {
       if (document.hidden) {
-        setIsWindowBlurred(true);
+        enableSecurityMode();
       } else {
-        setIsWindowBlurred(false);
+        disableSecurityMode();
       }
-    };
-
-    const handleCopy = (e: ClipboardEvent) => {
-      e.preventDefault();
-      showSecurityAlert("Copying is disabled for security reasons.");
     };
 
     document.addEventListener("contextmenu", handleContextMenu);
@@ -128,6 +148,8 @@ function VaultLayoutInner({ children }: { children: React.ReactNode }) {
     document.addEventListener("visibilitychange", handleVisibilityChange);
     window.addEventListener("blur", handleBlur);
     window.addEventListener("focus", handleFocus);
+    document.addEventListener("mouseleave", handleBlur);
+    document.addEventListener("mouseenter", handleFocus);
 
     return () => {
       document.removeEventListener("contextmenu", handleContextMenu);
@@ -136,6 +158,9 @@ function VaultLayoutInner({ children }: { children: React.ReactNode }) {
       document.removeEventListener("visibilitychange", handleVisibilityChange);
       window.removeEventListener("blur", handleBlur);
       window.removeEventListener("focus", handleFocus);
+      document.removeEventListener("mouseleave", handleBlur);
+      document.removeEventListener("mouseenter", handleFocus);
+      disableSecurityMode();
     };
   }, [derivedKey]);
 
@@ -301,14 +326,13 @@ function VaultLayoutInner({ children }: { children: React.ReactNode }) {
   // If unlocked, render sidebar + navbar page layout wrapper
   return (
     <div 
+      id="vault-layout-root"
       className={`vault-layout-container ${sidebarOpen ? "sidebar-open" : ""}`} 
       style={{ 
         minHeight: "100vh", 
         backgroundColor: "var(--bg-color)", 
         display: "flex", 
         position: "relative",
-        filter: isWindowBlurred ? "blur(80px)" : "none",
-        opacity: isWindowBlurred ? 0 : 1,
         transition: "none"
       }}
     >
@@ -324,8 +348,9 @@ function VaultLayoutInner({ children }: { children: React.ReactNode }) {
       `}</style>
 
       {/* Screen Shot Block Black Overlay */}
-      {isWindowBlurred && (
-        <div style={{
+      <div 
+        id="security-overlay"
+        style={{
           position: "fixed",
           top: 0,
           left: 0,
@@ -333,18 +358,18 @@ function VaultLayoutInner({ children }: { children: React.ReactNode }) {
           bottom: 0,
           backgroundColor: "#000000",
           zIndex: 9999999,
-          display: "flex",
+          display: "none",
           flexDirection: "column",
           justifyContent: "center",
           alignItems: "center",
           color: "#ffffff",
           fontFamily: "system-ui, -apple-system, sans-serif"
-        }}>
-          <ShieldAlert size={60} style={{ color: "#b28e46", marginBottom: "16px" }} />
-          <h2 style={{ fontSize: "20px", fontWeight: "bold", margin: 0 }}>Security Mode Active</h2>
-          <p style={{ fontSize: "14px", color: "#8c7a6b", marginTop: "8px", margin: "8px 0 0 0" }}>Screenshots and printing are strictly prohibited.</p>
-        </div>
-      )}
+        }}
+      >
+        <ShieldAlert size={60} style={{ color: "#b28e46", marginBottom: "16px" }} />
+        <h2 style={{ fontSize: "20px", fontWeight: "bold", margin: 0 }}>Security Mode Active</h2>
+        <p style={{ fontSize: "14px", color: "#8c7a6b", marginTop: "8px", margin: "8px 0 0 0" }}>Screenshots and printing are strictly prohibited.</p>
+      </div>
 
       <Sidebar />
       {sidebarOpen && (

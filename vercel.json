@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/send-reminders?secret=legacybridge_cron_secret_key_2026",
+      "schedule": "0 9 * * *"
+    }
+  ]
+}

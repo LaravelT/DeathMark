@@ -19,21 +19,24 @@ export async function GET() {
       .find({ status: "completed" })
       .toArray();
 
-    // Map invoice numbers to emails
+    // Map invoice numbers and plans to emails
     const invoiceMap: Record<string, string> = {};
+    const planMap: Record<string, string> = {};
     payments.forEach(p => {
-      if (p.userId && p.invoiceNumber) {
-        invoiceMap[p.userId] = p.invoiceNumber;
+      if (p.userId) {
+        if (p.invoiceNumber) invoiceMap[p.userId] = p.invoiceNumber;
+        if (p.plan) planMap[p.userId] = p.plan;
       }
     });
 
     const userReports = users.map(user => {
+      const finalPlan = planMap[user.email] || user.plan || "free_trial";
       return {
         _id: user._id,
         email: user.email,
         name: user.ownerDetails?.name || user.name || "N/A",
         createdAt: user.createdAt,
-        plan: user.plan || "free_trial",
+        plan: finalPlan,
         invoiceNumber: invoiceMap[user.email] || "N/A"
       };
     });

@@ -42,6 +42,7 @@ export const authOptions: NextAuthOptions = {
             {
               $set: {
                 email: user.email,
+                name: user.name,
                 lastLogin: new Date(),
               },
               $setOnInsert: {

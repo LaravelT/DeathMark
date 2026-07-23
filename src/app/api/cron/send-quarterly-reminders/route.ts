@@ -17,18 +17,25 @@ export async function GET(req: Request) {
     const db = client.db("legacybridge");
     const usersCollection = db.collection("users");
 
-    // 7 days ago threshold
-    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    // 90 days ago threshold
+    const ninetyDaysAgo = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
 
-    // Find users registered >= 7 days ago who haven't completed their vault and haven't received this reminder
+    // Find users who have created their vault, and either:
+    // 1. have lastQuarterlyReminder <= 90 days ago OR
+    // 2. have no lastQuarterlyReminder but createdAt <= 90 days ago
     const usersToRemind = await usersCollection.find({
-      createdAt: { $lte: sevenDaysAgo },
-      sentSevenDayReminder: { $ne: true },
-      hasCreatedVault: { $ne: true }
+      hasCreatedVault: true,
+      $or: [
+        { lastQuarterlyReminder: { $lte: ninetyDaysAgo } },
+        { 
+          lastQuarterlyReminder: { $exists: false },
+          createdAt: { $lte: ninetyDaysAgo }
+        }
+      ]
     }).toArray();
 
     if (usersToRemind.length === 0) {
-      return NextResponse.json({ message: "No users need reminders today." });
+      return NextResponse.json({ message: "No users need quarterly reminders today." });
     }
 
     // SMTP Configuration
@@ -49,7 +56,8 @@ export async function GET(req: Request) {
       auth: {
         user: smtpUser,
         pass: smtpPass
-      }
+      },
+      name: 'legacybridge.in'
     });
 
     let successCount = 0;
@@ -67,45 +75,42 @@ export async function GET(req: Request) {
         const mailOptions = {
           from: smtpFrom,
           to: user.email,
-          subject: "Have you completed your LegacyBridge setup?",
+          subject: "Time for your LegacyBridge quarterly review",
           html: `
             <div style="font-family: sans-serif; padding: 30px; color: #1a150e; background-color: #faf7f0; border-radius: 12px; max-width: 600px; margin: 0 auto; border: 1px solid rgba(217, 184, 133, 0.25); line-height: 1.6; font-size: 15px;">
               <p>Dear ${firstName},</p>
               
-              <p>You registered on <a href="https://legacybridge.in" style="color: #b28e46; text-decoration: underline; font-weight: bold;">LegacyBridge</a> a few days ago, and we hope you've had a chance to start your setup.</p>
+              <p>This is a gentle reminder to review your LegacyBridge information.</p>
               
-              <p>This is a gentle reminder to complete your LegacyBridge record.</p>
+              <p>Once your first setup is done, you don’t need to spend much time on it again.</p>
               
-              <p>We know it may feel like a task you can do “later,” but this is exactly the kind of thing most families wish had been done earlier.</p>
-              
-              <p>You don’t need to complete everything perfectly.</p>
+              <p>Just 10 minutes once every quarter is enough.</p>
               
               <div style="background-color: #ffffff; border-left: 4px solid #b28e46; padding: 15px; margin: 20px 0; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
-                <h4 style="margin: 0 0 10px 0; color: #b28e46; font-size: 15px;">Start with the basics:</h4>
+                <h4 style="margin: 0 0 10px 0; color: #b28e46; font-size: 15px;">In the last few months, you may have:</h4>
                 <ul style="margin: 0; padding-left: 25px; color: #5c4d3c;">
-                  <li style="margin-bottom: 6px;">Bank accounts</li>
-                  <li style="margin-bottom: 6px;">Insurance policies</li>
-                  <li style="margin-bottom: 6px;">Investments</li>
-                  <li style="margin-bottom: 6px;">Property details</li>
-                  <li style="margin-bottom: 6px;">Important documents</li>
-                  <li style="margin-bottom: 6px;">Lockers, loans, and liabilities</li>
-                  <li style="margin-bottom: 6px;">Anything your spouse, children, or nominee should know</li>
+                  <li style="margin-bottom: 6px;">Opened or closed a bank account</li>
+                  <li style="margin-bottom: 6px;">Added a new investment</li>
+                  <li style="margin-bottom: 6px;">Changed an insurance policy</li>
+                  <li style="margin-bottom: 6px;">Created a new fixed deposit</li>
+                  <li style="margin-bottom: 6px;">Taken or repaid a loan</li>
+                  <li style="margin-bottom: 6px;">Updated nominee details</li>
+                  <li style="margin-bottom: 6px;">Changed where important documents are kept</li>
+                  <li style="margin-bottom: 6px;">Started or stopped an auto-debit</li>
                 </ul>
               </div>
               
-              <p>The first setup may take around 30 minutes.</p>
+              <p>These small changes are easy to forget.</p>
               
-              <p>But those 30 minutes can save your family from confusion, stress, and helpless searching in the future.</p>
+              <p>But for your family, they can become very important.</p>
               
-              <p><strong>LegacyBridge is not about tracking your wealth.</strong></p>
+              <p>Please take 10 minutes today to review your LegacyBridge record and update anything that has changed.</p>
               
-              <p>It is about helping your family know where to look, whom to contact, and what exists.</p>
+              <p>Think of it as a simple family responsibility — like renewing insurance or checking important documents.</p>
               
-              <p>Please take some time today and complete your setup.</p>
+              <p>You are not doing this for today.</p>
               
-              <p>Your family may not need this information today.</p>
-              
-              <p>But if they ever do, this one step can make a big difference.</p>
+              <p>You are doing this so your spouse, children, or nominee are not left guessing tomorrow.</p>
               
               <div style="margin-top: 30px; border-top: 1px solid rgba(217, 184, 133, 0.12); padding-top: 20px;">
                 <p style="margin: 0; color: #6b5a45;">
@@ -120,14 +125,14 @@ export async function GET(req: Request) {
 
         await transporter.sendMail(mailOptions);
         
-        // Mark as sent
+        // Mark as sent by updating lastQuarterlyReminder date
         await usersCollection.updateOne(
           { _id: user._id },
-          { $set: { sentSevenDayReminder: true } }
+          { $set: { lastQuarterlyReminder: new Date() } }
         );
         successCount++;
       } catch (err) {
-        console.error(`[Cron Reminder] Failed to send email to ${user.email}:`, err);
+        console.error(`[Cron Quarterly Reminder] Failed to send email to ${user.email}:`, err);
         failCount++;
       }
     }
@@ -139,7 +144,7 @@ export async function GET(req: Request) {
       failedCount: failCount
     });
   } catch (error: any) {
-    console.error("[Cron Reminder GET API] Error:", error);
+    console.error("[Cron Quarterly Reminder GET API] Error:", error);
     return NextResponse.json({ error: error.message || "Cron execution failed" }, { status: 500 });
   }
 }

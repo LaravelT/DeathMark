@@ -24,6 +24,17 @@ const formatAdminDate = (isoString?: string): string => {
   return `${dd}/${mm}/${yyyy} ${hh}:${minutes} ${ampm}`;
 };
 
+const formatDateToDDMMYYYY = (dateInput?: string | Date): string => {
+  if (!dateInput) return "-";
+  const d = new Date(dateInput);
+  if (isNaN(d.getTime())) return "-";
+  const pad = (n: number) => String(n).padStart(2, "0");
+  const dd = pad(d.getDate());
+  const mm = pad(d.getMonth() + 1);
+  const yyyy = d.getFullYear();
+  return `${dd}/${mm}/${yyyy}`;
+};
+
 export default function AdminPage() {
   const [claims, setClaims] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -183,11 +194,7 @@ export default function AdminPage() {
     });
 
     const rows = filtered.map((p) => {
-      const sDate = p.createdAt ? new Date(p.createdAt).toLocaleDateString("en-IN", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric"
-      }) : "-";
+      const sDate = formatDateToDDMMYYYY(p.createdAt);
 
       return [
         escapeCSV(sDate),
@@ -953,11 +960,7 @@ export default function AdminPage() {
                     </thead>
                     <tbody>
                       {filtered.map((p) => {
-                        const sDate = p.createdAt ? new Date(p.createdAt).toLocaleDateString("en-IN", {
-                          day: "2-digit",
-                          month: "2-digit",
-                          year: "numeric"
-                        }) : "-";
+                        const sDate = formatDateToDDMMYYYY(p.createdAt);
                         return (
                           <tr key={p.orderId} style={{ borderBottom: "1px solid var(--card-border)", transition: "background 0.2s" }} className="table-row-hover">
                             <td style={{ padding: "12px 8px", color: "#1a150e", fontWeight: "600" }}>{sDate}</td>

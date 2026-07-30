@@ -67,6 +67,9 @@ export default function AdminPage() {
     return `${lastDay.getFullYear()}-${pad(lastDay.getMonth() + 1)}-${pad(lastDay.getDate())}`;
   });
 
+  const [fromFocus, setFromFocus] = useState(false);
+  const [toFocus, setToFocus] = useState(false);
+
   // Authentication State
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [usernameInput, setUsernameInput] = useState("");
@@ -884,19 +887,23 @@ export default function AdminPage() {
               <div style={{ display: "flex", flexDirection: "column", gap: "8px", flex: "1", minWidth: "150px" }}>
                 <label style={{ fontSize: "13px", fontWeight: "600", color: "#6b5a45" }}>From Date</label>
                 <input 
-                  type="date" 
-                  value={reportFromDate} 
+                  type={fromFocus ? "date" : "text"} 
+                  value={fromFocus ? reportFromDate : formatDateToDDMMYYYY(reportFromDate)} 
+                  onFocus={() => setFromFocus(true)}
+                  onBlur={() => setFromFocus(false)}
                   onChange={(e) => setReportFromDate(e.target.value)} 
-                  style={{ padding: "8px 12px", borderRadius: "8px", border: "1px solid rgba(217, 184, 133, 0.4)", backgroundColor: "#ffffff", fontSize: "14px", color: "#1a150e" }}
+                  style={{ padding: "8px 12px", borderRadius: "8px", border: "1px solid rgba(217, 184, 133, 0.4)", backgroundColor: "#ffffff", fontSize: "14px", color: "#1a150e", width: "100%" }}
                 />
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: "8px", flex: "1", minWidth: "150px" }}>
                 <label style={{ fontSize: "13px", fontWeight: "600", color: "#6b5a45" }}>To Date</label>
                 <input 
-                  type="date" 
-                  value={reportToDate} 
+                  type={toFocus ? "date" : "text"} 
+                  value={toFocus ? reportToDate : formatDateToDDMMYYYY(reportToDate)} 
+                  onFocus={() => setToFocus(true)}
+                  onBlur={() => setToFocus(false)}
                   onChange={(e) => setReportToDate(e.target.value)} 
-                  style={{ padding: "8px 12px", borderRadius: "8px", border: "1px solid rgba(217, 184, 133, 0.4)", backgroundColor: "#ffffff", fontSize: "14px", color: "#1a150e" }}
+                  style={{ padding: "8px 12px", borderRadius: "8px", border: "1px solid rgba(217, 184, 133, 0.4)", backgroundColor: "#ffffff", fontSize: "14px", color: "#1a150e", width: "100%" }}
                 />
               </div>
               <div>

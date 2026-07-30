@@ -36,11 +36,25 @@ export default function AdminPage() {
   const [deleteLoading, setDeleteLoading] = useState<string | null>(null);
 
   // Tab State & Payments history
-  const [activeTab, setActiveTab] = useState<"claims" | "payments" | "users">("claims");
+  const [activeTab, setActiveTab] = useState<"claims" | "payments" | "users" | "reports">("claims");
   const [payments, setPayments] = useState<any[]>([]);
   const [paymentsLoading, setPaymentsLoading] = useState(false);
   const [users, setUsers] = useState<any[]>([]);
   const [usersLoading, setUsersLoading] = useState(false);
+
+  // Date range states for reports tab
+  const [reportFromDate, setReportFromDate] = useState<string>(() => {
+    const now = new Date();
+    const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+    const pad = (n: number) => String(n).padStart(2, "0");
+    return `${firstDay.getFullYear()}-${pad(firstDay.getMonth() + 1)}-${pad(firstDay.getDate())}`;
+  });
+  const [reportToDate, setReportToDate] = useState<string>(() => {
+    const now = new Date();
+    const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    const pad = (n: number) => String(n).padStart(2, "0");
+    return `${lastDay.getFullYear()}-${pad(lastDay.getMonth() + 1)}-${pad(lastDay.getDate())}`;
+  });
 
   // Authentication State
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -128,6 +142,84 @@ export default function AdminPage() {
       fetchUsers();
     }
   }, [isAuthenticated]);
+
+  const handleDownloadCSV = () => {
+    const headers = [
+      "Sale Date",
+      "Bill No",
+      "Bill Amount",
+      "Taxable Amount",
+      "CGST",
+      "SGST",
+      "IGST",
+      "UTGST",
+      "Customer Name",
+      "State",
+      "Customer GST No"
+    ];
+
+    const escapeCSV = (val: any) => {
+      if (val === undefined || val === null || val === "") return "-";
+      const str = String(val).trim();
+      if (str === "") return "-";
+      if (str.includes(",") || str.includes('"') || str.includes("\n") || str.includes("\r")) {
+        return `"${str.replace(/"/g, '""')}"`;
+      }
+      return str;
+    };
+
+    const filtered = payments.filter((p) => {
+      if (p.status !== "completed") return false;
+      const pDate = new Date(p.createdAt);
+      if (isNaN(pDate.getTime())) return false;
+      
+      const startDate = new Date(reportFromDate);
+      startDate.setHours(0, 0, 0, 0);
+      
+      const endDate = new Date(reportToDate);
+      endDate.setHours(23, 59, 59, 999);
+      
+      return pDate >= startDate && pDate <= endDate;
+    });
+
+    const rows = filtered.map((p) => {
+      const sDate = p.createdAt ? new Date(p.createdAt).toLocaleDateString("en-IN", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric"
+      }) : "-";
+
+      return [
+        escapeCSV(sDate),
+        escapeCSV(p.invoiceNumber),
+        escapeCSV(p.totalAmount),
+        escapeCSV(p.baseAmount),
+        escapeCSV(p.cgst),
+        escapeCSV(p.sgst),
+        escapeCSV(p.igst),
+        escapeCSV(p.utgst),
+        escapeCSV(p.billingName),
+        escapeCSV(p.state),
+        escapeCSV(p.gstNo)
+      ];
+    });
+
+    const csvContent = [
+      headers.join(","),
+      ...rows.map(row => row.join(","))
+    ].join("\n");
+
+    const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    const filename = `sales_report_${reportFromDate}_to_${reportToDate}.csv`;
+    link.setAttribute("href", url);
+    link.setAttribute("download", filename);
+    link.style.visibility = "hidden";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   const handleAction = async (claimId: string, newStatus: "Approved" | "Rejected") => {
     setActionLoading(claimId);
@@ -353,6 +445,28 @@ export default function AdminPage() {
             </button>
 
             <button 
+              onClick={() => setActiveTab("reports")}
+              style={{ 
+                display: "flex", 
+                alignItems: "center", 
+                gap: "10px", 
+                padding: "10px 14px", 
+                borderRadius: "8px", 
+                backgroundColor: activeTab === "reports" ? "rgba(178, 142, 70, 0.08)" : "transparent", 
+                color: activeTab === "reports" ? "var(--primary)" : "#6b5a45",
+                fontWeight: activeTab === "reports" ? "700" : "600",
+                fontSize: "14px",
+                border: "none",
+                cursor: "pointer",
+                textAlign: "left",
+                width: "100%"
+              }}
+            >
+              <Download size={18} />
+              <span>Sales Reports</span>
+            </button>
+
+            <button 
               onClick={refreshAll}
               style={{ 
                 display: "flex", 
@@ -421,14 +535,16 @@ export default function AdminPage() {
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <div>
             <h1 className="page-title" style={{ fontSize: "28px", margin: 0, fontFamily: "'Playfair Display', Georgia, serif" }}>
-              {activeTab === "claims" ? "Beneficiary Claims Manager" : activeTab === "payments" ? "Payments & Invoices History" : "Registered Users List"}
+              {activeTab === "claims" ? "Beneficiary Claims Manager" : activeTab === "payments" ? "Payments & Invoices History" : activeTab === "users" ? "Registered Users List" : "Sales & Tax Reports"}
             </h1>
             <span style={{ fontSize: "14px", color: "#6b5a45" }}>
               {activeTab === "claims" 
                 ? "Verify relative claims and documents from the claims database." 
                 : activeTab === "payments"
                   ? "View payments history, user billing details, and download invoices."
-                  : "View registered users, their current subscription plans, and invoice numbers."
+                  : activeTab === "users"
+                    ? "View registered users, their current subscription plans, and invoice numbers."
+                    : "Generate monthly reports of plan purchases, calculate GST, and download reports for your accountant."
               }
             </span>
           </div>
@@ -696,7 +812,7 @@ export default function AdminPage() {
               </div>
             )}
           </div>
-        ) : (
+        ) : activeTab === "users" ? (
           <div className="panel-card" style={{ padding: "30px", backgroundColor: "#ffffff" }}>
             {usersLoading ? (
               <div style={{ textAlign: "center", padding: "80px", color: "var(--muted)" }}>
@@ -753,6 +869,116 @@ export default function AdminPage() {
                 </table>
               </div>
             )}
+          </div>
+        ) : (
+          <div className="panel-card" style={{ padding: "30px", backgroundColor: "#ffffff" }}>
+            {/* Filters */}
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "20px", alignItems: "flex-end", marginBottom: "24px", padding: "20px", backgroundColor: "#faf7f0", borderRadius: "12px", border: "1px solid rgba(217, 184, 133, 0.2)" }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: "8px", flex: "1", minWidth: "150px" }}>
+                <label style={{ fontSize: "13px", fontWeight: "600", color: "#6b5a45" }}>From Date</label>
+                <input 
+                  type="date" 
+                  value={reportFromDate} 
+                  onChange={(e) => setReportFromDate(e.target.value)} 
+                  style={{ padding: "8px 12px", borderRadius: "8px", border: "1px solid rgba(217, 184, 133, 0.4)", backgroundColor: "#ffffff", fontSize: "14px", color: "#1a150e" }}
+                />
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: "8px", flex: "1", minWidth: "150px" }}>
+                <label style={{ fontSize: "13px", fontWeight: "600", color: "#6b5a45" }}>To Date</label>
+                <input 
+                  type="date" 
+                  value={reportToDate} 
+                  onChange={(e) => setReportToDate(e.target.value)} 
+                  style={{ padding: "8px 12px", borderRadius: "8px", border: "1px solid rgba(217, 184, 133, 0.4)", backgroundColor: "#ffffff", fontSize: "14px", color: "#1a150e" }}
+                />
+              </div>
+              <div>
+                <button 
+                  onClick={handleDownloadCSV}
+                  disabled={paymentsLoading}
+                  className="btn-cta-primary"
+                  style={{ display: "flex", alignItems: "center", gap: "8px", height: "40px", border: "none" }}
+                >
+                  <Download size={16} />
+                  <span>Download Excel (CSV)</span>
+                </button>
+              </div>
+            </div>
+
+            {paymentsLoading ? (
+              <div style={{ textAlign: "center", padding: "80px", color: "var(--muted)" }}>
+                Loading report data...
+              </div>
+            ) : (() => {
+              const filtered = payments.filter((p) => {
+                if (p.status !== "completed") return false;
+                const pDate = new Date(p.createdAt);
+                if (isNaN(pDate.getTime())) return false;
+                
+                const startDate = new Date(reportFromDate);
+                startDate.setHours(0, 0, 0, 0);
+                
+                const endDate = new Date(reportToDate);
+                endDate.setHours(23, 59, 59, 999);
+                
+                return pDate >= startDate && pDate <= endDate;
+              });
+
+              if (filtered.length === 0) {
+                return (
+                  <div style={{ textAlign: "center", padding: "60px 40px", border: "1px dashed rgba(217, 184, 133, 0.3)", borderRadius: "10px", backgroundColor: "#faf7f0" }}>
+                    <FileText size={40} style={{ color: "var(--muted)", marginBottom: "12px" }} />
+                    <p style={{ color: "var(--muted)", margin: 0 }}>No successful payments found in this date range.</p>
+                  </div>
+                );
+              }
+
+              return (
+                <div style={{ overflowX: "auto" }}>
+                  <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left", fontSize: "13px" }}>
+                    <thead>
+                      <tr style={{ borderBottom: "2px solid var(--card-border)", color: "#6b5a45", fontWeight: "600", backgroundColor: "#faf7f0" }}>
+                        <th style={{ padding: "12px 8px" }}>Sale Date</th>
+                        <th style={{ padding: "12px 8px" }}>Bill No</th>
+                        <th style={{ padding: "12px 8px" }}>Customer Name</th>
+                        <th style={{ padding: "12px 8px" }}>State</th>
+                        <th style={{ padding: "12px 8px" }}>GST No</th>
+                        <th style={{ padding: "12px 8px", textAlign: "right" }}>Taxable Amt</th>
+                        <th style={{ padding: "12px 8px", textAlign: "right" }}>CGST</th>
+                        <th style={{ padding: "12px 8px", textAlign: "right" }}>SGST</th>
+                        <th style={{ padding: "12px 8px", textAlign: "right" }}>IGST</th>
+                        <th style={{ padding: "12px 8px", textAlign: "right" }}>UTGST</th>
+                        <th style={{ padding: "12px 8px", textAlign: "right" }}>Bill Amt</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filtered.map((p) => {
+                        const sDate = p.createdAt ? new Date(p.createdAt).toLocaleDateString("en-IN", {
+                          day: "2-digit",
+                          month: "2-digit",
+                          year: "numeric"
+                        }) : "-";
+                        return (
+                          <tr key={p.orderId} style={{ borderBottom: "1px solid var(--card-border)", transition: "background 0.2s" }} className="table-row-hover">
+                            <td style={{ padding: "12px 8px", color: "#1a150e", fontWeight: "600" }}>{sDate}</td>
+                            <td style={{ padding: "12px 8px", color: "#5c4d3c", fontWeight: "600" }}>{p.invoiceNumber || "-"}</td>
+                            <td style={{ padding: "12px 8px", fontWeight: "700", color: "#1a150e" }}>{p.billingName || "-"}</td>
+                            <td style={{ padding: "12px 8px" }}>{p.state || "-"}</td>
+                            <td style={{ padding: "12px 8px" }}>{p.gstNo || "-"}</td>
+                            <td style={{ padding: "12px 8px", textAlign: "right" }}>₹{p.baseAmount ?? "-"}</td>
+                            <td style={{ padding: "12px 8px", textAlign: "right", color: p.cgst ? "#1a150e" : "var(--muted)" }}>{p.cgst ? `₹${p.cgst}` : "-"}</td>
+                            <td style={{ padding: "12px 8px", textAlign: "right", color: p.sgst ? "#1a150e" : "var(--muted)" }}>{p.sgst ? `₹${p.sgst}` : "-"}</td>
+                            <td style={{ padding: "12px 8px", textAlign: "right", color: p.igst ? "#1a150e" : "var(--muted)" }}>{p.igst ? `₹${p.igst}` : "-"}</td>
+                            <td style={{ padding: "12px 8px", textAlign: "right", color: p.utgst ? "#1a150e" : "var(--muted)" }}>{p.utgst ? `₹${p.utgst}` : "-"}</td>
+                            <td style={{ padding: "12px 8px", textAlign: "right", fontWeight: "700" }}>₹{p.totalAmount ?? "-"}</td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              );
+            })()}
           </div>
         )}
       </main>

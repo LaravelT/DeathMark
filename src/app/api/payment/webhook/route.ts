@@ -44,11 +44,19 @@ export async function POST(req: Request) {
 
       if (orderId) {
         console.log(`[Webhook API] Completing payment for Order ID: ${orderId}, Payment ID: ${paymentId}`);
-        await completePayment(db, {
-          orderId,
-          paymentId,
-          skipSignatureCheck: true,
-        });
+        try {
+          await completePayment(db, {
+            orderId,
+            paymentId,
+            skipSignatureCheck: true,
+          });
+        } catch (paymentErr: any) {
+          if (paymentErr.message && paymentErr.message.includes("Payment record not found")) {
+            console.warn(`[Webhook API] Payment record not found for Order ID: ${orderId}. Ignoring webhook event to prevent Razorpay disablement.`);
+            return NextResponse.json({ received: true, ignored: true, message: paymentErr.message });
+          }
+          throw paymentErr;
+        }
       }
     }
 

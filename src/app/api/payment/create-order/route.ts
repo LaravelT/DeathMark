@@ -12,7 +12,7 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json().catch(() => ({}));
-    const { plan, state, billingName, billingAddress, billingEmail, billingMobile, gstNo } = body;
+    const { plan, state, billingName, billingAddress, billingEmail, billingMobile, gstNo, couponCode } = body;
 
     if (!["annual", "lifetime"].includes(plan)) {
       return NextResponse.json({ error: "Invalid plan selected" }, { status: 400 });
@@ -22,7 +22,29 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "All billing details (Name, Address, State, Email, Mobile) are required" }, { status: 400 });
     }
 
-    const base = plan === "annual" ? 1000 : 5000;
+    const client = await clientPromise;
+    const db = client.db("legacybridge");
+
+    // Coupon verification
+    let discountPercent = 0;
+    let appliedCoupon = "";
+    if (couponCode && typeof couponCode === "string" && couponCode.trim() !== "") {
+      const normalizedCode = couponCode.toUpperCase().trim();
+      const couponDoc = await db.collection("coupons").findOne({
+        code: normalizedCode,
+        status: "active"
+      });
+      if (couponDoc) {
+        discountPercent = couponDoc.discountPercent;
+        appliedCoupon = couponDoc.code;
+      } else {
+        return NextResponse.json({ error: "Invalid or expired coupon code" }, { status: 400 });
+      }
+    }
+
+    const originalBase = plan === "annual" ? 1000 : 5000;
+    const discountAmount = Math.round(originalBase * (discountPercent / 100));
+    const base = originalBase - discountAmount;
     const gst = Math.round(base * 0.18);
     const total = base + gst;
     const isMH = state.toLowerCase() === "maharashtra";
@@ -54,9 +76,6 @@ export async function POST(req: Request) {
 
     const order = await razorpay.orders.create(orderOptions);
 
-    // Save pending payment record to MongoDB
-    const client = await clientPromise;
-    const db = client.db("legacybridge");
     const paymentsCollection = db.collection("payments");
 
     await paymentsCollection.insertOne({
@@ -70,6 +89,8 @@ export async function POST(req: Request) {
       billingMobile,
       gstNo: gstNo || "",
       baseAmount: base,
+      discountAmount,
+      couponCode: appliedCoupon || null,
       gstAmount: gst,
       cgst,
       sgst,

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { KeyRound, ShieldAlert, FileText, CheckCircle, XCircle, ArrowLeft, RefreshCw, Eye, UserCheck, Settings, LogOut, Trash2, Coins, Download } from "lucide-react";
+import { KeyRound, ShieldAlert, FileText, CheckCircle, XCircle, ArrowLeft, RefreshCw, Eye, UserCheck, Settings, LogOut, Trash2, Coins, Download, Ticket } from "lucide-react";
 import Link from "next/link";
 
 const formatAdminDate = (isoString?: string): string => {
@@ -47,11 +47,18 @@ export default function AdminPage() {
   const [deleteLoading, setDeleteLoading] = useState<string | null>(null);
 
   // Tab State & Payments history
-  const [activeTab, setActiveTab] = useState<"claims" | "payments" | "users" | "reports">("claims");
+  const [activeTab, setActiveTab] = useState<"claims" | "payments" | "users" | "reports" | "coupons">("claims");
   const [payments, setPayments] = useState<any[]>([]);
   const [paymentsLoading, setPaymentsLoading] = useState(false);
   const [users, setUsers] = useState<any[]>([]);
   const [usersLoading, setUsersLoading] = useState(false);
+
+  // Coupon Manager States
+  const [coupons, setCoupons] = useState<any[]>([]);
+  const [couponsLoading, setCouponsLoading] = useState(false);
+  const [newCouponPercent, setNewCouponPercent] = useState("");
+  const [createCouponLoading, setCreateCouponLoading] = useState(false);
+  const [deleteCouponLoading, setDeleteCouponLoading] = useState<string | null>(null);
 
   // Date range states for reports tab
   const [reportFromDate, setReportFromDate] = useState<string>(() => {
@@ -143,10 +150,70 @@ export default function AdminPage() {
     }
   };
 
+  const fetchCoupons = async () => {
+    setCouponsLoading(true);
+    try {
+      const res = await fetch("/api/admin/coupons");
+      if (!res.ok) throw new Error("Failed to load coupons.");
+      const data = await res.json();
+      setCoupons(data.coupons || []);
+    } catch (err: any) {
+      console.error(err);
+    } finally {
+      setCouponsLoading(false);
+    }
+  };
+
+  const handleCreateCoupon = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const percent = parseInt(newCouponPercent, 10);
+    if (isNaN(percent) || percent < 1 || percent > 100) {
+      alert("Please enter a valid percentage between 1 and 100.");
+      return;
+    }
+    setCreateCouponLoading(true);
+    try {
+      const res = await fetch("/api/admin/coupons", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ discountPercent: percent })
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || "Failed to create coupon");
+      }
+      const data = await res.json();
+      setCoupons(prev => [data.coupon, ...prev]);
+      setNewCouponPercent("");
+      alert(`Coupon code generated: ${data.coupon.code}`);
+    } catch (err: any) {
+      alert("Error: " + err.message);
+    } finally {
+      setCreateCouponLoading(false);
+    }
+  };
+
+  const handleDeleteCoupon = async (id: string) => {
+    if (!confirm("Are you sure you want to deactivate/delete this coupon?")) return;
+    setDeleteCouponLoading(id);
+    try {
+      const res = await fetch(`/api/admin/coupons?id=${id}`, {
+        method: "DELETE"
+      });
+      if (!res.ok) throw new Error("Failed to delete coupon");
+      setCoupons(prev => prev.map(c => c._id === id ? { ...c, status: "deleted" } : c));
+    } catch (err: any) {
+      alert("Error: " + err.message);
+    } finally {
+      setDeleteCouponLoading(null);
+    }
+  };
+
   const refreshAll = () => {
     fetchClaims();
     fetchPayments();
     fetchUsers();
+    fetchCoupons();
   };
 
   useEffect(() => {
@@ -154,6 +221,7 @@ export default function AdminPage() {
       fetchClaims();
       fetchPayments();
       fetchUsers();
+      fetchCoupons();
     }
   }, [isAuthenticated]);
 
@@ -477,6 +545,28 @@ export default function AdminPage() {
             </button>
 
             <button 
+              onClick={() => setActiveTab("coupons")}
+              style={{ 
+                display: "flex", 
+                alignItems: "center", 
+                gap: "10px", 
+                padding: "10px 14px", 
+                borderRadius: "8px", 
+                backgroundColor: activeTab === "coupons" ? "rgba(178, 142, 70, 0.08)" : "transparent", 
+                color: activeTab === "coupons" ? "var(--primary)" : "#6b5a45",
+                fontWeight: activeTab === "coupons" ? "700" : "600",
+                fontSize: "14px",
+                border: "none",
+                cursor: "pointer",
+                textAlign: "left",
+                width: "100%"
+              }}
+            >
+              <Ticket size={18} />
+              <span>Coupons Manager</span>
+            </button>
+
+            <button 
               onClick={refreshAll}
               style={{ 
                 display: "flex", 
@@ -545,7 +635,7 @@ export default function AdminPage() {
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <div>
             <h1 className="page-title" style={{ fontSize: "28px", margin: 0, fontFamily: "'Playfair Display', Georgia, serif" }}>
-              {activeTab === "claims" ? "Beneficiary Claims Manager" : activeTab === "payments" ? "Payments & Invoices History" : activeTab === "users" ? "Registered Users List" : "Sales & Tax Reports"}
+              {activeTab === "claims" ? "Beneficiary Claims Manager" : activeTab === "payments" ? "Payments & Invoices History" : activeTab === "users" ? "Registered Users List" : activeTab === "reports" ? "Sales & Tax Reports" : "Discount Coupons Manager"}
             </h1>
             <span style={{ fontSize: "14px", color: "#6b5a45" }}>
               {activeTab === "claims" 
@@ -554,7 +644,9 @@ export default function AdminPage() {
                   ? "View payments history, user billing details, and download invoices."
                   : activeTab === "users"
                     ? "View registered users, their current subscription plans, and invoice numbers."
-                    : "Generate monthly reports of plan purchases, calculate GST, and download reports for your accountant."
+                    : activeTab === "reports"
+                      ? "Generate monthly reports of plan purchases, calculate GST, and download reports for your accountant."
+                      : "Create and manage promotional discount coupons for plan purchases."
               }
             </span>
           </div>
@@ -801,7 +893,14 @@ export default function AdminPage() {
                           </td>
                           <td style={{ padding: "16px 12px", textTransform: "capitalize", fontWeight: "600" }}>{p.plan} Access</td>
                           <td style={{ padding: "16px 12px" }}>{p.invoiceNumber || "-"}</td>
-                          <td style={{ padding: "16px 12px", fontWeight: "700" }}>₹{p.totalAmount}</td>
+                          <td style={{ padding: "16px 12px", fontWeight: "700" }}>
+                            <div>₹{p.totalAmount}</div>
+                            {p.couponCode && (
+                              <div style={{ fontSize: "11px", color: "#10b981", fontWeight: "600", marginTop: "2px" }}>
+                                Coupon: {p.couponCode} (-₹{p.discountAmount})
+                              </div>
+                            )}
+                          </td>
                           <td style={{ padding: "16px 12px" }}>
                             <span style={{
                               fontSize: "12px",
@@ -880,7 +979,7 @@ export default function AdminPage() {
               </div>
             )}
           </div>
-        ) : (
+        ) : activeTab === "reports" ? (
           <div className="panel-card" style={{ padding: "30px", backgroundColor: "#ffffff" }}>
             {/* Filters */}
             <div style={{ display: "flex", flexWrap: "wrap", gap: "20px", alignItems: "flex-end", marginBottom: "24px", padding: "20px", backgroundColor: "#faf7f0", borderRadius: "12px", border: "1px solid rgba(217, 184, 133, 0.2)" }}>
@@ -989,6 +1088,110 @@ export default function AdminPage() {
                 </div>
               );
             })()}
+          </div>
+        ) : (
+          <div className="panel-card" style={{ padding: "30px", backgroundColor: "#ffffff" }}>
+            {/* Create Coupon Form */}
+            <form onSubmit={handleCreateCoupon} style={{ display: "flex", gap: "16px", alignItems: "flex-end", marginBottom: "32px", padding: "20px", backgroundColor: "#faf7f0", borderRadius: "12px", border: "1px solid rgba(217, 184, 133, 0.2)" }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: "8px", width: "240px" }}>
+                <label style={{ fontSize: "13px", fontWeight: "600", color: "#6b5a45" }}>Discount Percentage (%)</label>
+                <input 
+                  type="number" 
+                  min="1"
+                  max="100"
+                  value={newCouponPercent}
+                  onChange={(e) => setNewCouponPercent(e.target.value)}
+                  placeholder="e.g. 20"
+                  required
+                  style={{ padding: "8px 12px", borderRadius: "8px", border: "1px solid rgba(217, 184, 133, 0.4)", backgroundColor: "#ffffff", fontSize: "14px", color: "#1a150e", width: "100%" }}
+                />
+              </div>
+              <button 
+                type="submit" 
+                disabled={createCouponLoading}
+                className="btn-cta-primary"
+                style={{ height: "40px", border: "none", display: "flex", alignItems: "center", gap: "8px" }}
+              >
+                <Ticket size={16} />
+                <span>{createCouponLoading ? "Generating..." : "Generate Coupon Code"}</span>
+              </button>
+            </form>
+
+            {/* Coupons List */}
+            {couponsLoading ? (
+              <div style={{ textAlign: "center", padding: "80px", color: "var(--muted)" }}>
+                Loading coupons...
+              </div>
+            ) : coupons.length === 0 ? (
+              <div style={{ textAlign: "center", padding: "80px 40px", border: "1px dashed rgba(217, 184, 133, 0.3)", borderRadius: "10px", backgroundColor: "#faf7f0" }}>
+                <Ticket size={40} style={{ color: "var(--muted)", marginBottom: "12px" }} />
+                <p style={{ color: "var(--muted)", margin: 0 }}>No coupons generated yet. Enter a percentage above to create one.</p>
+              </div>
+            ) : (
+              <div style={{ overflowX: "auto" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left", fontSize: "14px" }}>
+                  <thead>
+                    <tr style={{ borderBottom: "2px solid var(--card-border)", color: "#6b5a45", fontWeight: "600", backgroundColor: "#faf7f0" }}>
+                      <th style={{ padding: "12px" }}>Coupon Code</th>
+                      <th style={{ padding: "12px" }}>Discount %</th>
+                      <th style={{ padding: "12px" }}>Status</th>
+                      <th style={{ padding: "12px" }}>Created At</th>
+                      <th style={{ padding: "12px", textAlign: "right" }}>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {coupons.map((c) => {
+                      const cDate = new Date(c.createdAt).toLocaleDateString("en-IN", {
+                        day: "numeric",
+                        month: "short",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit"
+                      });
+                      return (
+                        <tr key={c._id} style={{ borderBottom: "1px solid var(--card-border)", transition: "background 0.2s" }} className="table-row-hover">
+                          <td style={{ padding: "16px 12px", color: "#1a150e", fontWeight: "700" }}>{c.code}</td>
+                          <td style={{ padding: "16px 12px", color: "#1a150e", fontWeight: "600" }}>{c.discountPercent}% OFF</td>
+                          <td style={{ padding: "16px 12px" }}>
+                            <span style={{
+                              fontSize: "12px",
+                              fontWeight: "600",
+                              padding: "3px 8px",
+                              borderRadius: "10px",
+                              backgroundColor: c.status === "active" ? "rgba(16,185,129,0.15)" : "rgba(239,68,68,0.15)",
+                              color: c.status === "active" ? "#10b981" : "#ef4444"
+                            }}>
+                              {c.status}
+                            </span>
+                          </td>
+                          <td style={{ padding: "16px 12px", color: "#6b5a45" }}>{cDate}</td>
+                          <td style={{ padding: "16px 12px", textAlign: "right" }}>
+                            {c.status === "active" && (
+                              <button
+                                onClick={() => handleDeleteCoupon(c._id)}
+                                disabled={deleteCouponLoading === c._id}
+                                style={{
+                                  backgroundColor: "rgba(239, 68, 68, 0.05)",
+                                  border: "1px solid rgba(239, 68, 68, 0.2)",
+                                  color: "#ef4444",
+                                  padding: "6px 12px",
+                                  borderRadius: "6px",
+                                  cursor: "pointer",
+                                  fontSize: "12px",
+                                  fontWeight: "600"
+                                }}
+                              >
+                                {deleteCouponLoading === c._id ? "Deactivating..." : "Deactivate"}
+                              </button>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         )}
       </main>

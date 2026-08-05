@@ -48,6 +48,22 @@ export default function PlansPage() {
   const [gstNo, setGstNo] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
 
+  // Coupon states
+  const [couponCodeInput, setCouponCodeInput] = useState("");
+  const [appliedCouponCode, setAppliedCouponCode] = useState("");
+  const [discountPercent, setDiscountPercent] = useState(0);
+  const [couponError, setCouponError] = useState("");
+  const [couponSuccess, setCouponSuccess] = useState("");
+  const [isCheckingCoupon, setIsCheckingCoupon] = useState(false);
+
+  useEffect(() => {
+    setCouponCodeInput("");
+    setAppliedCouponCode("");
+    setDiscountPercent(0);
+    setCouponError("");
+    setCouponSuccess("");
+  }, [selectedPlan]);
+
   useEffect(() => {
     if (ownerDetails?.name) {
       setBillingName(ownerDetails.name);
@@ -76,7 +92,9 @@ export default function PlansPage() {
   };
 
   const getPricingDetails = () => {
-    const base = selectedPlan === "annual" ? 1000 : 5000;
+    const originalBase = selectedPlan === "annual" ? 1000 : 5000;
+    const discountAmount = Math.round(originalBase * (discountPercent / 100));
+    const base = originalBase - discountAmount;
     const gst = Math.round(base * 0.18);
     const total = base + gst;
     const isMH = billingState.toLowerCase() === "maharashtra";
@@ -84,7 +102,40 @@ export default function PlansPage() {
     const sgst = isMH ? Math.round(base * 0.09) : 0;
     const igst = !isMH ? gst : 0;
 
-    return { base, gst, total, cgst, sgst, igst };
+    return { originalBase, discountAmount, base, gst, total, cgst, sgst, igst };
+  };
+
+  const handleApplyCoupon = async () => {
+    if (!couponCodeInput.trim()) {
+      setCouponError("Please enter a coupon code");
+      return;
+    }
+    setIsCheckingCoupon(true);
+    setCouponError("");
+    setCouponSuccess("");
+    try {
+      const res = await fetch("/api/payment/verify-coupon", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ couponCode: couponCodeInput })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setDiscountPercent(data.discountPercent);
+        setAppliedCouponCode(data.couponCode);
+        setCouponSuccess(`Coupon code "${data.couponCode}" applied! You get ${data.discountPercent}% off.`);
+      } else {
+        setCouponError(data.error || "Invalid coupon code");
+        setDiscountPercent(0);
+        setAppliedCouponCode("");
+      }
+    } catch (err) {
+      setCouponError("Failed to verify coupon code");
+      setDiscountPercent(0);
+      setAppliedCouponCode("");
+    } finally {
+      setIsCheckingCoupon(false);
+    }
   };
 
   const handlePayment = async () => {
@@ -138,7 +189,8 @@ export default function PlansPage() {
           billingAddress,
           billingEmail,
           billingMobile,
-          gstNo
+          gstNo,
+          couponCode: appliedCouponCode || undefined
         }),
       });
 
@@ -217,7 +269,7 @@ export default function PlansPage() {
     }
   };
 
-  const { base, gst, total, cgst, sgst, igst } = selectedPlan ? getPricingDetails() : { base: 0, gst: 0, total: 0, cgst: 0, sgst: 0, igst: 0 };
+  const { originalBase, discountAmount, base, gst, total, cgst, sgst, igst } = selectedPlan ? getPricingDetails() : { originalBase: 0, discountAmount: 0, base: 0, gst: 0, total: 0, cgst: 0, sgst: 0, igst: 0 };
 
   return (
     <div style={{ padding: "40px 20px", maxWidth: "1200px", margin: "0 auto" }}>
@@ -533,6 +585,40 @@ export default function PlansPage() {
                   style={{ padding: "8px 12px", borderRadius: "8px", border: "1px solid #dcd1c4", fontSize: "13px", textTransform: "uppercase" }}
                 />
               </div>
+
+              {/* Coupon Code Input */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "3px", borderTop: "1px solid #f0e9df", paddingTop: "12px" }}>
+                <label style={{ fontSize: "11px", fontWeight: "700", color: "#1a150e" }}>Coupon Code</label>
+                <div style={{ display: "flex", gap: "8px" }}>
+                  <input 
+                    type="text" 
+                    value={couponCodeInput} 
+                    onChange={(e) => setCouponCodeInput(e.target.value.toUpperCase())} 
+                    placeholder="Enter Coupon Code"
+                    disabled={isProcessing || isCheckingCoupon}
+                    style={{ flex: 1, padding: "8px 12px", borderRadius: "8px", border: "1px solid #dcd1c4", fontSize: "13px", textTransform: "uppercase" }}
+                  />
+                  <button 
+                    type="button"
+                    onClick={handleApplyCoupon}
+                    disabled={isProcessing || isCheckingCoupon}
+                    style={{ 
+                      padding: "8px 16px", 
+                      borderRadius: "8px", 
+                      border: "1px solid #b28e46", 
+                      backgroundColor: "transparent", 
+                      color: "#b28e46", 
+                      fontWeight: "750", 
+                      cursor: "pointer", 
+                      fontSize: "13px" 
+                    }}
+                  >
+                    {isCheckingCoupon ? "Checking..." : "Apply"}
+                  </button>
+                </div>
+                {couponError && <span style={{ fontSize: "12px", color: "#b91c1c" }}>{couponError}</span>}
+                {couponSuccess && <span style={{ fontSize: "12px", color: "#10b981", fontWeight: "600" }}>{couponSuccess}</span>}
+              </div>
             </div>
 
             {/* GST Summary */}
@@ -543,8 +629,20 @@ export default function PlansPage() {
               <div style={{ display: "flex", flexDirection: "column", gap: "4px", fontSize: "13px" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", color: "#6b5a45" }}>
                   <span>Base Amount:</span>
-                  <span>₹{base.toLocaleString("en-IN")}</span>
+                  <span>₹{originalBase.toLocaleString("en-IN")}</span>
                 </div>
+                {discountAmount > 0 && (
+                  <div style={{ display: "flex", justifyContent: "space-between", color: "#10b981", fontWeight: "600" }}>
+                    <span>Coupon Discount ({discountPercent}%):</span>
+                    <span>-₹{discountAmount.toLocaleString("en-IN")}</span>
+                  </div>
+                )}
+                {discountAmount > 0 && (
+                  <div style={{ display: "flex", justifyContent: "space-between", color: "#6b5a45", fontStyle: "italic" }}>
+                    <span>Discounted Base:</span>
+                    <span>₹{base.toLocaleString("en-IN")}</span>
+                  </div>
+                )}
                 {cgst > 0 && (
                   <>
                     <div style={{ display: "flex", justifyContent: "space-between", color: "#6b5a45" }}>

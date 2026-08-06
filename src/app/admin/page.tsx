@@ -56,7 +56,10 @@ export default function AdminPage() {
   // Coupon Manager States
   const [coupons, setCoupons] = useState<any[]>([]);
   const [couponsLoading, setCouponsLoading] = useState(false);
-  const [newCouponPercent, setNewCouponPercent] = useState("");
+  const [newCouponCode, setNewCouponCode] = useState("");
+  const [newCouponDescription, setNewCouponDescription] = useState("");
+  const [newCouponDiscountType, setNewCouponDiscountType] = useState<"percentage" | "flat">("percentage");
+  const [newCouponDiscountValue, setNewCouponDiscountValue] = useState("");
   const [createCouponLoading, setCreateCouponLoading] = useState(false);
   const [deleteCouponLoading, setDeleteCouponLoading] = useState<string | null>(null);
 
@@ -166,17 +169,31 @@ export default function AdminPage() {
 
   const handleCreateCoupon = async (e: React.FormEvent) => {
     e.preventDefault();
-    const percent = parseInt(newCouponPercent, 10);
-    if (isNaN(percent) || percent < 1 || percent > 100) {
-      alert("Please enter a valid percentage between 1 and 100.");
+    if (!newCouponCode.trim()) {
+      alert("Please enter a coupon code name.");
       return;
     }
+    const val = parseFloat(newCouponDiscountValue);
+    if (isNaN(val) || val <= 0) {
+      alert("Please enter a valid positive discount value.");
+      return;
+    }
+    if (newCouponDiscountType === "percentage" && val > 100) {
+      alert("Percentage discount cannot exceed 100%.");
+      return;
+    }
+
     setCreateCouponLoading(true);
     try {
       const res = await fetch("/api/admin/coupons", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ discountPercent: percent })
+        body: JSON.stringify({ 
+          code: newCouponCode,
+          description: newCouponDescription,
+          discountType: newCouponDiscountType,
+          discountValue: val
+        })
       });
       if (!res.ok) {
         const err = await res.json();
@@ -184,8 +201,11 @@ export default function AdminPage() {
       }
       const data = await res.json();
       setCoupons(prev => [data.coupon, ...prev]);
-      setNewCouponPercent("");
-      alert(`Coupon code generated: ${data.coupon.code}`);
+      setNewCouponCode("");
+      setNewCouponDescription("");
+      setNewCouponDiscountType("percentage");
+      setNewCouponDiscountValue("");
+      alert(`Coupon code created: ${data.coupon.code}`);
     } catch (err: any) {
       alert("Error: " + err.message);
     } finally {
@@ -1092,29 +1112,69 @@ export default function AdminPage() {
         ) : (
           <div className="panel-card" style={{ padding: "30px", backgroundColor: "#ffffff" }}>
             {/* Create Coupon Form */}
-            <form onSubmit={handleCreateCoupon} style={{ display: "flex", gap: "16px", alignItems: "flex-end", marginBottom: "32px", padding: "20px", backgroundColor: "#faf7f0", borderRadius: "12px", border: "1px solid rgba(217, 184, 133, 0.2)" }}>
-              <div style={{ display: "flex", flexDirection: "column", gap: "8px", width: "240px" }}>
-                <label style={{ fontSize: "13px", fontWeight: "600", color: "#6b5a45" }}>Discount Percentage (%)</label>
+            <form onSubmit={handleCreateCoupon} style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "16px", alignItems: "end", marginBottom: "32px", padding: "20px", backgroundColor: "#faf7f0", borderRadius: "12px", border: "1px solid rgba(217, 184, 133, 0.2)" }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                <label style={{ fontSize: "13px", fontWeight: "600", color: "#6b5a45" }}>Coupon Code Name *</label>
+                <input 
+                  type="text" 
+                  value={newCouponCode}
+                  onChange={(e) => setNewCouponCode(e.target.value.toUpperCase())}
+                  placeholder="e.g. SAVE20"
+                  required
+                  style={{ padding: "8px 12px", borderRadius: "8px", border: "1px solid rgba(217, 184, 133, 0.4)", backgroundColor: "#ffffff", fontSize: "14px", color: "#1a150e" }}
+                />
+              </div>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                <label style={{ fontSize: "13px", fontWeight: "600", color: "#6b5a45" }}>Description</label>
+                <input 
+                  type="text" 
+                  value={newCouponDescription}
+                  onChange={(e) => setNewCouponDescription(e.target.value)}
+                  placeholder="e.g. 20% off on all plans"
+                  style={{ padding: "8px 12px", borderRadius: "8px", border: "1px solid rgba(217, 184, 133, 0.4)", backgroundColor: "#ffffff", fontSize: "14px", color: "#1a150e" }}
+                />
+              </div>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                <label style={{ fontSize: "13px", fontWeight: "600", color: "#6b5a45" }}>Discount Type *</label>
+                <select
+                  value={newCouponDiscountType}
+                  onChange={(e) => setNewCouponDiscountType(e.target.value as "percentage" | "flat")}
+                  style={{ padding: "8px 12px", borderRadius: "8px", border: "1px solid rgba(217, 184, 133, 0.4)", backgroundColor: "#ffffff", fontSize: "14px", color: "#1a150e", height: "38px" }}
+                >
+                  <option value="percentage">Percentage (%)</option>
+                  <option value="flat">Flat Amount (INR)</option>
+                </select>
+              </div>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                <label style={{ fontSize: "13px", fontWeight: "600", color: "#6b5a45" }}>
+                  {newCouponDiscountType === "percentage" ? "Discount Percentage (%) *" : "Flat Discount (₹) *"}
+                </label>
                 <input 
                   type="number" 
                   min="1"
-                  max="100"
-                  value={newCouponPercent}
-                  onChange={(e) => setNewCouponPercent(e.target.value)}
-                  placeholder="e.g. 20"
+                  max={newCouponDiscountType === "percentage" ? "100" : undefined}
+                  value={newCouponDiscountValue}
+                  onChange={(e) => setNewCouponDiscountValue(e.target.value)}
+                  placeholder={newCouponDiscountType === "percentage" ? "e.g. 20" : "e.g. 500"}
                   required
-                  style={{ padding: "8px 12px", borderRadius: "8px", border: "1px solid rgba(217, 184, 133, 0.4)", backgroundColor: "#ffffff", fontSize: "14px", color: "#1a150e", width: "100%" }}
+                  style={{ padding: "8px 12px", borderRadius: "8px", border: "1px solid rgba(217, 184, 133, 0.4)", backgroundColor: "#ffffff", fontSize: "14px", color: "#1a150e" }}
                 />
               </div>
-              <button 
-                type="submit" 
-                disabled={createCouponLoading}
-                className="btn-cta-primary"
-                style={{ height: "40px", border: "none", display: "flex", alignItems: "center", gap: "8px" }}
-              >
-                <Ticket size={16} />
-                <span>{createCouponLoading ? "Generating..." : "Generate Coupon Code"}</span>
-              </button>
+
+              <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                <button 
+                  type="submit" 
+                  disabled={createCouponLoading}
+                  className="btn-cta-primary"
+                  style={{ height: "38px", border: "none", display: "flex", alignItems: "center", gap: "8px", width: "100%", justifyContent: "center" }}
+                >
+                  <Ticket size={16} />
+                  <span>{createCouponLoading ? "Creating..." : "Create Coupon"}</span>
+                </button>
+              </div>
             </form>
 
             {/* Coupons List */}
@@ -1125,7 +1185,7 @@ export default function AdminPage() {
             ) : coupons.length === 0 ? (
               <div style={{ textAlign: "center", padding: "80px 40px", border: "1px dashed rgba(217, 184, 133, 0.3)", borderRadius: "10px", backgroundColor: "#faf7f0" }}>
                 <Ticket size={40} style={{ color: "var(--muted)", marginBottom: "12px" }} />
-                <p style={{ color: "var(--muted)", margin: 0 }}>No coupons generated yet. Enter a percentage above to create one.</p>
+                <p style={{ color: "var(--muted)", margin: 0 }}>No coupons created yet. Fill the form above to create one.</p>
               </div>
             ) : (
               <div style={{ overflowX: "auto" }}>
@@ -1133,7 +1193,8 @@ export default function AdminPage() {
                   <thead>
                     <tr style={{ borderBottom: "2px solid var(--card-border)", color: "#6b5a45", fontWeight: "600", backgroundColor: "#faf7f0" }}>
                       <th style={{ padding: "12px" }}>Coupon Code</th>
-                      <th style={{ padding: "12px" }}>Discount %</th>
+                      <th style={{ padding: "12px" }}>Description</th>
+                      <th style={{ padding: "12px" }}>Discount</th>
                       <th style={{ padding: "12px" }}>Status</th>
                       <th style={{ padding: "12px" }}>Created At</th>
                       <th style={{ padding: "12px", textAlign: "right" }}>Actions</th>
@@ -1148,10 +1209,12 @@ export default function AdminPage() {
                         hour: "2-digit",
                         minute: "2-digit"
                       });
+                      const discountText = c.discountType === "percentage" ? `${c.discountValue}% OFF` : `₹${c.discountValue} FLAT`;
                       return (
                         <tr key={c._id} style={{ borderBottom: "1px solid var(--card-border)", transition: "background 0.2s" }} className="table-row-hover">
                           <td style={{ padding: "16px 12px", color: "#1a150e", fontWeight: "700" }}>{c.code}</td>
-                          <td style={{ padding: "16px 12px", color: "#1a150e", fontWeight: "600" }}>{c.discountPercent}% OFF</td>
+                          <td style={{ padding: "16px 12px", color: "#5c4d3c" }}>{c.description || "-"}</td>
+                          <td style={{ padding: "16px 12px", color: "#1a150e", fontWeight: "600" }}>{discountText}</td>
                           <td style={{ padding: "16px 12px" }}>
                             <span style={{
                               fontSize: "12px",

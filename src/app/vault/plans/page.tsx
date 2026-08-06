@@ -51,7 +51,9 @@ export default function PlansPage() {
   // Coupon states
   const [couponCodeInput, setCouponCodeInput] = useState("");
   const [appliedCouponCode, setAppliedCouponCode] = useState("");
-  const [discountPercent, setDiscountPercent] = useState(0);
+  const [discountType, setDiscountType] = useState<"percentage" | "flat" | "">("");
+  const [discountValue, setDiscountValue] = useState(0);
+  const [couponDescription, setCouponDescription] = useState("");
   const [couponError, setCouponError] = useState("");
   const [couponSuccess, setCouponSuccess] = useState("");
   const [isCheckingCoupon, setIsCheckingCoupon] = useState(false);
@@ -59,7 +61,9 @@ export default function PlansPage() {
   useEffect(() => {
     setCouponCodeInput("");
     setAppliedCouponCode("");
-    setDiscountPercent(0);
+    setDiscountType("");
+    setDiscountValue(0);
+    setCouponDescription("");
     setCouponError("");
     setCouponSuccess("");
   }, [selectedPlan]);
@@ -93,7 +97,15 @@ export default function PlansPage() {
 
   const getPricingDetails = () => {
     const originalBase = selectedPlan === "annual" ? 1000 : 5000;
-    const discountAmount = Math.round(originalBase * (discountPercent / 100));
+    let discountAmount = 0;
+    if (discountType === "percentage") {
+      discountAmount = Math.round(originalBase * (discountValue / 100));
+    } else if (discountType === "flat") {
+      discountAmount = Math.round(discountValue);
+    }
+    if (discountAmount > originalBase) {
+      discountAmount = originalBase;
+    }
     const base = originalBase - discountAmount;
     const gst = Math.round(base * 0.18);
     const total = base + gst;
@@ -121,18 +133,26 @@ export default function PlansPage() {
       });
       const data = await res.json();
       if (res.ok && data.success) {
-        setDiscountPercent(data.discountPercent);
+        setDiscountType(data.discountType);
+        setDiscountValue(data.discountValue);
         setAppliedCouponCode(data.couponCode);
-        setCouponSuccess(`Coupon code "${data.couponCode}" applied! You get ${data.discountPercent}% off.`);
+        setCouponDescription(data.description || "");
+        
+        const label = data.discountType === "percentage" ? `${data.discountValue}% OFF` : `₹${data.discountValue} FLAT OFF`;
+        setCouponSuccess(`Coupon code "${data.couponCode}" applied (${label})!`);
       } else {
         setCouponError(data.error || "Invalid coupon code");
-        setDiscountPercent(0);
+        setDiscountType("");
+        setDiscountValue(0);
         setAppliedCouponCode("");
+        setCouponDescription("");
       }
     } catch (err) {
       setCouponError("Failed to verify coupon code");
-      setDiscountPercent(0);
+      setDiscountType("");
+      setDiscountValue(0);
       setAppliedCouponCode("");
+      setCouponDescription("");
     } finally {
       setIsCheckingCoupon(false);
     }
@@ -617,7 +637,12 @@ export default function PlansPage() {
                   </button>
                 </div>
                 {couponError && <span style={{ fontSize: "12px", color: "#b91c1c" }}>{couponError}</span>}
-                {couponSuccess && <span style={{ fontSize: "12px", color: "#10b981", fontWeight: "600" }}>{couponSuccess}</span>}
+                {couponSuccess && (
+                  <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+                    <span style={{ fontSize: "12px", color: "#10b981", fontWeight: "600" }}>{couponSuccess}</span>
+                    {couponDescription && <span style={{ fontSize: "11px", color: "#6b5a45", fontStyle: "italic" }}>{couponDescription}</span>}
+                  </div>
+                )}
               </div>
             </div>
 
@@ -633,7 +658,7 @@ export default function PlansPage() {
                 </div>
                 {discountAmount > 0 && (
                   <div style={{ display: "flex", justifyContent: "space-between", color: "#10b981", fontWeight: "600" }}>
-                    <span>Coupon Discount ({discountPercent}%):</span>
+                    <span>Coupon Discount ({discountType === "percentage" ? `${discountValue}%` : `₹${discountValue} Flat`}):</span>
                     <span>-₹{discountAmount.toLocaleString("en-IN")}</span>
                   </div>
                 )}

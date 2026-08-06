@@ -26,8 +26,10 @@ export async function POST(req: Request) {
     const db = client.db("legacybridge");
 
     // Coupon verification
-    let discountPercent = 0;
+    let discountAmount = 0;
     let appliedCoupon = "";
+    const originalBase = plan === "annual" ? 1000 : 5000;
+
     if (couponCode && typeof couponCode === "string" && couponCode.trim() !== "") {
       const normalizedCode = couponCode.toUpperCase().trim();
       const couponDoc = await db.collection("coupons").findOne({
@@ -35,15 +37,21 @@ export async function POST(req: Request) {
         status: "active"
       });
       if (couponDoc) {
-        discountPercent = couponDoc.discountPercent;
         appliedCoupon = couponDoc.code;
+        if (couponDoc.discountType === "percentage") {
+          discountAmount = Math.round(originalBase * (couponDoc.discountValue / 100));
+        } else if (couponDoc.discountType === "flat") {
+          discountAmount = Math.round(couponDoc.discountValue);
+        }
+        // Cap discount to original base
+        if (discountAmount > originalBase) {
+          discountAmount = originalBase;
+        }
       } else {
         return NextResponse.json({ error: "Invalid or expired coupon code" }, { status: 400 });
       }
     }
 
-    const originalBase = plan === "annual" ? 1000 : 5000;
-    const discountAmount = Math.round(originalBase * (discountPercent / 100));
     const base = originalBase - discountAmount;
     const gst = Math.round(base * 0.18);
     const total = base + gst;

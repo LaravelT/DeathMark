@@ -29,7 +29,9 @@ export async function POST(req: Request) {
     return NextResponse.json({
       success: true,
       couponCode: coupon.code,
-      discountPercent: coupon.discountPercent
+      description: coupon.description || "",
+      discountType: coupon.discountType,
+      discountValue: coupon.discountValue
     });
   } catch (error: any) {
     console.error("[Verify Coupon API] Error:", error);

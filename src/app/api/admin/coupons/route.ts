@@ -2,16 +2,6 @@ import { NextResponse } from "next/server";
 import clientPromise from "@/lib/db";
 import { ObjectId } from "mongodb";
 
-// Helper to generate a random 4-character alphanumeric string
-function generateRandomString(length: number = 4): string {
-  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-  let result = "";
-  for (let i = 0; i < length; i++) {
-    result += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return result;
-}
-
 export async function GET() {
   try {
     const client = await clientPromise;
@@ -33,39 +23,45 @@ export async function GET() {
 export async function POST(req: Request) {
   try {
     const body = await req.json().catch(() => ({}));
-    const { discountPercent } = body;
+    const { code, description, discountType, discountValue } = body;
 
-    const percent = parseInt(discountPercent, 10);
-    if (isNaN(percent) || percent < 1 || percent > 100) {
-      return NextResponse.json({ error: "Invalid discount percentage. Must be between 1 and 100." }, { status: 400 });
+    if (!code || typeof code !== "string" || !code.trim()) {
+      return NextResponse.json({ error: "Coupon code name is required." }, { status: 400 });
+    }
+
+    const normalizedCode = code.toUpperCase().trim();
+    if (!/^[A-Z0-9_-]+$/.test(normalizedCode)) {
+      return NextResponse.json({ error: "Coupon code must contain only letters, numbers, hyphens, and underscores." }, { status: 400 });
+    }
+
+    if (!["percentage", "flat"].includes(discountType)) {
+      return NextResponse.json({ error: "Invalid discount type. Must be 'percentage' or 'flat'." }, { status: 400 });
+    }
+
+    const val = parseFloat(discountValue);
+    if (isNaN(val) || val <= 0) {
+      return NextResponse.json({ error: "Discount value must be a positive number." }, { status: 400 });
+    }
+
+    if (discountType === "percentage" && val > 100) {
+      return NextResponse.json({ error: "Percentage discount cannot exceed 100%." }, { status: 400 });
     }
 
     const client = await clientPromise;
     const db = client.db("legacybridge");
     const couponsCollection = db.collection("coupons");
 
-    // Generate unique coupon code
-    let code = "";
-    let isUnique = false;
-    let attempts = 0;
-
-    while (!isUnique && attempts < 10) {
-      const suffix = generateRandomString(4);
-      code = `LB${percent}-${suffix}`;
-      const existing = await couponsCollection.findOne({ code, status: "active" });
-      if (!existing) {
-        isUnique = true;
-      }
-      attempts++;
-    }
-
-    if (!isUnique) {
-      return NextResponse.json({ error: "Could not generate a unique code. Please try again." }, { status: 500 });
+    // Check if code already exists as active
+    const existing = await couponsCollection.findOne({ code: normalizedCode, status: "active" });
+    if (existing) {
+      return NextResponse.json({ error: "An active coupon with this code already exists." }, { status: 400 });
     }
 
     const newCoupon = {
-      code,
-      discountPercent: percent,
+      code: normalizedCode,
+      description: description || "",
+      discountType,
+      discountValue: val,
       status: "active",
       createdAt: new Date(),
     };
@@ -92,7 +88,7 @@ export async function DELETE(req: Request) {
     const db = client.db("legacybridge");
     const couponsCollection = db.collection("coupons");
 
-    // We can do a soft delete
+    // Soft delete
     const result = await couponsCollection.updateOne(
       { _id: new ObjectId(couponId) },
       { $set: { status: "deleted" } }

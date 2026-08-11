@@ -183,6 +183,13 @@ export default function EmployeesPage() {
               <h3>Lifetime access</h3>
               <p className="price">From ₹2,500 <span>/ employee</span></p>
               <div className="tiers">
+                <div style={{ paddingBottom: "8px", borderBottom: "1px solid var(--line)" }}>
+                  <span></span>
+                  <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", lineHeight: "1.25" }}>
+                    <span style={{ fontSize: "11px", fontWeight: "850", color: "var(--navy)", textTransform: "uppercase", letterSpacing: "0.05em" }}>One Time Pricing</span>
+                    <span style={{ fontSize: "10px", color: "var(--muted)", fontWeight: "500" }}>(per employee)</span>
+                  </div>
+                </div>
                 <div><span>25–49 employees</span><strong>₹4,000</strong></div>
                 <div><span>50–99 employees</span><strong>₹3,500</strong></div>
                 <div><span>100–249 employees</span><strong>₹3,000</strong></div>

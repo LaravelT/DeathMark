@@ -75,10 +75,10 @@ export default function EmployeesPage() {
             <nav className="shell nav" aria-label="Page navigation" style={{ minHeight: "60px" }}>
               <div className="nav-menu" style={{ width: "100%", justifyContent: "space-between", display: "flex", alignItems: "center" }}>
                 <div style={{ display: "flex", gap: "26px" }}>
-                  <Link href="#benefit">The benefit</Link>
-                  <Link href="#privacy">Privacy</Link>
-                  <Link href="#pricing">Pricing</Link>
-                  <Link href="#faq">FAQ</Link>
+                  <Link href="#benefit">Corporate Benefit</Link>
+                  <Link href="#privacy">Employee Privacy</Link>
+                  <Link href="#pricing">Corporate Pricing</Link>
+                  <Link href="#faq">Corporate FAQ</Link>
                 </div>
                 <Link className="nav-cta" href="#enquire" style={{ padding: "8px 16px" }}>Corporate enquiry</Link>
               </div>

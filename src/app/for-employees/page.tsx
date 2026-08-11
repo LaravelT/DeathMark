@@ -34,7 +34,7 @@ export default function EmployeesPage() {
         <header className="site-header" id="top">
           <nav className="shell nav" aria-label="Primary navigation">
             <Link className="brand" href="/" aria-label="LegacyBridge home">
-              <img src="/legacybridge-logo.svg" alt="LegacyBridge" />
+              <img src="/favicon.ico" alt="LegacyBridge" style={{ height: "65px", width: "auto", objectFit: "contain" }} />
             </Link>
             <div className="nav-menu">
               <Link href="#benefit">The benefit</Link>
@@ -181,7 +181,7 @@ export default function EmployeesPage() {
 
         <footer className="site-footer">
           <div className="shell footer-grid">
-            <div><img src="/legacybridge-logo.svg" alt="LegacyBridge" /><p>A product of Solution Planets.</p></div>
+            <div><img src="/favicon.ico" alt="LegacyBridge" style={{ height: "65px", width: "auto", objectFit: "contain", filter: "none" }} /><p>A product of Solution Planets.</p></div>
             <div className="footer-links"><Link href="#benefit">The benefit</Link><Link href="#privacy">Privacy</Link><Link href="#pricing">Pricing</Link><Link href="#faq">FAQ</Link></div>
             <p>© 2026 Solution Planets. All rights reserved.</p>
           </div>

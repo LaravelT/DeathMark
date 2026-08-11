@@ -28,23 +28,63 @@ const faqs = [
 ];
 
 export default function EmployeesPage() {
+  const [menuOpen, setMenuOpen] = React.useState(false);
+  const toggleMenu = () => setMenuOpen(!menuOpen);
+
   return (
-    <div className="employee-theme">
-      <main>
+    <div>
+      {/* Homepage Styled Header */}
+      <div className="landing-theme">
         <header className="site-header" id="top">
-          <nav className="shell nav" aria-label="Primary navigation">
-            <Link className="brand" href="/" aria-label="LegacyBridge home">
-              <img src="/favicon.ico" alt="LegacyBridge" style={{ height: "65px", width: "auto", objectFit: "contain" }} />
+          <nav className="nav shell" aria-label="Primary navigation">
+            <Link href="/" className="brand" aria-label="LegacyBridge home">
+              <img src="/assets/logo-horizontal.png" alt="LegacyBridge" style={{ height: "65px", width: "auto", objectFit: "contain" }} />
             </Link>
-            <div className="nav-menu">
-              <Link href="#benefit">The benefit</Link>
-              <Link href="#privacy">Privacy</Link>
-              <Link href="#pricing">Pricing</Link>
-              <Link href="#faq">FAQ</Link>
-              <Link className="nav-cta" href="#enquire">Corporate enquiry</Link>
+
+            <button 
+              className="nav-toggle" 
+              type="button" 
+              aria-expanded={menuOpen} 
+              aria-controls="nav-menu" 
+              aria-label="Toggle navigation"
+              onClick={toggleMenu}
+            >
+              <span></span><span></span><span></span>
+            </button>
+
+            <div className={`nav-menu ${menuOpen ? 'open' : ''}`} id="nav-menu">
+              <Link href="/#why" onClick={() => setMenuOpen(false)}>Why</Link>
+              <Link href="/#drive" onClick={() => setMenuOpen(false)}>Google Drive</Link>
+              <Link href="/#how" onClick={() => setMenuOpen(false)}>How it works</Link>
+              <Link href="/#pricing" onClick={() => setMenuOpen(false)}>Pricing</Link>
+              <Link href="/#faq" onClick={() => setMenuOpen(false)}>FAQ</Link>
+              <Link href="/for-employees" onClick={() => setMenuOpen(false)}>For Employees</Link>
+              <Link href="/claim" onClick={() => setMenuOpen(false)}>Claim Assets</Link>
+              <Link href="/auth/signin" className="nav-cta" onClick={() => setMenuOpen(false)}>
+                Sign In
+              </Link>
             </div>
           </nav>
         </header>
+      </div>
+
+      <div className="employee-theme">
+        <main>
+          {/* Sub-Header Navigation */}
+          <header className="site-header" style={{ position: "relative", borderTop: "none" }}>
+            <nav className="shell nav" aria-label="Page navigation" style={{ minHeight: "60px" }}>
+              <Link className="brand" href="/" aria-label="LegacyBridge home">
+                <img src="/favicon.ico" alt="LegacyBridge" style={{ height: "45px", width: "auto", objectFit: "contain" }} />
+              </Link>
+              <div className="nav-menu">
+                <Link href="#benefit">The benefit</Link>
+                <Link href="#privacy">Privacy</Link>
+                <Link href="#pricing">Pricing</Link>
+                <Link href="#faq">FAQ</Link>
+                <Link className="nav-cta" href="#enquire" style={{ padding: "8px 16px" }}>Corporate enquiry</Link>
+              </div>
+            </nav>
+          </header>
 
         <section className="hero section-pad">
           <div className="hero-pattern" aria-hidden="true" />
@@ -179,15 +219,35 @@ export default function EmployeesPage() {
           </div>
         </section>
 
+        </main>
+      </div>
+
+      {/* Main Footer styled like the homepage */}
+      <div className="landing-theme">
         <footer className="site-footer">
           <div className="shell footer-grid">
-            <div><img src="/favicon.ico" alt="LegacyBridge" style={{ height: "65px", width: "auto", objectFit: "contain", filter: "none" }} /><p>A product of Solution Planets.</p></div>
-            <div className="footer-links"><Link href="#benefit">The benefit</Link><Link href="#privacy">Privacy</Link><Link href="#pricing">Pricing</Link><Link href="#faq">FAQ</Link></div>
-            <p>© 2026 Solution Planets. All rights reserved.</p>
+            <div>
+              <Link href="/" className="brand footer-brand">
+                <img src="/assets/legacybridge-logo.png" alt="LegacyBridge" style={{ height: "100px", width: "auto", objectFit: "contain", opacity: 0.96, filter: "none" }} />
+              </Link>
+              <p>A product of <a href="https://www.solutionplanets.com/" target="_blank" rel="noopener noreferrer" style={{ color: "inherit", textDecoration: "underline" }}>Solution Planets</a></p>
+            </div>
+            <div className="footer-links">
+              <Link href="/#drive">Google Drive Storage</Link>
+              <Link href="/#pricing">Pricing</Link>
+              <Link href="/#faq">FAQ</Link>
+              <Link href="/for-employees">For Employees</Link>
+              <Link href="/privacy">Privacy Policy</Link>
+              <Link href="/terms">Terms & Conditions</Link>
+              <Link href="/return-cancellation">Return & Cancellation Policy</Link>
+            </div>
+            <p className="copyright">© {new Date().getFullYear()} Solution Planets. All rights reserved.</p>
           </div>
-          <p className="disclaimer shell">LegacyBridge is an information organisation and family-preparedness tool. It does not provide legal, financial, tax, investment, succession or estate-planning advice, and does not transfer ownership of any asset.</p>
+          <p className="disclaimer shell" style={{ marginTop: "34px", paddingTop: "24px", borderTop: "1px solid rgba(255,255,255,0.1)", fontSize: "12px", color: "rgba(255,255,255,0.45)" }}>
+            LegacyBridge is an information organisation and family-preparedness tool. It does not provide legal, financial, tax, investment, succession or estate-planning advice, and does not transfer ownership of any asset.
+          </p>
         </footer>
-      </main>
+      </div>
     </div>
   );
 }

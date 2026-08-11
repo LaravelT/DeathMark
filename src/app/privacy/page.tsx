@@ -34,6 +34,7 @@ export default function PrivacyPolicyPage() {
             <Link href="/#how" onClick={() => setMenuOpen(false)}>How it works</Link>
             <Link href="/#pricing" onClick={() => setMenuOpen(false)}>Pricing</Link>
             <Link href="/#faq" onClick={() => setMenuOpen(false)}>FAQ</Link>
+            <Link href="/for-employees" onClick={() => setMenuOpen(false)}>For Employees</Link>
             <Link href="/claim" onClick={() => setMenuOpen(false)}>Claim Assets</Link>
             <Link href="/auth/signin" className="nav-cta" onClick={() => setMenuOpen(false)}>
               Sign In
@@ -131,6 +132,7 @@ export default function PrivacyPolicyPage() {
             <Link href="/#drive">Google Drive Storage</Link>
             <Link href="/#pricing">Pricing</Link>
             <Link href="/#faq">FAQ</Link>
+            <Link href="/for-employees">For Employees</Link>
             <Link href="/privacy">Privacy Policy</Link>
             <Link href="/terms">Terms & Conditions</Link>
             <Link href="/return-cancellation">Return & Cancellation Policy</Link>

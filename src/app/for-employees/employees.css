@@ -30,8 +30,8 @@
     max-width: 100%;
   }
   .shell {
-    width: min(1140px, calc(100% - 40px));
-    margin: auto;
+    width: min(1160px, calc(100% - 40px));
+    margin: 0 auto;
   }
   .section-pad {
     padding: 96px 0;
@@ -59,9 +59,9 @@
   .nav-menu {
     display: flex;
     align-items: center;
-    gap: 26px;
+    gap: 24px;
     font-size: 14px;
-    font-weight: 700;
+    font-weight: 750;
     color: rgba(13, 27, 42, 0.72);
   }
   .nav-menu a:hover {

@@ -72,14 +72,12 @@ export default function EmployeesPage() {
         <main>
           {/* Sub-Header Navigation */}
           <header className="site-header" style={{ position: "relative", borderTop: "none" }}>
-            <nav className="shell nav" aria-label="Page navigation" style={{ minHeight: "60px" }}>
-              <div className="nav-menu" style={{ width: "100%", justifyContent: "space-between", display: "flex", alignItems: "center" }}>
-                <div style={{ display: "flex", gap: "24px" }}>
-                  <Link href="#benefit">Corporate Benefit</Link>
-                  <Link href="#privacy">Employee Privacy</Link>
-                  <Link href="#pricing">Corporate Pricing</Link>
-                  <Link href="#faq">Corporate FAQ</Link>
-                </div>
+            <nav className="shell nav" aria-label="Page navigation" style={{ minHeight: "60px", justifyContent: "flex-end" }}>
+              <div className="nav-menu" style={{ display: "flex", alignItems: "center", gap: "24px" }}>
+                <Link href="#benefit">Corporate Benefit</Link>
+                <Link href="#privacy">Employee Privacy</Link>
+                <Link href="#pricing">Corporate Pricing</Link>
+                <Link href="#faq">Corporate FAQ</Link>
                 <Link className="nav-cta" href="#enquire">Corporate enquiry</Link>
               </div>
             </nav>

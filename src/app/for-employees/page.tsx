@@ -73,14 +73,13 @@ export default function EmployeesPage() {
           {/* Sub-Header Navigation */}
           <header className="site-header" style={{ position: "relative", borderTop: "none" }}>
             <nav className="shell nav" aria-label="Page navigation" style={{ minHeight: "60px" }}>
-              <Link className="brand" href="/" aria-label="LegacyBridge home">
-                <img src="/favicon.ico" alt="LegacyBridge" style={{ height: "45px", width: "auto", objectFit: "contain" }} />
-              </Link>
-              <div className="nav-menu">
-                <Link href="#benefit">The benefit</Link>
-                <Link href="#privacy">Privacy</Link>
-                <Link href="#pricing">Pricing</Link>
-                <Link href="#faq">FAQ</Link>
+              <div className="nav-menu" style={{ width: "100%", justifyContent: "space-between", display: "flex", alignItems: "center" }}>
+                <div style={{ display: "flex", gap: "26px" }}>
+                  <Link href="#benefit">The benefit</Link>
+                  <Link href="#privacy">Privacy</Link>
+                  <Link href="#pricing">Pricing</Link>
+                  <Link href="#faq">FAQ</Link>
+                </div>
                 <Link className="nav-cta" href="#enquire" style={{ padding: "8px 16px" }}>Corporate enquiry</Link>
               </div>
             </nav>

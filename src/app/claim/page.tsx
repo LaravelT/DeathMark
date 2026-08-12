@@ -4,6 +4,15 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { KeyRound, ShieldAlert, FileText, User, ArrowRight, ShieldCheck, Upload, AlertCircle } from "lucide-react";
 
+const DOCUMENT_MAPPING: Record<string, string> = {
+  "Death of the account holder": "Death certificate",
+  "Account holder is medically incapacitated": "Medical certificate from a registered doctor/hospital",
+  "Account holder is legally incapacitated": "Court order or guardianship document",
+  "Account holder is missing": "Police complaint/FIR or official missing-person report",
+  "Request under a court or legal authority": "Court order or official authority letter",
+  "Other exceptional emergency": "Relevant documentary evidence"
+};
+
 export default function ClaimPage() {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -25,8 +34,11 @@ export default function ClaimPage() {
   const [nomineePan, setNomineePan] = useState("");
 
   // Step 4 States (Claimant info & File)
-  const [reason, setReason] = useState("");
+  const [selectedReason, setSelectedReason] = useState("Death of the account holder");
+  const [reasonDetails, setReasonDetails] = useState("");
   const [documentBase64, setDocumentBase64] = useState<string | null>(null);
+
+  const suggestedDoc = DOCUMENT_MAPPING[selectedReason] || "Supporting Document";
 
   // Status check state if already submitted
   const [underReview, setUnderReview] = useState(false);
@@ -43,7 +55,8 @@ export default function ClaimPage() {
     setNomineePhone("");
     setNomineeAadhaar("");
     setNomineePan("");
-    setReason("");
+    setSelectedReason("Death of the account holder");
+    setReasonDetails("");
     setDocumentBase64(null);
     setUnderReview(false);
     setClaimStatus(null);
@@ -154,7 +167,7 @@ export default function ClaimPage() {
     setError("");
     
     if (!documentBase64) {
-      setError("Please upload a supporting document (Death Certificate, etc.).");
+      setError(`Please upload the required supporting document (${suggestedDoc}).`);
       return;
     }
 
@@ -185,7 +198,7 @@ export default function ClaimPage() {
           claimantName: nomineeName,
           claimantGmail: nomineeEmail,
           claimantPhone: nomineePhone,
-          reason,
+          reason: reasonDetails ? `${selectedReason} - ${reasonDetails}` : selectedReason,
           document: documentUrl
         })
       });
@@ -243,6 +256,19 @@ export default function ClaimPage() {
           <p style={{ color: "#6b5a45", fontSize: "15px", lineHeight: "1.6", marginBottom: "32px" }}>
             {message}
           </p>
+          <div style={{
+            fontSize: "13px",
+            color: "#6b5a45",
+            backgroundColor: "#fcfaf2",
+            padding: "16px",
+            borderRadius: "14px",
+            border: "1px solid rgba(217, 184, 133, 0.3)",
+            marginBottom: "32px",
+            textAlign: "left",
+            lineHeight: "1.6"
+          }}>
+            Submitting this request does not guarantee access or transfer ownership of any asset. Every request is subject to identity, nominee and supporting-document verification.
+          </div>
           <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
             {claimStatus && (
               <button 
@@ -285,8 +311,8 @@ export default function ClaimPage() {
               style={{ height: "80px", width: "auto", objectFit: "contain" }} 
             />
           </div>
-          <h1 className="signin-title" style={{ color: "#1a150e" }}>Beneficiary Claim Portal</h1>
-          <p className="signin-subtitle" style={{ color: "#6b5a45" }}>Step {step} of 4: Verify details to claim assets</p>
+          <h1 className="signin-title" style={{ color: "#1a150e" }}>Nominee Emergency Access Portal</h1>
+          <p className="signin-subtitle" style={{ color: "#6b5a45" }}>Step {step} of 4: Verify your identity and request access</p>
           <div className="header-divider"></div>
         </div>
 
@@ -481,22 +507,41 @@ export default function ClaimPage() {
           <form onSubmit={handleSubmitClaim} className="signin-body" style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
             <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
               <label className="form-label" style={{ color: "#1a150e" }}>Why do you need these details? (Reason) <span style={{ color: "var(--danger)" }}>*</span></label>
-              <textarea
-                value={reason}
-                onChange={(e) => setReason(e.target.value)}
-                placeholder="Explain why you are requesting details of this asset vault..."
+              <select
+                value={selectedReason}
+                onChange={(e) => setSelectedReason(e.target.value)}
                 required
-                rows={4}
+                className="signin-input"
+                style={{ backgroundColor: "#ffffff" }}
+              >
+                <option value="Death of the account holder">Death of the account holder</option>
+                <option value="Account holder is medically incapacitated">Account holder is medically incapacitated</option>
+                <option value="Account holder is legally incapacitated">Account holder is legally incapacitated</option>
+                <option value="Account holder is missing">Account holder is missing</option>
+                <option value="Request under a court or legal authority">Request under a court or legal authority</option>
+                <option value="Other exceptional emergency">Other exceptional emergency</option>
+              </select>
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+              <label className="form-label" style={{ color: "#1a150e" }}>Additional Details / Comments (Optional)</label>
+              <textarea
+                value={reasonDetails}
+                onChange={(e) => setReasonDetails(e.target.value)}
+                placeholder="Provide any additional context or details here..."
+                rows={3}
                 className="signin-input"
                 style={{ resize: "none" }}
               />
             </div>
 
             <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-              <label className="form-label" style={{ color: "#1a150e" }}>Supporting Document (e.g. Death Certificate) <span style={{ color: "var(--danger)" }}>*</span></label>
+              <label className="form-label" style={{ color: "#1a150e" }}>
+                Supporting Document ({suggestedDoc}) <span style={{ color: "var(--danger)" }}>*</span>
+              </label>
               <div style={{ position: "relative", display: "flex", flexDirection: "column", gap: "10px", padding: "20px", border: "2px dashed rgba(217, 184, 133, 0.4)", borderRadius: "12px", backgroundColor: "#faf7f0", alignItems: "center" }}>
                 <Upload size={24} style={{ color: "var(--muted)", marginBottom: "4px" }} />
-                <span style={{ fontSize: "13px", color: "var(--muted)" }}>Click to upload file (Max 2MB)</span>
+                <span style={{ fontSize: "13px", color: "var(--muted)", textAlign: "center" }}>Click to upload {suggestedDoc} (Max 2MB)</span>
                 <input
                   type="file"
                   accept="image/*,application/pdf"
@@ -517,7 +562,7 @@ export default function ClaimPage() {
                 Go Back
               </button>
               <button type="submit" className="btn-cta-primary" style={{ flex: 1, border: "none" }} disabled={loading}>
-                {loading ? "Submitting..." : "Submit Claim"}
+                {loading ? "Submitting..." : "Submit Access Request"}
               </button>
             </div>
           </form>

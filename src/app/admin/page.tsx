@@ -696,7 +696,7 @@ export default function AdminPage() {
                   <thead>
                     <tr style={{ borderBottom: "2px solid var(--card-border)", color: "#6b5a45", fontWeight: "600", backgroundColor: "#faf7f0" }}>
                       <th style={{ padding: "12px" }}>Submitted Date</th>
-                      <th style={{ padding: "12px" }}>Relative (Claimant)</th>
+                      <th style={{ padding: "12px" }}>Claimant Details</th>
                       <th style={{ padding: "12px" }}>Owner Email</th>
                       <th style={{ padding: "12px" }}>Reason</th>
                       <th style={{ padding: "12px" }}>Document</th>
@@ -713,6 +713,9 @@ export default function AdminPage() {
                         <td style={{ padding: "16px 12px" }}>
                           <div style={{ color: "#1a150e", fontWeight: "700" }}>{claim.claimantName}</div>
                           <div style={{ fontSize: "12px", color: "#8c7a6b" }}>{claim.claimantGmail}</div>
+                          {claim.claimantPhone && (
+                            <div style={{ fontSize: "12px", color: "#8c7a6b", marginTop: "2px" }}>{claim.claimantPhone}</div>
+                          )}
                         </td>
                         <td style={{ padding: "16px 12px", color: "#5c4d3c", fontWeight: "600" }}>
                           {claim.ownerEmail}

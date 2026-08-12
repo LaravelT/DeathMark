@@ -335,11 +335,11 @@ function ClaimAccessContent() {
         {step === 1 && (
           <form onSubmit={handleVerifyStep1} className="signin-body" style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
             <p style={{ fontSize: "14px", color: "#6b5a45", margin: "0 0 10px 0", lineHeight: "1.5" }}>
-              Please enter the <strong>Relative's (Vault Owner's)</strong> details to verify your claim authorization link.
+              Please enter the <strong>Owner's (Vault Owner's)</strong> details to verify your claim authorization link.
             </p>
 
             <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-              <label className="form-label" style={{ color: "#1a150e" }}>Relative's Aadhaar Card No <span style={{ color: "var(--danger)" }}>*</span></label>
+              <label className="form-label" style={{ color: "#1a150e" }}>Owner's Aadhaar Card No <span style={{ color: "var(--danger)" }}>*</span></label>
               <input
                 type="text"
                 value={ownerAadhaar}
@@ -353,7 +353,7 @@ function ClaimAccessContent() {
             </div>
 
             <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-              <label className="form-label" style={{ color: "#1a150e" }}>Relative's PAN Card No <span style={{ color: "var(--danger)" }}>*</span></label>
+              <label className="form-label" style={{ color: "#1a150e" }}>Owner's PAN Card No <span style={{ color: "var(--danger)" }}>*</span></label>
               <input
                 type="text"
                 value={ownerPan}
@@ -428,7 +428,7 @@ function ClaimAccessContent() {
                   <span>Decrypted Vault Assets</span>
                 </h1>
                 <span style={{ fontSize: "13px", color: "var(--muted)" }}>
-                  Relative Name: <strong>{ownerName}</strong> ({ownerEmail})
+                  Owner Name: <strong>{ownerName}</strong> ({ownerEmail})
                 </span>
               </div>
               <div style={{ display: "flex", gap: "10px" }}>

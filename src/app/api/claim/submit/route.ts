@@ -4,7 +4,7 @@ import nodemailer from "nodemailer";
 
 export async function POST(req: Request) {
   try {
-    const { email, claimantName, claimantGmail, reason, document } = await req.json();
+    const { email, claimantName, claimantGmail, claimantPhone, reason, document } = await req.json();
 
     if (!email || !claimantName || !claimantGmail || !reason) {
       return NextResponse.json({ error: "Missing required fields." }, { status: 400 });
@@ -31,6 +31,7 @@ export async function POST(req: Request) {
       ownerEmail: email.toLowerCase().trim(),
       claimantName,
       claimantGmail: claimantGmail.toLowerCase().trim(),
+      claimantPhone: claimantPhone ? claimantPhone.trim() : "",
       reason,
       document, // base64 representation of death certificate or supporting document
       status: "Pending Review",

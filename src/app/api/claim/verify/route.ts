@@ -15,7 +15,7 @@ export async function POST(req: Request) {
 
     const user = await usersCollection.findOne({ email: email.toLowerCase().trim() });
     if (!user) {
-      return NextResponse.json({ error: "Invalid relative details. Please check and try again." }, { status: 400 });
+      return NextResponse.json({ error: "Invalid owner details. Please check and try again." }, { status: 400 });
     }
 
     // Fetch the latest claim for this owner email
@@ -63,10 +63,7 @@ export async function POST(req: Request) {
     }
 
     if (step === 1) {
-      const dbOwnerName = user.ownerDetails?.name || "";
-      if (dbOwnerName.toLowerCase().trim() !== ownerName.toLowerCase().trim()) {
-        return NextResponse.json({ error: "Your details are invalid. Please check." }, { status: 400 });
-      }
+      // Name match is disabled per user request. We only check that the owner exists (done above).
       return NextResponse.json({ success: true });
     }
 
@@ -82,9 +79,24 @@ export async function POST(req: Request) {
     if (step === 3) {
       const dbNomineeAadhaar = user.nomineeAadhaar || "";
       const dbNomineePan = user.nomineePan || "";
-      if (dbNomineeAadhaar !== nomineeAadhaar || dbNomineePan.toUpperCase() !== nomineePan.toUpperCase()) {
-        return NextResponse.json({ error: "Nominee Aadhaar or PAN card number does not match." }, { status: 400 });
+
+      // Aadhaar must always match
+      if (dbNomineeAadhaar !== nomineeAadhaar) {
+        return NextResponse.json({ error: "Nominee Aadhaar card number does not match." }, { status: 400 });
       }
+
+      // PAN matching logic:
+      // If nominee PAN is registered in database, we must verify it.
+      if (dbNomineePan) {
+        if (!nomineePan) {
+          return NextResponse.json({ error: "Nominee PAN card number is required." }, { status: 400 });
+        }
+        if (dbNomineePan.toUpperCase() !== nomineePan.toUpperCase()) {
+          return NextResponse.json({ error: "Nominee PAN card number does not match." }, { status: 400 });
+        }
+      }
+      // If dbNomineePan does not exist, we skip PAN matching ("no issue").
+
       return NextResponse.json({ success: true });
     }
 

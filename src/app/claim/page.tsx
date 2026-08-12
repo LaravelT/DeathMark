@@ -17,13 +17,14 @@ export default function ClaimPage() {
   const [ownerAadhaar, setOwnerAadhaar] = useState("");
   const [ownerPan, setOwnerPan] = useState("");
 
-  // Step 3 States (Nominee IDs)
+  // Step 3 States (Nominee Info & IDs)
+  const [nomineeName, setNomineeName] = useState("");
+  const [nomineeEmail, setNomineeEmail] = useState("");
+  const [nomineePhone, setNomineePhone] = useState("");
   const [nomineeAadhaar, setNomineeAadhaar] = useState("");
   const [nomineePan, setNomineePan] = useState("");
 
   // Step 4 States (Claimant info & File)
-  const [claimantName, setClaimantName] = useState("");
-  const [claimantGmail, setClaimantGmail] = useState("");
   const [reason, setReason] = useState("");
   const [documentBase64, setDocumentBase64] = useState<string | null>(null);
 
@@ -37,10 +38,11 @@ export default function ClaimPage() {
     setOwnerName("");
     setOwnerAadhaar("");
     setOwnerPan("");
+    setNomineeName("");
+    setNomineeEmail("");
+    setNomineePhone("");
     setNomineeAadhaar("");
     setNomineePan("");
-    setClaimantName("");
-    setClaimantGmail("");
     setReason("");
     setDocumentBase64(null);
     setUnderReview(false);
@@ -180,8 +182,9 @@ export default function ClaimPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email: ownerEmail,
-          claimantName,
-          claimantGmail,
+          claimantName: nomineeName,
+          claimantGmail: nomineeEmail,
+          claimantPhone: nomineePhone,
           reason,
           document: documentUrl
         })
@@ -322,24 +325,24 @@ export default function ClaimPage() {
         {step === 1 && (
           <form onSubmit={handleNextStep} className="signin-body" style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
             <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-              <label className="form-label" style={{ color: "#1a150e" }}>Relative's Gmail Address <span style={{ color: "var(--danger)" }}>*</span></label>
+              <label className="form-label" style={{ color: "#1a150e" }}>Owner's Gmail Address <span style={{ color: "var(--danger)" }}>*</span></label>
               <input
                 type="email"
                 value={ownerEmail}
                 onChange={(e) => setOwnerEmail(e.target.value)}
-                placeholder="relative@gmail.com"
+                placeholder="owner@gmail.com"
                 required
                 className="signin-input"
               />
             </div>
 
             <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-              <label className="form-label" style={{ color: "#1a150e" }}>Relative's Full Name <span style={{ color: "var(--danger)" }}>*</span></label>
+              <label className="form-label" style={{ color: "#1a150e" }}>Owner's Full Name <span style={{ color: "var(--danger)" }}>*</span></label>
               <input
                 type="text"
                 value={ownerName}
                 onChange={(e) => setOwnerName(e.target.value)}
-                placeholder="Enter Relative's Legal Name"
+                placeholder="Enter Owner's Legal Name"
                 required
                 className="signin-input"
               />
@@ -358,7 +361,7 @@ export default function ClaimPage() {
         {step === 2 && (
           <form onSubmit={handleNextStep} className="signin-body" style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
             <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-              <label className="form-label" style={{ color: "#1a150e" }}>Relative's Aadhaar Card No <span style={{ color: "var(--danger)" }}>*</span></label>
+              <label className="form-label" style={{ color: "#1a150e" }}>Owner's Aadhaar Card No <span style={{ color: "var(--danger)" }}>*</span></label>
               <input
                 type="text"
                 value={ownerAadhaar}
@@ -372,7 +375,7 @@ export default function ClaimPage() {
             </div>
 
             <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-              <label className="form-label" style={{ color: "#1a150e" }}>Relative's PAN Card No <span style={{ color: "var(--danger)" }}>*</span></label>
+              <label className="form-label" style={{ color: "#1a150e" }}>Owner's PAN Card No <span style={{ color: "var(--danger)" }}>*</span></label>
               <input
                 type="text"
                 value={ownerPan}
@@ -400,7 +403,43 @@ export default function ClaimPage() {
         {step === 3 && (
           <form onSubmit={handleNextStep} className="signin-body" style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
             <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-              <label className="form-label" style={{ color: "#1a150e" }}>Nominee Aadhaar Card No <span style={{ color: "var(--danger)" }}>*</span></label>
+              <label className="form-label" style={{ color: "#1a150e" }}>Nominee's Full Name <span style={{ color: "var(--danger)" }}>*</span></label>
+              <input
+                type="text"
+                value={nomineeName}
+                onChange={(e) => setNomineeName(e.target.value)}
+                placeholder="Enter Nominee's Legal Name"
+                required
+                className="signin-input"
+              />
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+              <label className="form-label" style={{ color: "#1a150e" }}>Nominee's Email Address <span style={{ color: "var(--danger)" }}>*</span></label>
+              <input
+                type="email"
+                value={nomineeEmail}
+                onChange={(e) => setNomineeEmail(e.target.value)}
+                placeholder="nominee@gmail.com"
+                required
+                className="signin-input"
+              />
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+              <label className="form-label" style={{ color: "#1a150e" }}>Nominee's Phone Number <span style={{ color: "var(--danger)" }}>*</span></label>
+              <input
+                type="tel"
+                value={nomineePhone}
+                onChange={(e) => setNomineePhone(e.target.value)}
+                placeholder="Enter Nominee's Phone Number"
+                required
+                className="signin-input"
+              />
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+              <label className="form-label" style={{ color: "#1a150e" }}>Nominee's Aadhaar Card No <span style={{ color: "var(--danger)" }}>*</span></label>
               <input
                 type="text"
                 value={nomineeAadhaar}
@@ -414,13 +453,12 @@ export default function ClaimPage() {
             </div>
 
             <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-              <label className="form-label" style={{ color: "#1a150e" }}>Nominee PAN Card No <span style={{ color: "var(--danger)" }}>*</span></label>
+              <label className="form-label" style={{ color: "#1a150e" }}>Nominee's PAN Card No</label>
               <input
                 type="text"
                 value={nomineePan}
                 onChange={(e) => setNomineePan(e.target.value.toUpperCase())}
-                placeholder="10-digit Nominee PAN"
-                required
+                placeholder="10-digit Nominee PAN (Optional)"
                 maxLength={10}
                 className="signin-input"
                 style={{ textTransform: "uppercase" }}
@@ -441,30 +479,6 @@ export default function ClaimPage() {
         {/* Step 4 Form */}
         {step === 4 && (
           <form onSubmit={handleSubmitClaim} className="signin-body" style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-              <label className="form-label" style={{ color: "#1a150e" }}>Your Full Name <span style={{ color: "var(--danger)" }}>*</span></label>
-              <input
-                type="text"
-                value={claimantName}
-                onChange={(e) => setClaimantName(e.target.value)}
-                placeholder="Enter Your Legal Name"
-                required
-                className="signin-input"
-              />
-            </div>
-
-            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-              <label className="form-label" style={{ color: "#1a150e" }}>Your Gmail Address <span style={{ color: "var(--danger)" }}>*</span></label>
-              <input
-                type="email"
-                value={claimantGmail}
-                onChange={(e) => setClaimantGmail(e.target.value)}
-                placeholder="yourname@gmail.com"
-                required
-                className="signin-input"
-              />
-            </div>
-
             <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
               <label className="form-label" style={{ color: "#1a150e" }}>Why do you need these details? (Reason) <span style={{ color: "var(--danger)" }}>*</span></label>
               <textarea

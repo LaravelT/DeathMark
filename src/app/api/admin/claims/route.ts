@@ -54,7 +54,8 @@ export async function POST(req: Request) {
             auth: {
               user: smtpUser,
               pass: smtpPass
-            }
+            },
+            name: "legacybridge.in"
           });
 
           const mailOptions = {

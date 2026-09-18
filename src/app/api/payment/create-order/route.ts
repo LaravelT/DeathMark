@@ -37,6 +37,9 @@ export async function POST(req: Request) {
         status: "active"
       });
       if (couponDoc) {
+        if (couponDoc.applicablePlan && couponDoc.applicablePlan !== "all" && couponDoc.applicablePlan !== plan) {
+          return NextResponse.json({ error: `This coupon is only valid for ${couponDoc.applicablePlan} plan` }, { status: 400 });
+        }
         appliedCoupon = couponDoc.code;
         if (couponDoc.discountType === "percentage") {
           discountAmount = Math.round(originalBase * (couponDoc.discountValue / 100));

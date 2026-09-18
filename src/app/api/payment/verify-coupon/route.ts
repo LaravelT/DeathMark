@@ -4,7 +4,7 @@ import clientPromise from "@/lib/db";
 export async function POST(req: Request) {
   try {
     const body = await req.json().catch(() => ({}));
-    const { couponCode } = body;
+    const { couponCode, plan } = body;
 
     if (!couponCode || typeof couponCode !== "string") {
       return NextResponse.json({ error: "Coupon code is required" }, { status: 400 });
@@ -24,6 +24,10 @@ export async function POST(req: Request) {
 
     if (!coupon) {
       return NextResponse.json({ error: "Invalid or expired coupon code" }, { status: 404 });
+    }
+
+    if (coupon.applicablePlan && coupon.applicablePlan !== "all" && coupon.applicablePlan !== plan) {
+      return NextResponse.json({ error: `This coupon is only valid for ${coupon.applicablePlan} plan` }, { status: 400 });
     }
 
     return NextResponse.json({

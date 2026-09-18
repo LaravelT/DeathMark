@@ -23,7 +23,7 @@ export async function GET() {
 export async function POST(req: Request) {
   try {
     const body = await req.json().catch(() => ({}));
-    const { code, description, discountType, discountValue } = body;
+    const { code, description, discountType, discountValue, applicablePlan = "all" } = body;
 
     if (!code || typeof code !== "string" || !code.trim()) {
       return NextResponse.json({ error: "Coupon code name is required." }, { status: 400 });
@@ -32,6 +32,10 @@ export async function POST(req: Request) {
     const normalizedCode = code.toUpperCase().trim();
     if (!/^[A-Z0-9_-]+$/.test(normalizedCode)) {
       return NextResponse.json({ error: "Coupon code must contain only letters, numbers, hyphens, and underscores." }, { status: 400 });
+    }
+
+    if (!["all", "annual", "lifetime"].includes(applicablePlan)) {
+      return NextResponse.json({ error: "Invalid applicable plan. Must be 'all', 'annual', or 'lifetime'." }, { status: 400 });
     }
 
     if (!["percentage", "flat"].includes(discountType)) {
@@ -62,6 +66,7 @@ export async function POST(req: Request) {
       description: description || "",
       discountType,
       discountValue: val,
+      applicablePlan,
       status: "active",
       createdAt: new Date(),
     };

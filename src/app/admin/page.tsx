@@ -60,6 +60,7 @@ export default function AdminPage() {
   const [newCouponDescription, setNewCouponDescription] = useState("");
   const [newCouponDiscountType, setNewCouponDiscountType] = useState<"percentage" | "flat">("percentage");
   const [newCouponDiscountValue, setNewCouponDiscountValue] = useState("");
+  const [newCouponApplicablePlan, setNewCouponApplicablePlan] = useState<"all" | "annual" | "lifetime">("all");
   const [createCouponLoading, setCreateCouponLoading] = useState(false);
   const [deleteCouponLoading, setDeleteCouponLoading] = useState<string | null>(null);
 
@@ -192,7 +193,8 @@ export default function AdminPage() {
           code: newCouponCode,
           description: newCouponDescription,
           discountType: newCouponDiscountType,
-          discountValue: val
+          discountValue: val,
+          applicablePlan: newCouponApplicablePlan
         })
       });
       if (!res.ok) {
@@ -205,6 +207,7 @@ export default function AdminPage() {
       setNewCouponDescription("");
       setNewCouponDiscountType("percentage");
       setNewCouponDiscountValue("");
+      setNewCouponApplicablePlan("all");
       alert(`Coupon code created: ${data.coupon.code}`);
     } catch (err: any) {
       alert("Error: " + err.message);
@@ -1152,6 +1155,19 @@ export default function AdminPage() {
               </div>
 
               <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                <label style={{ fontSize: "13px", fontWeight: "600", color: "#6b5a45" }}>Applicable Plan *</label>
+                <select
+                  value={newCouponApplicablePlan}
+                  onChange={(e) => setNewCouponApplicablePlan(e.target.value as "all" | "annual" | "lifetime")}
+                  style={{ padding: "8px 12px", borderRadius: "8px", border: "1px solid rgba(217, 184, 133, 0.4)", backgroundColor: "#ffffff", fontSize: "14px", color: "#1a150e", height: "38px" }}
+                >
+                  <option value="all">All Plans</option>
+                  <option value="annual">Annual Plan Only</option>
+                  <option value="lifetime">Lifetime Plan Only</option>
+                </select>
+              </div>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                 <label style={{ fontSize: "13px", fontWeight: "600", color: "#6b5a45" }}>
                   {newCouponDiscountType === "percentage" ? "Discount Percentage (%) *" : "Flat Discount (₹) *"}
                 </label>
@@ -1198,6 +1214,7 @@ export default function AdminPage() {
                       <th style={{ padding: "12px" }}>Coupon Code</th>
                       <th style={{ padding: "12px" }}>Description</th>
                       <th style={{ padding: "12px" }}>Discount</th>
+                      <th style={{ padding: "12px" }}>Applicable Plan</th>
                       <th style={{ padding: "12px" }}>Status</th>
                       <th style={{ padding: "12px" }}>Created At</th>
                       <th style={{ padding: "12px", textAlign: "right" }}>Actions</th>
@@ -1213,11 +1230,13 @@ export default function AdminPage() {
                         minute: "2-digit"
                       });
                       const discountText = c.discountType === "percentage" ? `${c.discountValue}% OFF` : `₹${c.discountValue} FLAT`;
+                      const planText = c.applicablePlan === "annual" ? "Annual Only" : c.applicablePlan === "lifetime" ? "Lifetime Only" : "All Plans";
                       return (
                         <tr key={c._id} style={{ borderBottom: "1px solid var(--card-border)", transition: "background 0.2s" }} className="table-row-hover">
                           <td style={{ padding: "16px 12px", color: "#1a150e", fontWeight: "700" }}>{c.code}</td>
                           <td style={{ padding: "16px 12px", color: "#5c4d3c" }}>{c.description || "-"}</td>
                           <td style={{ padding: "16px 12px", color: "#1a150e", fontWeight: "600" }}>{discountText}</td>
+                          <td style={{ padding: "16px 12px", color: "#1a150e" }}>{planText}</td>
                           <td style={{ padding: "16px 12px" }}>
                             <span style={{
                               fontSize: "12px",

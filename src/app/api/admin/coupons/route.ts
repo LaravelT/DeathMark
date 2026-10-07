@@ -23,7 +23,7 @@ export async function GET() {
 export async function POST(req: Request) {
   try {
     const body = await req.json().catch(() => ({}));
-    const { code, description, discountType, discountValue, applicablePlan = "all" } = body;
+    const { code, description, discountType, discountValue, applicablePlan = "all", isCompanyCoupon, companyName, allowedEmails } = body;
 
     if (!code || typeof code !== "string" || !code.trim()) {
       return NextResponse.json({ error: "Coupon code name is required." }, { status: 400 });
@@ -61,12 +61,33 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "An active coupon with this code already exists." }, { status: 400 });
     }
 
+    let parsedEmails: string[] = [];
+    if (isCompanyCoupon) {
+      if (!companyName || typeof companyName !== "string" || !companyName.trim()) {
+        return NextResponse.json({ error: "Company name is required for company coupons." }, { status: 400 });
+      }
+      if (typeof allowedEmails === "string") {
+        parsedEmails = allowedEmails.split(",").map(e => e.trim().toLowerCase()).filter(e => e);
+      } else if (Array.isArray(allowedEmails)) {
+        parsedEmails = allowedEmails.map(e => String(e).trim().toLowerCase()).filter(e => e);
+      }
+      if (parsedEmails.length === 0) {
+        return NextResponse.json({ error: "At least one email is required for company coupons." }, { status: 400 });
+      }
+      if (parsedEmails.length > 50) {
+        return NextResponse.json({ error: "Maximum 50 emails are allowed for a company coupon." }, { status: 400 });
+      }
+    }
+
     const newCoupon = {
       code: normalizedCode,
       description: description || "",
       discountType,
       discountValue: val,
       applicablePlan,
+      isCompanyCoupon: !!isCompanyCoupon,
+      companyName: isCompanyCoupon ? companyName.trim() : null,
+      allowedEmails: isCompanyCoupon ? parsedEmails : null,
       status: "active",
       createdAt: new Date(),
     };

@@ -40,6 +40,11 @@ export async function POST(req: Request) {
         if (couponDoc.applicablePlan && couponDoc.applicablePlan !== "all" && couponDoc.applicablePlan !== plan) {
           return NextResponse.json({ error: `This coupon is only valid for ${couponDoc.applicablePlan} plan` }, { status: 400 });
         }
+        if (couponDoc.isCompanyCoupon) {
+          if (!couponDoc.allowedEmails || !couponDoc.allowedEmails.includes(session.user.email.toLowerCase())) {
+            return NextResponse.json({ error: "This coupon is not valid for your email address" }, { status: 403 });
+          }
+        }
         appliedCoupon = couponDoc.code;
         if (couponDoc.discountType === "percentage") {
           discountAmount = Math.round(originalBase * (couponDoc.discountValue / 100));

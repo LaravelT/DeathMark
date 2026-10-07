@@ -61,6 +61,9 @@ export default function AdminPage() {
   const [newCouponDiscountType, setNewCouponDiscountType] = useState<"percentage" | "flat">("percentage");
   const [newCouponDiscountValue, setNewCouponDiscountValue] = useState("");
   const [newCouponApplicablePlan, setNewCouponApplicablePlan] = useState<"all" | "annual" | "lifetime">("all");
+  const [isCompanyCoupon, setIsCompanyCoupon] = useState(false);
+  const [newCompanyName, setNewCompanyName] = useState("");
+  const [newAllowedEmails, setNewAllowedEmails] = useState("");
   const [createCouponLoading, setCreateCouponLoading] = useState(false);
   const [deleteCouponLoading, setDeleteCouponLoading] = useState<string | null>(null);
 
@@ -194,7 +197,10 @@ export default function AdminPage() {
           description: newCouponDescription,
           discountType: newCouponDiscountType,
           discountValue: val,
-          applicablePlan: newCouponApplicablePlan
+          applicablePlan: newCouponApplicablePlan,
+          isCompanyCoupon,
+          companyName: newCompanyName,
+          allowedEmails: newAllowedEmails
         })
       });
       if (!res.ok) {
@@ -208,6 +214,9 @@ export default function AdminPage() {
       setNewCouponDiscountType("percentage");
       setNewCouponDiscountValue("");
       setNewCouponApplicablePlan("all");
+      setIsCompanyCoupon(false);
+      setNewCompanyName("");
+      setNewAllowedEmails("");
       alert(`Coupon code created: ${data.coupon.code}`);
     } catch (err: any) {
       alert("Error: " + err.message);
@@ -1118,7 +1127,30 @@ export default function AdminPage() {
         ) : (
           <div className="panel-card" style={{ padding: "30px", backgroundColor: "#ffffff" }}>
             {/* Create Coupon Form */}
-            <form onSubmit={handleCreateCoupon} style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "16px", alignItems: "end", marginBottom: "32px", padding: "20px", backgroundColor: "#faf7f0", borderRadius: "12px", border: "1px solid rgba(217, 184, 133, 0.2)" }}>
+            <form onSubmit={handleCreateCoupon} style={{ display: "flex", flexDirection: "column", gap: "16px", marginBottom: "32px", padding: "20px", backgroundColor: "#faf7f0", borderRadius: "12px", border: "1px solid rgba(217, 184, 133, 0.2)" }}>
+              
+              <div style={{ display: "flex", gap: "12px", alignItems: "center", paddingBottom: "12px", borderBottom: "1px solid rgba(217, 184, 133, 0.3)" }}>
+                <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", fontSize: "14px", fontWeight: "600", color: "#1a150e" }}>
+                  <input 
+                    type="radio" 
+                    checked={!isCompanyCoupon}
+                    onChange={() => setIsCompanyCoupon(false)}
+                    style={{ accentColor: "var(--primary)" }}
+                  />
+                  General Coupon
+                </label>
+                <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", fontSize: "14px", fontWeight: "600", color: "#1a150e" }}>
+                  <input 
+                    type="radio" 
+                    checked={isCompanyCoupon}
+                    onChange={() => setIsCompanyCoupon(true)}
+                    style={{ accentColor: "var(--primary)" }}
+                  />
+                  For Companies (Restricted to specific emails)
+                </label>
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "16px", alignItems: "end" }}>
               <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                 <label style={{ fontSize: "13px", fontWeight: "600", color: "#6b5a45" }}>Coupon Code Name *</label>
                 <input 
@@ -1182,8 +1214,35 @@ export default function AdminPage() {
                   style={{ padding: "8px 12px", borderRadius: "8px", border: "1px solid rgba(217, 184, 133, 0.4)", backgroundColor: "#ffffff", fontSize: "14px", color: "#1a150e" }}
                 />
               </div>
+              
+              {isCompanyCoupon && (
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: "16px", marginTop: "8px" }}>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                    <label style={{ fontSize: "13px", fontWeight: "600", color: "#6b5a45" }}>Company Name *</label>
+                    <input 
+                      type="text" 
+                      value={newCompanyName}
+                      onChange={(e) => setNewCompanyName(e.target.value)}
+                      placeholder="e.g. Google"
+                      required={isCompanyCoupon}
+                      style={{ padding: "8px 12px", borderRadius: "8px", border: "1px solid rgba(217, 184, 133, 0.4)", backgroundColor: "#ffffff", fontSize: "14px", color: "#1a150e" }}
+                    />
+                  </div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                    <label style={{ fontSize: "13px", fontWeight: "600", color: "#6b5a45" }}>Allowed Emails (Comma Separated, Max 50) *</label>
+                    <textarea 
+                      value={newAllowedEmails}
+                      onChange={(e) => setNewAllowedEmails(e.target.value)}
+                      placeholder="employee1@company.com, employee2@company.com"
+                      required={isCompanyCoupon}
+                      rows={2}
+                      style={{ padding: "8px 12px", borderRadius: "8px", border: "1px solid rgba(217, 184, 133, 0.4)", backgroundColor: "#ffffff", fontSize: "14px", color: "#1a150e", resize: "vertical" }}
+                    />
+                  </div>
+                </div>
+              )}
 
-              <div style={{ display: "flex", justifyContent: "flex-end" }}>
+              <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "8px" }}>
                 <button 
                   type="submit" 
                   disabled={createCouponLoading}
@@ -1233,7 +1292,14 @@ export default function AdminPage() {
                       const planText = c.applicablePlan === "annual" ? "Annual Only" : c.applicablePlan === "lifetime" ? "Lifetime Only" : "All Plans";
                       return (
                         <tr key={c._id} style={{ borderBottom: "1px solid var(--card-border)", transition: "background 0.2s" }} className="table-row-hover">
-                          <td style={{ padding: "16px 12px", color: "#1a150e", fontWeight: "700" }}>{c.code}</td>
+                          <td style={{ padding: "16px 12px", color: "#1a150e", fontWeight: "700" }}>
+                            {c.code}
+                            {c.isCompanyCoupon && (
+                              <div style={{ fontSize: "11px", color: "#10b981", marginTop: "4px", fontWeight: "600" }}>
+                                {c.companyName}
+                              </div>
+                            )}
+                          </td>
                           <td style={{ padding: "16px 12px", color: "#5c4d3c" }}>{c.description || "-"}</td>
                           <td style={{ padding: "16px 12px", color: "#1a150e", fontWeight: "600" }}>{discountText}</td>
                           <td style={{ padding: "16px 12px", color: "#1a150e" }}>{planText}</td>

@@ -1,8 +1,12 @@
 import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/auth";
 import clientPromise from "@/lib/db";
 
 export async function POST(req: Request) {
   try {
+    const session = await getServerSession(authOptions);
+    const userEmail = session?.user?.email?.toLowerCase();
     const body = await req.json().catch(() => ({}));
     const { couponCode, plan } = body;
 
@@ -28,6 +32,15 @@ export async function POST(req: Request) {
 
     if (coupon.applicablePlan && coupon.applicablePlan !== "all" && coupon.applicablePlan !== plan) {
       return NextResponse.json({ error: `This coupon is only valid for ${coupon.applicablePlan} plan` }, { status: 400 });
+    }
+
+    if (coupon.isCompanyCoupon) {
+      if (!userEmail) {
+        return NextResponse.json({ error: "You must be logged in to use a company coupon" }, { status: 401 });
+      }
+      if (!coupon.allowedEmails || !coupon.allowedEmails.includes(userEmail)) {
+        return NextResponse.json({ error: "This coupon is not valid for your email address" }, { status: 403 });
+      }
     }
 
     return NextResponse.json({

@@ -1214,6 +1214,7 @@ export default function AdminPage() {
                   style={{ padding: "8px 12px", borderRadius: "8px", border: "1px solid rgba(217, 184, 133, 0.4)", backgroundColor: "#ffffff", fontSize: "14px", color: "#1a150e" }}
                 />
               </div>
+              </div>
               
               {isCompanyCoupon && (
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: "16px", marginTop: "8px" }}>

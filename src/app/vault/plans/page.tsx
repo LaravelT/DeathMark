@@ -129,7 +129,11 @@ export default function PlansPage() {
       const res = await fetch("/api/payment/verify-coupon", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ couponCode: couponCodeInput, plan: selectedPlan })
+        body: JSON.stringify({ 
+          couponCode: couponCodeInput, 
+          plan: selectedPlan,
+          email: billingEmail.trim().toLowerCase()
+        })
       });
       const data = await res.json();
       if (res.ok && data.success) {

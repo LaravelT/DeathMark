@@ -67,15 +67,20 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: "Company name is required for company coupons." }, { status: 400 });
       }
       if (typeof allowedEmails === "string") {
-        parsedEmails = allowedEmails.split(",").map(e => e.trim().toLowerCase()).filter(e => e);
+        parsedEmails = allowedEmails
+          .split(",")
+          .map(e => e.trim().toLowerCase())
+          .filter(e => e);
       } else if (Array.isArray(allowedEmails)) {
-        parsedEmails = allowedEmails.map(e => String(e).trim().toLowerCase()).filter(e => e);
+        parsedEmails = allowedEmails
+          .map(e => String(e).trim().toLowerCase())
+          .filter(e => e);
       }
       if (parsedEmails.length === 0) {
-        return NextResponse.json({ error: "At least one email is required for company coupons." }, { status: 400 });
+        return NextResponse.json({ error: "At least one email or domain is required for company coupons." }, { status: 400 });
       }
-      if (parsedEmails.length > 50) {
-        return NextResponse.json({ error: "Maximum 50 emails are allowed for a company coupon." }, { status: 400 });
+      if (parsedEmails.length > 100) {
+        return NextResponse.json({ error: "Maximum 100 emails/domains are allowed for a company coupon." }, { status: 400 });
       }
     }
 

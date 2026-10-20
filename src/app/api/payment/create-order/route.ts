@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import clientPromise from "@/lib/db";
 import Razorpay from "razorpay";
+import { isEmailOrDomainAllowed } from "@/lib/coupon";
 
 export async function POST(req: Request) {
   try {
@@ -41,8 +42,16 @@ export async function POST(req: Request) {
           return NextResponse.json({ error: `This coupon is only valid for ${couponDoc.applicablePlan} plan` }, { status: 400 });
         }
         if (couponDoc.isCompanyCoupon) {
-          if (!couponDoc.allowedEmails || !couponDoc.allowedEmails.includes(session.user.email.toLowerCase())) {
-            return NextResponse.json({ error: "This coupon is not valid for your email address" }, { status: 403 });
+          const userSessionEmail = session.user.email.toLowerCase();
+          const userBillingEmail = typeof billingEmail === "string" ? billingEmail.trim().toLowerCase() : "";
+          const isAllowed = isEmailOrDomainAllowed(couponDoc.allowedEmails, userSessionEmail) ||
+                            (userBillingEmail ? isEmailOrDomainAllowed(couponDoc.allowedEmails, userBillingEmail) : false);
+
+          if (!isAllowed) {
+            const companyHint = couponDoc.companyName ? ` for employees of ${couponDoc.companyName}` : "";
+            return NextResponse.json({ 
+              error: `This coupon is restricted${companyHint} to authorized email addresses or domains.` 
+            }, { status: 403 });
           }
         }
         appliedCoupon = couponDoc.code;

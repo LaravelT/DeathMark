@@ -2,13 +2,14 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import clientPromise from "@/lib/db";
+import { isEmailOrDomainAllowed } from "@/lib/coupon";
 
 export async function POST(req: Request) {
   try {
     const session = await getServerSession(authOptions);
     const userEmail = session?.user?.email?.toLowerCase();
     const body = await req.json().catch(() => ({}));
-    const { couponCode, plan } = body;
+    const { couponCode, plan, email, billingEmail } = body;
 
     if (!couponCode || typeof couponCode !== "string") {
       return NextResponse.json({ error: "Coupon code is required" }, { status: 400 });
@@ -35,11 +36,21 @@ export async function POST(req: Request) {
     }
 
     if (coupon.isCompanyCoupon) {
-      if (!userEmail) {
+      const candidateBillingEmail = typeof email === "string" ? email.trim().toLowerCase() : 
+                                    typeof billingEmail === "string" ? billingEmail.trim().toLowerCase() : "";
+
+      if (!userEmail && !candidateBillingEmail) {
         return NextResponse.json({ error: "You must be logged in to use a company coupon" }, { status: 401 });
       }
-      if (!coupon.allowedEmails || !coupon.allowedEmails.includes(userEmail)) {
-        return NextResponse.json({ error: "This coupon is not valid for your email address" }, { status: 403 });
+
+      const isAllowed = isEmailOrDomainAllowed(coupon.allowedEmails, userEmail) ||
+                        (candidateBillingEmail ? isEmailOrDomainAllowed(coupon.allowedEmails, candidateBillingEmail) : false);
+
+      if (!isAllowed) {
+        const companyHint = coupon.companyName ? ` for employees of ${coupon.companyName}` : "";
+        return NextResponse.json({ 
+          error: `This coupon is restricted${companyHint} to authorized email addresses or domains.` 
+        }, { status: 403 });
       }
     }
 

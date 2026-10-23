@@ -263,17 +263,42 @@ export default function CompanyPortalPage() {
         fontFamily: "var(--font-geist-sans), sans-serif"
       }}>
         {/* Logo and Brand */}
-        <div style={{ textAlign: "center", marginBottom: "32px" }}>
+        <div style={{ textAlign: "center", marginBottom: "28px" }}>
           <Link href="/" style={{ textDecoration: "none", display: "inline-block" }}>
-            <img 
-              src="/assets/logo-horizontal.png" 
-              alt="LegacyBridge" 
-              style={{ height: "60px", width: "auto", objectFit: "contain" }} 
-            />
+            <div style={{ 
+              backgroundColor: "#ffffff", 
+              padding: "16px 28px", 
+              borderRadius: "18px", 
+              boxShadow: "0 12px 36px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(217, 184, 133, 0.35)",
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center"
+            }}>
+              <img 
+                src="/icon.png" 
+                alt="LegacyBridge Logo" 
+                style={{ 
+                  height: "85px", 
+                  width: "auto", 
+                  objectFit: "contain",
+                  display: "block" 
+                }} 
+              />
+            </div>
           </Link>
-          <div style={{ display: "inline-flex", alignItems: "center", gap: "6px", backgroundColor: "rgba(217, 184, 133, 0.1)", border: "1px solid rgba(217, 184, 133, 0.25)", padding: "4px 12px", borderRadius: "20px", marginTop: "14px" }}>
-            <Building2 size={14} style={{ color: "#d9b885" }} />
-            <span style={{ fontSize: "12px", color: "#d9b885", fontWeight: "600", letterSpacing: "0.5px" }}>Corporate Partner Portal</span>
+          <div style={{ marginTop: "16px" }}>
+            <div style={{ 
+              display: "inline-flex", 
+              alignItems: "center", 
+              gap: "6px", 
+              backgroundColor: "rgba(217, 184, 133, 0.12)", 
+              border: "1px solid rgba(217, 184, 133, 0.3)", 
+              padding: "5px 14px", 
+              borderRadius: "20px" 
+            }}>
+              <Building2 size={14} style={{ color: "#d9b885" }} />
+              <span style={{ fontSize: "12px", color: "#d9b885", fontWeight: "600", letterSpacing: "0.5px" }}>Corporate Partner Portal</span>
+            </div>
           </div>
         </div>
 
@@ -441,11 +466,22 @@ export default function CompanyPortalPage() {
       }}>
         <div style={{ maxWidth: "1140px", margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
-            <img 
-              src="/assets/logo-horizontal.png" 
-              alt="LegacyBridge" 
-              style={{ height: "46px", width: "auto", objectFit: "contain" }} 
-            />
+            <Link href="/" style={{ textDecoration: "none", display: "inline-flex", alignItems: "center" }}>
+              <div style={{
+                backgroundColor: "#ffffff",
+                padding: "6px 14px",
+                borderRadius: "10px",
+                boxShadow: "0 2px 8px rgba(0, 0, 0, 0.25)",
+                display: "inline-flex",
+                alignItems: "center"
+              }}>
+                <img 
+                  src="/icon.png" 
+                  alt="LegacyBridge Logo" 
+                  style={{ height: "38px", width: "auto", objectFit: "contain", display: "block" }} 
+                />
+              </div>
+            </Link>
             <div style={{ height: "24px", width: "1px", backgroundColor: "rgba(217, 184, 133, 0.3)" }} />
             <span style={{ fontSize: "13px", fontWeight: "600", color: "#d9b885", letterSpacing: "0.5px" }}>
               Corporate Partner Portal

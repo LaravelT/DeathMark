@@ -800,7 +800,7 @@ export default function CompanyPortalPage() {
             </div>
             {remainingCount <= 0 && (
               <span style={{ fontSize: "12px", color: "#b91c1c", marginTop: "6px", display: "block" }}>
-                Quota full ({maxEmails}/{maxEmails}). To add new emails, please delete existing ones or request a quota upgrade from your LegacyBridge representative.
+                Quota full ({maxEmails}/{maxEmails}). To add new emails, request a quota upgrade from your LegacyBridge representative.
               </span>
             )}
           </div>

@@ -23,7 +23,19 @@ export async function GET() {
 export async function POST(req: Request) {
   try {
     const body = await req.json().catch(() => ({}));
-    const { code, description, discountType, discountValue, applicablePlan = "all", isCompanyCoupon, companyName, allowedEmails } = body;
+    const { 
+      code, 
+      description, 
+      discountType, 
+      discountValue, 
+      applicablePlan = "all", 
+      isCompanyCoupon, 
+      companyName, 
+      allowedEmails,
+      portalUsername,
+      portalPassword,
+      maxEmails
+    } = body;
 
     if (!code || typeof code !== "string" || !code.trim()) {
       return NextResponse.json({ error: "Coupon code name is required." }, { status: 400 });
@@ -62,11 +74,42 @@ export async function POST(req: Request) {
     }
 
     let parsedEmails: string[] = [];
+    let portalUser: string | null = null;
+    let portalPass: string | null = null;
+    let quotaLimit: number | null = null;
+
     if (isCompanyCoupon) {
       if (!companyName || typeof companyName !== "string" || !companyName.trim()) {
         return NextResponse.json({ error: "Company name is required for company coupons." }, { status: 400 });
       }
-      if (typeof allowedEmails === "string") {
+
+      if (!portalUsername || typeof portalUsername !== "string" || !portalUsername.trim()) {
+        return NextResponse.json({ error: "Company Portal User ID is required." }, { status: 400 });
+      }
+
+      if (!portalPassword || typeof portalPassword !== "string" || !portalPassword.trim()) {
+        return NextResponse.json({ error: "Company Portal Password is required." }, { status: 400 });
+      }
+
+      portalUser = portalUsername.trim().toLowerCase();
+      portalPass = portalPassword.trim();
+
+      // Check if portalUsername already taken by an active coupon
+      const existingPortalUser = await couponsCollection.findOne({ 
+        portalUsername: portalUser, 
+        status: "active" 
+      });
+      if (existingPortalUser) {
+        return NextResponse.json({ error: `Portal User ID "${portalUsername}" is already taken by another active company.` }, { status: 400 });
+      }
+
+      quotaLimit = parseInt(String(maxEmails), 10);
+      if (isNaN(quotaLimit) || quotaLimit <= 0) {
+        return NextResponse.json({ error: "Allowed number of emails must be a positive integer." }, { status: 400 });
+      }
+
+      // Optional initial emails
+      if (typeof allowedEmails === "string" && allowedEmails.trim()) {
         parsedEmails = allowedEmails
           .split(",")
           .map(e => e.trim().toLowerCase())
@@ -76,11 +119,9 @@ export async function POST(req: Request) {
           .map(e => String(e).trim().toLowerCase())
           .filter(e => e);
       }
-      if (parsedEmails.length === 0) {
-        return NextResponse.json({ error: "At least one email or domain is required for company coupons." }, { status: 400 });
-      }
-      if (parsedEmails.length > 100) {
-        return NextResponse.json({ error: "Maximum 100 emails/domains are allowed for a company coupon." }, { status: 400 });
+
+      if (parsedEmails.length > quotaLimit) {
+        return NextResponse.json({ error: `Initial emails count (${parsedEmails.length}) exceeds the maximum allowed limit (${quotaLimit}).` }, { status: 400 });
       }
     }
 
@@ -92,6 +133,9 @@ export async function POST(req: Request) {
       applicablePlan,
       isCompanyCoupon: !!isCompanyCoupon,
       companyName: isCompanyCoupon ? companyName.trim() : null,
+      portalUsername: isCompanyCoupon ? portalUser : null,
+      portalPassword: isCompanyCoupon ? portalPass : null,
+      maxEmails: isCompanyCoupon ? quotaLimit : null,
       allowedEmails: isCompanyCoupon ? parsedEmails : null,
       status: "active",
       createdAt: new Date(),

@@ -48,9 +48,9 @@ export async function POST(req: Request) {
                             (userBillingEmail ? isEmailOrDomainAllowed(couponDoc.allowedEmails, userBillingEmail) : false);
 
           if (!isAllowed) {
-            const companyHint = couponDoc.companyName ? ` for employees of ${couponDoc.companyName}` : "";
+            const companyName = couponDoc.companyName ? couponDoc.companyName : "the company";
             return NextResponse.json({ 
-              error: `This coupon is restricted${companyHint} to authorized email addresses or domains.` 
+              error: `This coupon code is exclusively reserved for selected employees of ${companyName}. Your email address is not in the authorized list. Please contact your HR or company administrator to get access.` 
             }, { status: 403 });
           }
         }

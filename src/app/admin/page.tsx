@@ -64,6 +64,10 @@ export default function AdminPage() {
   const [isCompanyCoupon, setIsCompanyCoupon] = useState(false);
   const [newCompanyName, setNewCompanyName] = useState("");
   const [newAllowedEmails, setNewAllowedEmails] = useState("");
+  const [newMaxEmails, setNewMaxEmails] = useState("50");
+  const [newPortalUsername, setNewPortalUsername] = useState("");
+  const [newPortalPassword, setNewPortalPassword] = useState("");
+  const [copiedPortalInfo, setCopiedPortalInfo] = useState<string | null>(null);
   const [createCouponLoading, setCreateCouponLoading] = useState(false);
   const [deleteCouponLoading, setDeleteCouponLoading] = useState<string | null>(null);
 
@@ -200,6 +204,9 @@ export default function AdminPage() {
           applicablePlan: newCouponApplicablePlan,
           isCompanyCoupon,
           companyName: newCompanyName,
+          maxEmails: parseInt(newMaxEmails, 10) || 50,
+          portalUsername: newPortalUsername,
+          portalPassword: newPortalPassword,
           allowedEmails: newAllowedEmails
         })
       });
@@ -217,6 +224,9 @@ export default function AdminPage() {
       setIsCompanyCoupon(false);
       setNewCompanyName("");
       setNewAllowedEmails("");
+      setNewMaxEmails("50");
+      setNewPortalUsername("");
+      setNewPortalPassword("");
       alert(`Coupon code created: ${data.coupon.code}`);
     } catch (err: any) {
       alert("Error: " + err.message);
@@ -1217,31 +1227,61 @@ export default function AdminPage() {
               </div>
               
               {isCompanyCoupon && (
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: "16px", marginTop: "8px" }}>
-                  <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                    <label style={{ fontSize: "13px", fontWeight: "600", color: "#6b5a45" }}>Company Name *</label>
-                    <input 
-                      type="text" 
-                      value={newCompanyName}
-                      onChange={(e) => setNewCompanyName(e.target.value)}
-                      placeholder="e.g. Google"
-                      required={isCompanyCoupon}
-                      style={{ padding: "8px 12px", borderRadius: "8px", border: "1px solid rgba(217, 184, 133, 0.4)", backgroundColor: "#ffffff", fontSize: "14px", color: "#1a150e" }}
-                    />
+                <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginTop: "8px", padding: "16px", backgroundColor: "#fdfbf7", borderRadius: "10px", border: "1px dashed rgba(217, 184, 133, 0.4)" }}>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                      <label style={{ fontSize: "13px", fontWeight: "600", color: "#6b5a45" }}>Company Name *</label>
+                      <input 
+                        type="text" 
+                        value={newCompanyName}
+                        onChange={(e) => setNewCompanyName(e.target.value)}
+                        placeholder="e.g. Tata Consultancy Services"
+                        required={isCompanyCoupon}
+                        style={{ padding: "8px 12px", borderRadius: "8px", border: "1px solid rgba(217, 184, 133, 0.4)", backgroundColor: "#ffffff", fontSize: "14px", color: "#1a150e" }}
+                      />
+                    </div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                      <label style={{ fontSize: "13px", fontWeight: "600", color: "#6b5a45" }}>Number of Allowed Emails (Quota) *</label>
+                      <input 
+                        type="number"
+                        min="1"
+                        max="1000"
+                        value={newMaxEmails}
+                        onChange={(e) => setNewMaxEmails(e.target.value)}
+                        placeholder="e.g. 50"
+                        required={isCompanyCoupon}
+                        style={{ padding: "8px 12px", borderRadius: "8px", border: "1px solid rgba(217, 184, 133, 0.4)", backgroundColor: "#ffffff", fontSize: "14px", color: "#1a150e" }}
+                      />
+                    </div>
                   </div>
-                  <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                    <label style={{ fontSize: "13px", fontWeight: "600", color: "#6b5a45" }}>Allowed Emails / Domains (Comma Separated, Max 100) *</label>
-                    <textarea 
-                      value={newAllowedEmails}
-                      onChange={(e) => setNewAllowedEmails(e.target.value)}
-                      placeholder="@company.com, employee1@company.com, domain.com"
-                      required={isCompanyCoupon}
-                      rows={2}
-                      style={{ padding: "8px 12px", borderRadius: "8px", border: "1px solid rgba(217, 184, 133, 0.4)", backgroundColor: "#ffffff", fontSize: "14px", color: "#1a150e", resize: "vertical" }}
-                    />
-                    <span style={{ fontSize: "11px", color: "#8c7a6b", marginTop: "-4px" }}>
-                      💡 Tip: You can enter specific emails (e.g. employee@company.com) or entire domains (e.g. @company.com or company.com) to allow all employees from that company domain.
-                    </span>
+
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                      <label style={{ fontSize: "13px", fontWeight: "600", color: "#6b5a45" }}>Company Portal User ID *</label>
+                      <input 
+                        type="text" 
+                        value={newPortalUsername}
+                        onChange={(e) => setNewPortalUsername(e.target.value)}
+                        placeholder="e.g. tcs_admin"
+                        required={isCompanyCoupon}
+                        style={{ padding: "8px 12px", borderRadius: "8px", border: "1px solid rgba(217, 184, 133, 0.4)", backgroundColor: "#ffffff", fontSize: "14px", color: "#1a150e" }}
+                      />
+                    </div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                      <label style={{ fontSize: "13px", fontWeight: "600", color: "#6b5a45" }}>Company Portal Password *</label>
+                      <input 
+                        type="text" 
+                        value={newPortalPassword}
+                        onChange={(e) => setNewPortalPassword(e.target.value)}
+                        placeholder="e.g. Tcs@2026"
+                        required={isCompanyCoupon}
+                        style={{ padding: "8px 12px", borderRadius: "8px", border: "1px solid rgba(217, 184, 133, 0.4)", backgroundColor: "#ffffff", fontSize: "14px", color: "#1a150e" }}
+                      />
+                    </div>
+                  </div>
+
+                  <div style={{ padding: "10px 12px", backgroundColor: "#ffffff", borderRadius: "8px", border: "1px solid rgba(217, 184, 133, 0.3)", fontSize: "12px", color: "#6b5a45", lineHeight: "1.5" }}>
+                    🌐 <strong>Company Self-Service Portal:</strong> Company HR can log into <code style={{ color: "#b28e46", fontWeight: "bold" }}>/company-portal</code> using the above User ID and Password to manage their employee emails directly (up to {newMaxEmails || 50} emails).
                   </div>
                 </div>
               )}
@@ -1299,12 +1339,37 @@ export default function AdminPage() {
                           <td style={{ padding: "16px 12px", color: "#1a150e", fontWeight: "700" }}>
                             {c.code}
                             {c.isCompanyCoupon && (
-                              <div style={{ fontSize: "11px", color: "#10b981", marginTop: "4px", fontWeight: "600" }}>
-                                <span>{c.companyName}</span>
-                                {c.allowedEmails && c.allowedEmails.length > 0 && (
-                                  <span style={{ color: "#8c7a6b", fontWeight: "normal", marginLeft: "6px" }} title={c.allowedEmails.join(", ")}>
-                                    ({c.allowedEmails.length} {c.allowedEmails.length === 1 ? "entry" : "entries"})
-                                  </span>
+                              <div style={{ fontSize: "11px", marginTop: "4px" }}>
+                                <div style={{ color: "#10b981", fontWeight: "700" }}>{c.companyName}</div>
+                                <div style={{ color: "#6b5a45", marginTop: "2px" }}>
+                                  Quota: <strong>{c.allowedEmails?.length || 0} / {c.maxEmails || 50}</strong> emails
+                                </div>
+                                {c.portalUsername && (
+                                  <div style={{ marginTop: "3px", display: "flex", alignItems: "center", gap: "6px" }}>
+                                    <span style={{ color: "#8c7a6b" }}>ID: <code>{c.portalUsername}</code></span>
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        const portalUrl = `${window.location.origin}/company-portal`;
+                                        const copyText = `🏢 Company: ${c.companyName}\n🎟️ Coupon Code: ${c.code}\n🔗 Portal: ${portalUrl}\n👤 User ID: ${c.portalUsername}\n🔑 Password: ${c.portalPassword || "Provided"}\nQuota: ${c.maxEmails || 50} emails`;
+                                        navigator.clipboard.writeText(copyText);
+                                        setCopiedPortalInfo(c._id);
+                                        setTimeout(() => setCopiedPortalInfo(null), 2500);
+                                      }}
+                                      style={{
+                                        fontSize: "10px",
+                                        fontWeight: "600",
+                                        padding: "2px 6px",
+                                        borderRadius: "4px",
+                                        backgroundColor: "#faf7f0",
+                                        border: "1px solid #dcd1c4",
+                                        color: "#b28e46",
+                                        cursor: "pointer"
+                                      }}
+                                    >
+                                      {copiedPortalInfo === c._id ? "✓ Copied!" : "📋 Copy Portal Login"}
+                                    </button>
+                                  </div>
                                 )}
                               </div>
                             )}

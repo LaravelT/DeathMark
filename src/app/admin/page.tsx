@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { KeyRound, ShieldAlert, FileText, CheckCircle, XCircle, ArrowLeft, RefreshCw, Eye, UserCheck, Settings, LogOut, Trash2, Coins, Download, Ticket } from "lucide-react";
+import { KeyRound, ShieldAlert, FileText, CheckCircle, XCircle, ArrowLeft, RefreshCw, Eye, EyeOff, UserCheck, Settings, LogOut, Trash2, Coins, Download, Ticket, Building2, Copy, Check, ExternalLink, X } from "lucide-react";
 import Link from "next/link";
 
 const formatAdminDate = (isoString?: string): string => {
@@ -70,6 +70,9 @@ export default function AdminPage() {
   const [copiedPortalInfo, setCopiedPortalInfo] = useState<string | null>(null);
   const [createCouponLoading, setCreateCouponLoading] = useState(false);
   const [deleteCouponLoading, setDeleteCouponLoading] = useState<string | null>(null);
+  const [selectedCouponForView, setSelectedCouponForView] = useState<any | null>(null);
+  const [showModalPassword, setShowModalPassword] = useState(false);
+  const [copiedModalField, setCopiedModalField] = useState<string | null>(null);
 
   // Date range states for reports tab
   const [reportFromDate, setReportFromDate] = useState<string>(() => {
@@ -1337,10 +1340,24 @@ export default function AdminPage() {
                       return (
                         <tr key={c._id} style={{ borderBottom: "1px solid var(--card-border)", transition: "background 0.2s" }} className="table-row-hover">
                           <td style={{ padding: "16px 12px", color: "#1a150e", fontWeight: "700" }}>
-                            {c.code}
+                            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                              <span>{c.code}</span>
+                              {c.isCompanyCoupon ? (
+                                <span style={{ fontSize: "10px", fontWeight: "700", backgroundColor: "rgba(16, 185, 129, 0.12)", color: "#059669", padding: "2px 6px", borderRadius: "4px" }}>
+                                  Company
+                                </span>
+                              ) : (
+                                <span style={{ fontSize: "10px", fontWeight: "600", backgroundColor: "#f3f4f6", color: "#6b7280", padding: "2px 6px", borderRadius: "4px" }}>
+                                  General
+                                </span>
+                              )}
+                            </div>
                             {c.isCompanyCoupon && (
-                              <div style={{ fontSize: "11px", marginTop: "4px" }}>
-                                <div style={{ color: "#10b981", fontWeight: "700" }}>{c.companyName}</div>
+                              <div style={{ fontSize: "11px", marginTop: "5px" }}>
+                                <div style={{ color: "#047857", fontWeight: "750", display: "flex", alignItems: "center", gap: "4px" }}>
+                                  <Building2 size={12} style={{ color: "#059669" }} />
+                                  <span>Company Name: <strong>{c.companyName}</strong></span>
+                                </div>
                                 <div style={{ color: "#6b5a45", marginTop: "2px" }}>
                                   Quota: <strong>{c.allowedEmails?.length || 0} / {c.maxEmails || 50}</strong> emails
                                 </div>
@@ -1391,24 +1408,48 @@ export default function AdminPage() {
                           </td>
                           <td style={{ padding: "16px 12px", color: "#6b5a45" }}>{cDate}</td>
                           <td style={{ padding: "16px 12px", textAlign: "right" }}>
-                            {c.status === "active" && (
+                            <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: "8px" }}>
                               <button
-                                onClick={() => handleDeleteCoupon(c._id)}
-                                disabled={deleteCouponLoading === c._id}
+                                type="button"
+                                onClick={() => setSelectedCouponForView(c)}
+                                title="View All Saved Details"
                                 style={{
-                                  backgroundColor: "rgba(239, 68, 68, 0.05)",
-                                  border: "1px solid rgba(239, 68, 68, 0.2)",
-                                  color: "#ef4444",
-                                  padding: "6px 12px",
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  gap: "4px",
+                                  backgroundColor: "#faf7f0",
+                                  border: "1px solid #dcd1c4",
+                                  color: "#b28e46",
+                                  padding: "6px 10px",
                                   borderRadius: "6px",
                                   cursor: "pointer",
                                   fontSize: "12px",
-                                  fontWeight: "600"
+                                  fontWeight: "600",
+                                  transition: "all 0.15s ease"
                                 }}
                               >
-                                {deleteCouponLoading === c._id ? "Deactivating..." : "Deactivate"}
+                                <Eye size={14} />
+                                <span>View</span>
                               </button>
-                            )}
+                              {c.status === "active" && (
+                                <button
+                                  onClick={() => handleDeleteCoupon(c._id)}
+                                  disabled={deleteCouponLoading === c._id}
+                                  style={{
+                                    backgroundColor: "rgba(239, 68, 68, 0.05)",
+                                    border: "1px solid rgba(239, 68, 68, 0.2)",
+                                    color: "#ef4444",
+                                    padding: "6px 12px",
+                                    borderRadius: "6px",
+                                    cursor: "pointer",
+                                    fontSize: "12px",
+                                    fontWeight: "600"
+                                  }}
+                                >
+                                  {deleteCouponLoading === c._id ? "Deactivating..." : "Deactivate"}
+                                </button>
+                              )}
+                            </div>
                           </td>
                         </tr>
                       );
@@ -1466,6 +1507,396 @@ export default function AdminPage() {
             >
               Close Preview
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Modal for viewing full coupon details */}
+      {selectedCouponForView && (
+        <div style={{
+          position: "fixed",
+          top: 0, left: 0, right: 0, bottom: 0,
+          backgroundColor: "rgba(26,21,14,0.65)",
+          backdropFilter: "blur(8px)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          zIndex: 9999,
+          padding: "20px"
+        }}>
+          <div style={{ 
+            maxWidth: "640px", 
+            width: "100%", 
+            maxHeight: "90vh",
+            overflowY: "auto",
+            backgroundColor: "#ffffff", 
+            borderRadius: "20px", 
+            border: "1px solid rgba(217, 184, 133, 0.35)", 
+            boxShadow: "0 25px 60px rgba(0, 0, 0, 0.25)",
+            padding: "28px"
+          }}>
+            {/* Header */}
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "20px", borderBottom: "1px solid #f0e9df", paddingBottom: "16px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <div style={{ backgroundColor: "#faf7f0", padding: "8px", borderRadius: "10px", border: "1px solid #e5dccf", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <Ticket size={22} style={{ color: "#b28e46" }} />
+                </div>
+                <div>
+                  <h2 style={{ fontSize: "18px", fontWeight: "800", color: "#1a150e", margin: 0 }}>
+                    Coupon Details
+                  </h2>
+                  <p style={{ fontSize: "12px", color: "#8c7a6b", margin: "2px 0 0 0" }}>
+                    Complete saved configuration and access parameters
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => {
+                  setSelectedCouponForView(null);
+                  setShowModalPassword(false);
+                }}
+                style={{
+                  backgroundColor: "transparent",
+                  border: "none",
+                  cursor: "pointer",
+                  color: "#8c7a6b",
+                  padding: "6px",
+                  borderRadius: "6px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center"
+                }}
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Top Code Badge & Status */}
+            <div style={{ 
+              backgroundColor: "#faf7f0", 
+              border: "1px solid #e5dccf", 
+              borderRadius: "14px", 
+              padding: "16px 20px", 
+              display: "flex", 
+              alignItems: "center", 
+              justifyContent: "space-between",
+              marginBottom: "20px"
+            }}>
+              <div>
+                <span style={{ fontSize: "11px", fontWeight: "700", color: "#8c7a6b", letterSpacing: "0.5px" }}>COUPON CODE</span>
+                <div style={{ display: "flex", alignItems: "center", gap: "10px", marginTop: "4px" }}>
+                  <span style={{ fontSize: "22px", fontWeight: "800", color: "#1a150e", letterSpacing: "1px" }}>
+                    {selectedCouponForView.code}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      navigator.clipboard.writeText(selectedCouponForView.code);
+                      setCopiedModalField("code");
+                      setTimeout(() => setCopiedModalField(null), 2000);
+                    }}
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "4px",
+                      backgroundColor: "#ffffff",
+                      border: "1px solid #dcd1c4",
+                      padding: "4px 8px",
+                      borderRadius: "6px",
+                      fontSize: "11px",
+                      fontWeight: "600",
+                      color: "#6b5a45",
+                      cursor: "pointer"
+                    }}
+                  >
+                    {copiedModalField === "code" ? <Check size={13} style={{ color: "#10b981" }} /> : <Copy size={13} />}
+                    <span>{copiedModalField === "code" ? "Copied" : "Copy"}</span>
+                  </button>
+                </div>
+              </div>
+
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "6px" }}>
+                <span style={{
+                  fontSize: "12px",
+                  fontWeight: "700",
+                  padding: "3px 10px",
+                  borderRadius: "12px",
+                  backgroundColor: selectedCouponForView.status === "active" ? "rgba(16,185,129,0.15)" : "rgba(239,68,68,0.15)",
+                  color: selectedCouponForView.status === "active" ? "#10b981" : "#ef4444"
+                }}>
+                  {selectedCouponForView.status?.toUpperCase()}
+                </span>
+                <span style={{
+                  fontSize: "11px",
+                  fontWeight: "700",
+                  padding: "2px 8px",
+                  borderRadius: "8px",
+                  backgroundColor: selectedCouponForView.isCompanyCoupon ? "rgba(178, 142, 70, 0.15)" : "#f3f4f6",
+                  color: selectedCouponForView.isCompanyCoupon ? "#b28e46" : "#4b5563"
+                }}>
+                  {selectedCouponForView.isCompanyCoupon ? "🏢 Company Restricted" : "🌐 General Public"}
+                </span>
+              </div>
+            </div>
+
+            {/* General Info Grid */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px", marginBottom: "20px" }}>
+              <div style={{ padding: "12px 14px", backgroundColor: "#ffffff", border: "1px solid #f0e9df", borderRadius: "10px" }}>
+                <span style={{ fontSize: "11px", color: "#8c7a6b", fontWeight: "600" }}>DISCOUNT</span>
+                <div style={{ fontSize: "16px", fontWeight: "700", color: "#b28e46", marginTop: "2px" }}>
+                  {selectedCouponForView.discountType === "percentage" 
+                    ? `${selectedCouponForView.discountValue}% OFF` 
+                    : `₹${selectedCouponForView.discountValue} FLAT`}
+                </div>
+              </div>
+
+              <div style={{ padding: "12px 14px", backgroundColor: "#ffffff", border: "1px solid #f0e9df", borderRadius: "10px" }}>
+                <span style={{ fontSize: "11px", color: "#8c7a6b", fontWeight: "600" }}>APPLICABLE PLAN</span>
+                <div style={{ fontSize: "15px", fontWeight: "600", color: "#1a150e", marginTop: "2px" }}>
+                  {selectedCouponForView.applicablePlan === "annual" ? "Annual Plan Only" : selectedCouponForView.applicablePlan === "lifetime" ? "Lifetime Plan Only" : "All Plans (Annual & Lifetime)"}
+                </div>
+              </div>
+
+              <div style={{ padding: "12px 14px", backgroundColor: "#ffffff", border: "1px solid #f0e9df", borderRadius: "10px" }}>
+                <span style={{ fontSize: "11px", color: "#8c7a6b", fontWeight: "600" }}>CREATED DATE</span>
+                <div style={{ fontSize: "13px", fontWeight: "600", color: "#1a150e", marginTop: "2px" }}>
+                  {formatAdminDate(selectedCouponForView.createdAt) || new Date(selectedCouponForView.createdAt).toLocaleString()}
+                </div>
+              </div>
+
+              <div style={{ padding: "12px 14px", backgroundColor: "#ffffff", border: "1px solid #f0e9df", borderRadius: "10px" }}>
+                <span style={{ fontSize: "11px", color: "#8c7a6b", fontWeight: "600" }}>DESCRIPTION</span>
+                <div style={{ fontSize: "13px", color: "#5c4d3c", marginTop: "2px" }}>
+                  {selectedCouponForView.description || "No description"}
+                </div>
+              </div>
+            </div>
+
+            {/* Corporate Section */}
+            {selectedCouponForView.isCompanyCoupon && (
+              <div style={{ 
+                backgroundColor: "#fffdfa", 
+                border: "1px solid rgba(217, 184, 133, 0.4)", 
+                borderRadius: "14px", 
+                padding: "18px 20px",
+                marginBottom: "20px"
+              }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "14px", borderBottom: "1px solid rgba(217, 184, 133, 0.2)", paddingBottom: "10px" }}>
+                  <Building2 size={16} style={{ color: "#b28e46" }} />
+                  <span style={{ fontSize: "13px", fontWeight: "800", color: "#1a150e" }}>
+                    Company & Portal Access Credentials
+                  </span>
+                </div>
+
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px", marginBottom: "16px" }}>
+                  <div>
+                    <span style={{ fontSize: "11px", color: "#8c7a6b", fontWeight: "600" }}>COMPANY NAME</span>
+                    <div style={{ fontSize: "16px", fontWeight: "750", color: "#047857", marginTop: "2px" }}>
+                      {selectedCouponForView.companyName}
+                    </div>
+                  </div>
+
+                  <div>
+                    <span style={{ fontSize: "11px", color: "#8c7a6b", fontWeight: "600" }}>EMAIL QUOTA LIMIT</span>
+                    <div style={{ fontSize: "15px", fontWeight: "750", color: "#1a150e", marginTop: "2px" }}>
+                      {selectedCouponForView.allowedEmails?.length || 0} / {selectedCouponForView.maxEmails || 50} emails
+                    </div>
+                  </div>
+                </div>
+
+                {/* Credentials Box */}
+                <div style={{ backgroundColor: "#ffffff", border: "1px solid #e5dccf", borderRadius: "10px", padding: "14px 16px", marginBottom: "16px" }}>
+                  <div style={{ fontSize: "12px", fontWeight: "700", color: "#b28e46", marginBottom: "10px" }}>
+                    HR Self-Service Portal Login Credentials
+                  </div>
+                  
+                  <div style={{ display: "flex", flexDirection: "column", gap: "8px", fontSize: "13px" }}>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                      <span style={{ color: "#8c7a6b" }}>Portal URL:</span>
+                      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                        <code style={{ backgroundColor: "#faf7f0", padding: "2px 8px", borderRadius: "4px", fontSize: "12px" }}>
+                          {typeof window !== "undefined" ? `${window.location.origin}/company-portal` : "/company-portal"}
+                        </code>
+                        <a 
+                          href="/company-portal" 
+                          target="_blank" 
+                          rel="noreferrer"
+                          style={{ color: "#b28e46", display: "flex", alignItems: "center" }}
+                          title="Open Company Portal"
+                        >
+                          <ExternalLink size={14} />
+                        </a>
+                      </div>
+                    </div>
+
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                      <span style={{ color: "#8c7a6b" }}>Company Portal User ID:</span>
+                      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                        <code style={{ fontWeight: "700", backgroundColor: "#faf7f0", padding: "2px 8px", borderRadius: "4px" }}>
+                          {selectedCouponForView.portalUsername}
+                        </code>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            navigator.clipboard.writeText(selectedCouponForView.portalUsername || "");
+                            setCopiedModalField("username");
+                            setTimeout(() => setCopiedModalField(null), 2000);
+                          }}
+                          style={{ background: "none", border: "none", cursor: "pointer", color: "#8c7a6b", padding: "2px" }}
+                          title="Copy User ID"
+                        >
+                          {copiedModalField === "username" ? <Check size={14} style={{ color: "#10b981" }} /> : <Copy size={14} />}
+                        </button>
+                      </div>
+                    </div>
+
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                      <span style={{ color: "#8c7a6b" }}>Portal Password:</span>
+                      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                        <code style={{ fontWeight: "700", backgroundColor: "#faf7f0", padding: "2px 8px", borderRadius: "4px" }}>
+                          {showModalPassword ? selectedCouponForView.portalPassword : "••••••••"}
+                        </code>
+                        <button
+                          type="button"
+                          onClick={() => setShowModalPassword(!showModalPassword)}
+                          style={{ background: "none", border: "none", cursor: "pointer", color: "#8c7a6b", padding: "2px" }}
+                          title={showModalPassword ? "Hide password" : "Show password"}
+                        >
+                          {showModalPassword ? <EyeOff size={14} /> : <Eye size={14} />}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            navigator.clipboard.writeText(selectedCouponForView.portalPassword || "");
+                            setCopiedModalField("password");
+                            setTimeout(() => setCopiedModalField(null), 2000);
+                          }}
+                          style={{ background: "none", border: "none", cursor: "pointer", color: "#8c7a6b", padding: "2px" }}
+                          title="Copy Password"
+                        >
+                          {copiedModalField === "password" ? <Check size={14} style={{ color: "#10b981" }} /> : <Copy size={14} />}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const portalUrl = typeof window !== "undefined" ? `${window.location.origin}/company-portal` : "https://legacybridge.in/company-portal";
+                      const msg = `🏢 Company: ${selectedCouponForView.companyName}\n🎟️ Exclusive Coupon Code: ${selectedCouponForView.code}\n🔗 HR Management Portal: ${portalUrl}\n👤 User ID: ${selectedCouponForView.portalUsername}\n🔑 Password: ${selectedCouponForView.portalPassword}\nQuota: ${selectedCouponForView.maxEmails || 50} employee emails\n\nInstructions: Log in to the portal above to whitelist employee emails who are eligible for this coupon.`;
+                      navigator.clipboard.writeText(msg);
+                      setCopiedModalField("all");
+                      setTimeout(() => setCopiedModalField(null), 2500);
+                    }}
+                    style={{
+                      marginTop: "12px",
+                      width: "100%",
+                      padding: "8px 12px",
+                      backgroundColor: "#faf7f0",
+                      border: "1px solid rgba(217, 184, 133, 0.4)",
+                      borderRadius: "6px",
+                      fontSize: "12px",
+                      fontWeight: "700",
+                      color: "#b28e46",
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: "6px"
+                    }}
+                  >
+                    {copiedModalField === "all" ? <Check size={14} style={{ color: "#10b981" }} /> : <Copy size={14} />}
+                    <span>{copiedModalField === "all" ? "✓ All Portal Info Copied to Clipboard!" : "📋 Copy Complete HR Login Message"}</span>
+                  </button>
+                </div>
+
+                {/* Whitelisted Emails */}
+                <div>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "8px" }}>
+                    <span style={{ fontSize: "11px", color: "#8c7a6b", fontWeight: "700" }}>
+                      AUTHORIZED EMPLOYEE EMAILS ({selectedCouponForView.allowedEmails?.length || 0})
+                    </span>
+                  </div>
+
+                  {(!selectedCouponForView.allowedEmails || selectedCouponForView.allowedEmails.length === 0) ? (
+                    <div style={{ fontSize: "12px", color: "#8c7a6b", fontStyle: "italic", backgroundColor: "#faf7f0", padding: "10px 12px", borderRadius: "8px", border: "1px dashed #dcd1c4" }}>
+                      No employee emails added yet. The company HR can log into the portal to add up to {selectedCouponForView.maxEmails || 50} emails.
+                    </div>
+                  ) : (
+                    <div style={{ 
+                      maxHeight: "130px", 
+                      overflowY: "auto", 
+                      backgroundColor: "#ffffff", 
+                      border: "1px solid #e5dccf", 
+                      borderRadius: "8px", 
+                      padding: "8px 10px",
+                      display: "flex",
+                      flexWrap: "wrap",
+                      gap: "6px"
+                    }}>
+                      {selectedCouponForView.allowedEmails.map((em: string, idx: number) => (
+                        <span key={idx} style={{ 
+                          fontSize: "11px", 
+                          backgroundColor: "#faf7f0", 
+                          border: "1px solid #dcd1c4", 
+                          padding: "3px 8px", 
+                          borderRadius: "12px",
+                          color: "#1a150e",
+                          fontWeight: "500"
+                        }}>
+                          {em}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Modal Actions */}
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: "10px", paddingTop: "12px", borderTop: "1px solid #f0e9df" }}>
+              {selectedCouponForView.status === "active" && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    handleDeleteCoupon(selectedCouponForView._id);
+                    setSelectedCouponForView(null);
+                  }}
+                  style={{
+                    backgroundColor: "rgba(239, 68, 68, 0.08)",
+                    border: "1px solid rgba(239, 68, 68, 0.3)",
+                    color: "#ef4444",
+                    padding: "8px 16px",
+                    borderRadius: "8px",
+                    cursor: "pointer",
+                    fontSize: "13px",
+                    fontWeight: "600"
+                  }}
+                >
+                  Deactivate Coupon
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedCouponForView(null);
+                  setShowModalPassword(false);
+                }}
+                style={{
+                  backgroundColor: "#b28e46",
+                  border: "none",
+                  color: "#1a150e",
+                  padding: "8px 20px",
+                  borderRadius: "8px",
+                  cursor: "pointer",
+                  fontSize: "13px",
+                  fontWeight: "700"
+                }}
+              >
+                Close
+              </button>
+            </div>
           </div>
         </div>
       )}
